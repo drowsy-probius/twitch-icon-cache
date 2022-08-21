@@ -122,7 +122,7 @@ const saveImage = (dccon: IconFunzinnu, savePath: string): Promise<boolean> => {
       /**
        * sleep 해서 타겟 서버 부하 줄이기?
        */
-      await sleep(Math.random() * 5000);
+      await sleep(Math.random() * 1000);
       const writer = fs.createWriteStream(savePath);
       /**
        * 어떤 주소는 한글이 포함되어 있고 어떤 주소는 한글이 이미 encode된 것이 있어서
