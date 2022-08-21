@@ -41,54 +41,53 @@ const processJsonData = (jsonData: IconIndexFunzinnu): Promise<IconIndexFunzinnu
   return new Promise(async (resolve, reject) => {
     try
     {
-      const newDcConsData = await Promise.all(jsonData.dcConsData.map((dccon, index, arr): Promise<IconFunzinnu> => {
-        return new Promise(async (resolve, reject) => {
-          const dcconName = `${dccon.keywords[0]}.${dccon.uri.split('.').pop()}`
-          const newDcCon: IconFunzinnu = {
-            name: dcconName,
-            uri: `${basePath}/${dcconName}`,
-            keywords: dccon.keywords,
-            tags: dccon.tags,
-            use_origin: false,
-            origin_uri: dccon.uri
-          };
-          
-          let saveImageRetries = 0;
-          let saveImageError = undefined;
-          do 
+      const newDcConsData = await Promise.all(jsonData.dcConsData.map(async (dccon, index, arr): Promise<IconFunzinnu> => {
+        const dcconName = `${dccon.keywords[0]}.${dccon.uri.split('.').pop()}`
+        const newDcCon: IconFunzinnu = {
+          name: dcconName,
+          uri: `${basePath}/${dcconName}`,
+          keywords: dccon.keywords,
+          tags: dccon.tags,
+          use_origin: false,
+          origin_uri: dccon.uri
+        };
+        
+        let saveImageRetries = 0;
+        let saveImageError = undefined;
+        do 
+        {
+          try 
           {
-            try 
+            await saveImage(dccon, newDcCon.uri);
+            if(saveImageRetries > 0)
             {
-              await saveImage(dccon, newDcCon.uri);
-              if(saveImageRetries > 0)
-              {
-                logger.info(`try#${saveImageRetries} - ${dccon.uri} - ${newDcCon.uri} : success!`);
-              }
-              break;
+              logger.info(`try#${saveImageRetries} - ${dccon.uri} - ${newDcCon.uri} : success!`);
             }
-            catch(err)
-            {
-              logger.error(`try#${saveImageRetries} - ${dccon.uri} - ${newDcCon.uri} : ${err}`);
-              saveImageRetries += 1;
-              saveImageError = err;
-            }
+            break;
           }
-          while(saveImageRetries < MAX_RETRY)
+          catch(err)
+          {
+            logger.error(`try#${saveImageRetries} - ${dccon.uri} - ${newDcCon.uri} : ${err}`);
+            saveImageRetries += 1;
+            saveImageError = err;
+          }
+        }
+        while(saveImageRetries < MAX_RETRY)
 
-          if(saveImageRetries < MAX_RETRY)
-          {
-            resolve(newDcCon);
-          }
-          else 
-          {
-            logger.error(saveImageError);
-            logger.error(dccon);
-            resolve({
-              ...newDcCon,
-              use_origin: true
-            });
-          }
-        });   
+        if(saveImageRetries < MAX_RETRY)
+        {
+          return newDcCon;
+        }
+        else 
+        {
+          logger.error(saveImageError);
+          logger.error(dccon);
+          logger.error(`use origin uri`)
+          return {
+            ...newDcCon,
+            use_origin: true
+          };
+        }
       }));
 
       const failedListJson: {[key: string]: IconFunzinnu} = {};
