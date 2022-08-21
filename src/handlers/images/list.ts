@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { resolve } from "path";
+import { INDEX_FILE } from "../../constants";
 import fs from "fs";
 
 import Logger from "../../logger";
@@ -10,7 +11,7 @@ const handler = (req: Request, res: Response, next: NextFunction) => {
   const streamer = req.params.streamer;
   // const requestedURL = `${req.protocol}://${req.get("Host")}${req.originalUrl}`;
   const requestedURL = `${req.protocol}://${req.get("Host")}`;
-  const jsonPath = resolve(`./images/${streamer}/index.json`);
+  const jsonPath = resolve(`./images/${streamer}/${INDEX_FILE}`);
 
   if(!fs.existsSync(jsonPath))
   {

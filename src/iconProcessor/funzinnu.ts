@@ -3,7 +3,7 @@ import fs from "fs";
 import { resolve } from "path";
 
 import { IconFunzinnu, IconIndexFunzinnu, IconProcessorFunction, StreamerData } from "../@types/interfaces"
-
+import { INDEX_FILE, FAILED_LIST_FILE } from "../constants";
 import { sleep } from "../functions";
 
 import Logger from "../logger";
@@ -26,16 +26,14 @@ const handler: IconProcessorFunction = async (streamer: StreamerData) => {
     }
     const newJsonData = await processJsonData(jsonData);
     logger.info(`Download Funzinnu's Icons done! -> ${basePath}`);
-    await saveJsonIndex(newJsonData, `${basePath}/index.json`);
-    logger.info(`Save Funzinnu's Index done! -> ${basePath}/index.json`);
+    await saveJsonIndex(newJsonData, `${basePath}/${INDEX_FILE}`);
+    logger.info(`Save Funzinnu's Index done! -> ${basePath}/${INDEX_FILE}`);
   }
   catch(err)
   {
     logger.error(err);
   }  
 }
-
-
 
 
 
@@ -91,6 +89,17 @@ const processJsonData = (jsonData: IconIndexFunzinnu): Promise<IconIndexFunzinnu
         });   
       }));
 
+      const failedListJson: {[key: string]: IconFunzinnu} = {};
+      for(const dccon of newDcConsData)
+      {
+        if(dccon.use_origin)
+        {
+          failedListJson[dccon.name] = dccon;
+        }
+      }
+      await saveJsonIndex(failedListJson, `${basePath}/${FAILED_LIST_FILE}`);
+      logger.info(`Save Funzinnu's failed index done! -> ${basePath}/${FAILED_LIST_FILE}`);
+
       resolve({
         ...jsonData,
         dcConsData: newDcConsData,
@@ -112,6 +121,12 @@ const saveImage = (dccon: IconFunzinnu, savePath: string): Promise<boolean> => {
        * sleep 해서 타겟 서버 부하 줄이기?
        */
       await sleep(Math.random() * 5000);
+
+      // if(Math.random() > 0.9)
+      // {
+      //   throw new Error("test error")
+      // }
+
       const writer = fs.createWriteStream(savePath);
       /**
        * 어떤 주소는 한글이 포함되어 있고 어떤 주소는 한글이 이미 encode된 것이 있어서
@@ -123,7 +138,7 @@ const saveImage = (dccon: IconFunzinnu, savePath: string): Promise<boolean> => {
       res.data.pipe(writer);
 
       writer.on("finish", ()=>{
-        // logger.info(`Download image from ${dccon.uri} to ${savePath}`);
+        logger.debug(`Download image from ${dccon.uri} to ${savePath}`);
         resolve(true);
       });
       writer.on("error", reject);
@@ -135,7 +150,7 @@ const saveImage = (dccon: IconFunzinnu, savePath: string): Promise<boolean> => {
   });
 }
 
-const saveJsonIndex = (jsonData: IconIndexFunzinnu, savePath: string) => {
+const saveJsonIndex = (jsonData: any, savePath: string) => {
   return new Promise(async (resolve, reject) => {
     try
     {
