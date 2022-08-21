@@ -4,7 +4,7 @@ import { resolve } from "path";
 
 import { IconFunzinnu, IconIndexFunzinnu, IconProcessorFunction, StreamerData } from "../@types/interfaces"
 
-import { sleep, tryMax } from "../functions";
+import { sleep } from "../functions";
 
 import Logger from "../logger";
 const logger = Logger(module.filename);
@@ -54,27 +54,37 @@ const processJsonData = (jsonData: IconIndexFunzinnu): Promise<IconIndexFunzinnu
             use_origin: false,
             origin_uri: dccon.uri
           };
-
-          try 
+          
+          let saveImageRetries = 0;
+          let saveImageError = undefined;
+          do 
           {
-            await tryMax(() => {
-              return saveImage(dccon, newDcCon.uri)
-            }, 1, 3, (err) => {
-              logger.error(err);
-              logger.error(dccon);
-            });
-          }
-          catch(err)
-          {
-            logger.error(err);
-            logger.error(dccon);
-            resolve({
-              ...newDcCon,
-              use_origin: true
-            })
-          }
+            try 
+            {
+              await saveImage(dccon, newDcCon.uri);
 
-          resolve(newDcCon);
+              if(saveImageRetries > 0)
+              {
+                logger.info(`try#${saveImageRetries} - ${dccon.uri} - ${newDcCon.uri} : success!`);
+              }
+              resolve(newDcCon);
+            }
+            catch(err)
+            {
+              saveImageRetries += 1;
+              saveImageError = err;
+              logger.error(`try#${saveImageRetries} - ${dccon.uri} - ${newDcCon.uri} : ${err}`);
+            }
+          }
+          while(saveImageRetries < 3)
+
+          logger.error(saveImageError);
+          logger.error(dccon);
+          resolve({
+            ...newDcCon,
+            use_origin: true
+          });
+
         });   
       }));
 
@@ -90,7 +100,8 @@ const processJsonData = (jsonData: IconIndexFunzinnu): Promise<IconIndexFunzinnu
   });
 }
 
-const saveImage = (dccon: IconFunzinnu, savePath: string) => {
+
+const saveImage = (dccon: IconFunzinnu, savePath: string): Promise<boolean> => {
   return new Promise(async (resolve, reject) => {
     try
     {
@@ -109,12 +120,10 @@ const saveImage = (dccon: IconFunzinnu, savePath: string) => {
       res.data.pipe(writer);
 
       writer.on("finish", ()=>{
-        logger.info(`Download image from ${dccon.uri} to ${savePath}`);
+        // logger.info(`Download image from ${dccon.uri} to ${savePath}`);
         resolve(true);
       });
-      writer.on("error", async (err)=>{
-        reject(err);
-      });
+      writer.on("error", reject);
     }
     catch(err)
     {
