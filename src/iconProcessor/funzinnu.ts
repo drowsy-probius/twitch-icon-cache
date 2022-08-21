@@ -4,7 +4,7 @@ import { resolve } from "path";
 
 import { IconFunzinnu, IconIndexFunzinnu, IconProcessorFunction, StreamerData } from "../@types/interfaces"
 
-import { sleep } from "../functions";
+import { sleep, tryMax } from "../functions";
 
 import Logger from "../logger";
 const logger = Logger(module.filename);
@@ -35,6 +35,10 @@ const handler: IconProcessorFunction = async (streamer: StreamerData) => {
   }  
 }
 
+
+
+
+
 const processJsonData = (jsonData: IconIndexFunzinnu): Promise<IconIndexFunzinnu> => {
   return new Promise(async (resolve, reject) => {
     try
@@ -53,7 +57,12 @@ const processJsonData = (jsonData: IconIndexFunzinnu): Promise<IconIndexFunzinnu
 
           try 
           {
-            await saveImage(dccon, newDcCon.uri);
+            await tryMax(() => {
+              return saveImage(dccon, newDcCon.uri)
+            }, 1, 3, (err) => {
+              logger.error(err);
+              logger.error(dccon);
+            });
           }
           catch(err)
           {
@@ -81,7 +90,7 @@ const processJsonData = (jsonData: IconIndexFunzinnu): Promise<IconIndexFunzinnu
   });
 }
 
-const saveImage = (dccon: IconFunzinnu, savePath: string, tries=1) => {
+const saveImage = (dccon: IconFunzinnu, savePath: string) => {
   return new Promise(async (resolve, reject) => {
     try
     {
@@ -100,27 +109,16 @@ const saveImage = (dccon: IconFunzinnu, savePath: string, tries=1) => {
       res.data.pipe(writer);
 
       writer.on("finish", ()=>{
-        // logger.info(`Download image from ${dccon.uri} to ${savePath}`);
+        logger.info(`Download image from ${dccon.uri} to ${savePath}`);
         resolve(true);
       });
       writer.on("error", async (err)=>{
-        if(tries > 3) 
-        {
-          // fs.rmSync(savePath);
-          reject(err);
-        }
-        logger.error(`try#${tries} - ${dccon.uri} - ${savePath} : ${err}`);
-        await saveImage(dccon, savePath, tries+1);
+        reject(err);
       });
     }
     catch(err)
     {
-      if(tries > 3) 
-      {
-        reject(err);
-      }
-      logger.error(`try#${tries} - ${dccon.uri} - ${savePath} : ${err}`);
-      await saveImage(dccon, savePath, tries+1);
+      reject(err);
     }
   });
 }

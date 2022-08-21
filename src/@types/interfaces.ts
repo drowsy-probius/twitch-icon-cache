@@ -5,6 +5,12 @@ export interface StreamerData {
 
 export type IconProcessorFunction = (streamer: StreamerData) => void;
 
+export type PromiseFunction = (...any: any) => Promise<unknown>
+
+export type AnyFunction = (...any: any) => any;
+
+export type Executable = PromiseFunction | AnyFunction;
+
 export interface IconProcessorFunctionList {
   [key: string]: IconProcessorFunction
 }
