@@ -14,7 +14,7 @@ const basePath = resolve("./images/funzinnu");
 const handler: IconProcessorFunction = async (streamer: StreamerData) => {
   logger.info(`Download icons for ${streamer.name} with ${streamer.url}`);
 
-  if(!fs.existsSync(basePath)) fs.mkdirSync(basePath);
+  if(!fs.existsSync(basePath)) fs.mkdirSync(basePath, {recursive: true});
   
   try
   {
