@@ -60,12 +60,10 @@ const processJsonData = (jsonData: IconIndexFunzinnu): Promise<IconIndexFunzinnu
             try 
             {
               await saveImage(dccon, newDcCon.uri);
-
               if(saveImageRetries > 0)
               {
                 logger.info(`try#${saveImageRetries} - ${dccon.uri} - ${newDcCon.uri} : success!`);
               }
-              resolve(newDcCon);
               break;
             }
             catch(err)
@@ -77,7 +75,11 @@ const processJsonData = (jsonData: IconIndexFunzinnu): Promise<IconIndexFunzinnu
           }
           while(saveImageRetries < MAX_RETRY)
 
-          if(saveImageRetries >= MAX_RETRY)
+          if(saveImageRetries < MAX_RETRY)
+          {
+            resolve(newDcCon);
+          }
+          else 
           {
             logger.error(saveImageError);
             logger.error(dccon);
@@ -86,8 +88,6 @@ const processJsonData = (jsonData: IconIndexFunzinnu): Promise<IconIndexFunzinnu
               use_origin: true
             });
           }
-
-          reject(`unknown error? retries#${saveImageRetries} ${dccon} ${saveImageRetries}`);
         });   
       }));
 
