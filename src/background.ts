@@ -1,7 +1,7 @@
 import { resolve } from "path";
 import fs from "fs";
 
-import { CACHE_TIME } from "./constants";
+import { CACHE_TIME, INDEX_FILE } from "./constants";
 import { STREAMER_DATA } from "./data";
 import { timeParser } from "./functions";
 import { IconIndex, StreamerData } from "./@types/interfaces";
@@ -35,7 +35,7 @@ class Cronjob
     logger.info(`execute cronjob on ${(new Date()).toString()}`);
 
     STREAMER_DATA.forEach(streamer => {
-      const jsonPath = resolve(`./images/${streamer.name}/index.json`);
+      const jsonPath = resolve(`./images/${streamer.name}/${INDEX_FILE}`);
       if(fs.existsSync(jsonPath))
       {
         const data = fs.readFileSync(jsonPath, "utf8");

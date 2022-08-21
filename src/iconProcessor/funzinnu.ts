@@ -3,7 +3,7 @@ import fs from "fs";
 import { resolve } from "path";
 
 import { IconFunzinnu, IconIndexFunzinnu, IconProcessorFunction, StreamerData } from "../@types/interfaces"
-import { INDEX_FILE, FAILED_LIST_FILE } from "../constants";
+import { MAX_RETRY, INDEX_FILE, FAILED_LIST_FILE } from "../constants";
 import { sleep } from "../functions";
 
 import Logger from "../logger";
@@ -12,7 +12,7 @@ const logger = Logger(module.filename);
 const basePath = resolve("./images/funzinnu");
 
 const handler: IconProcessorFunction = async (streamer: StreamerData) => {
-  logger.info(`Download icons for ${streamer.name} with ${streamer.url}`);
+  logger.info(`Downloading icons for ${streamer.name} from ${streamer.url}`);
 
   if(!fs.existsSync(basePath)) fs.mkdirSync(basePath, {recursive: true});
   
@@ -75,9 +75,9 @@ const processJsonData = (jsonData: IconIndexFunzinnu): Promise<IconIndexFunzinnu
               logger.error(`try#${saveImageRetries} - ${dccon.uri} - ${newDcCon.uri} : ${err}`);
             }
           }
-          while(saveImageRetries < 3)
+          while(saveImageRetries < MAX_RETRY)
 
-          if(saveImageRetries >= 3)
+          if(saveImageRetries >= MAX_RETRY)
           {
             logger.error(saveImageError);
             logger.error(dccon);
@@ -121,12 +121,6 @@ const saveImage = (dccon: IconFunzinnu, savePath: string): Promise<boolean> => {
        * sleep 해서 타겟 서버 부하 줄이기?
        */
       await sleep(Math.random() * 5000);
-
-      // if(Math.random() > 0.9)
-      // {
-      //   throw new Error("test error")
-      // }
-
       const writer = fs.createWriteStream(savePath);
       /**
        * 어떤 주소는 한글이 포함되어 있고 어떤 주소는 한글이 이미 encode된 것이 있어서

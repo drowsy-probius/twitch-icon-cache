@@ -1,4 +1,4 @@
-out
+dist
 node_modules
 .vscode
 
@@ -6,3 +6,4 @@ log/*
 images/*
 
 yarn.lock 
+package-lock.json
