@@ -4,7 +4,6 @@ import { resolve } from "path";
 
 import { IconFunzinnu, IconIndexFunzinnu, IconProcessorFunction, StreamerData } from "../@types/interfaces"
 
-import { DATABASE } from "../constants";
 import { sleep } from "../functions";
 
 import Logger from "../logger";

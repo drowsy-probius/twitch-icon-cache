@@ -1,5 +1,5 @@
-import sqlite3 from "sqlite3";
-import { DATABASE, CACHE_TIME } from "./constants";
+import { CACHE_TIME } from "./constants";
+import { STREAMER_DATA } from "./data";
 import { timeParser } from "./functions";
 import { StreamerData } from "./@types/interfaces";
 import processorFunctions from "./iconProcessor";
@@ -31,25 +31,8 @@ class Cronjob
   {
     logger.info(`execute cronjob on ${(new Date()).toString()}`)
 
-    this.getStreamersFromDatabase()
-    .then((streamers: StreamerData[]) => {
-      streamers.forEach(streamer => {
-        this.fetchDataForStreamer(streamer);
-      });
-    })
-    .catch(err => {
-      logger.error(err);
-    })
-  }
-
-  async getStreamersFromDatabase(): Promise<StreamerData[]>
-  {
-    return new Promise((resolve, reject) => {
-      const db = new sqlite3.Database(DATABASE);
-      db.all("SELECT * FROM streamers;", (err: any, rows: StreamerData[]) => {
-        if(err) reject(err);
-        resolve(rows);
-      });
+    STREAMER_DATA.forEach(streamer => {
+      this.fetchDataForStreamer(streamer);
     });
   }
 

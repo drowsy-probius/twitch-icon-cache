@@ -2,12 +2,10 @@ import express, {Request, Response, NextFunction} from 'express';
 
 import router from "./router";
 import { PORT, HOST } from './constants';
-import { init_db } from './functions';
 import { run_cronjob } from './background';
 import Logger from "./logger";
 const logger = Logger(module.filename);
 
-init_db();
 run_cronjob();
 
 const app = express();
