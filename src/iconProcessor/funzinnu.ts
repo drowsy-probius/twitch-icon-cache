@@ -70,9 +70,9 @@ const processJsonData = (jsonData: IconIndexFunzinnu): Promise<IconIndexFunzinnu
             }
             catch(err)
             {
+              logger.error(`try#${saveImageRetries} - ${dccon.uri} - ${newDcCon.uri} : ${err}`);
               saveImageRetries += 1;
               saveImageError = err;
-              logger.error(`try#${saveImageRetries} - ${dccon.uri} - ${newDcCon.uri} : ${err}`);
             }
           }
           while(saveImageRetries < MAX_RETRY)
