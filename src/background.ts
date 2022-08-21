@@ -1,7 +1,10 @@
+import { resolve } from "path";
+import fs from "fs";
+
 import { CACHE_TIME } from "./constants";
 import { STREAMER_DATA } from "./data";
 import { timeParser } from "./functions";
-import { StreamerData } from "./@types/interfaces";
+import { IconIndex, StreamerData } from "./@types/interfaces";
 import processorFunctions from "./iconProcessor";
 
 import Logger from "./logger";
@@ -24,24 +27,38 @@ class Cronjob
     this.cacheTime = timeParser(CACHE_TIME);
 
     this.job()
-    this.timerIdentifier = setInterval(this.job, timeParser("1d"));
+    this.timerIdentifier = setInterval(this.job, this.cacheTime);
   }
 
   async job()
   {
-    logger.info(`execute cronjob on ${(new Date()).toString()}`)
+    logger.info(`execute cronjob on ${(new Date()).toString()}`);
 
     STREAMER_DATA.forEach(streamer => {
+      const jsonPath = resolve(`./images/${streamer.name}/index.json`);
+      if(fs.existsSync(jsonPath))
+      {
+        const data = fs.readFileSync(jsonPath, "utf8");
+        const json: IconIndex = JSON.parse(data);
+        const timestamp = json.timestamp;
+
+        if((Date.now() - timestamp) <= this.cacheTime)
+        {
+          logger.info(`${streamer.name}'s data is up-to-date. Skip downloading...`);
+          return;
+        }
+      }
+
       this.fetchDataForStreamer(streamer);
     });
   }
 
   fetchDataForStreamer(streamer: StreamerData)
   {
-    /** */
-    logger.info(`this function (fetchDataForStreamer()) disabled manually for development. uncomment this when production`);
-    return;
-    /** */
+    // /** */
+    // logger.info(`this function (fetchDataForStreamer()) disabled manually for development. uncomment this when production`);
+    // return;
+    // /** */
 
     processorFunctions[streamer.name](streamer);
   }

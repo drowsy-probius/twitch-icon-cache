@@ -8,6 +8,8 @@ export const timeParser = (timeString: string, miliseconds=true) => {
   {
     case("M"):
       return value * 30 * 24 * 60 * 60 * multiplier;
+    case("w"):
+      return value * 7 * 24 * 60 * 60 * multiplier;
     case("d"):
       return value * 24 * 60 * 60 * multiplier;
     case("h"):
