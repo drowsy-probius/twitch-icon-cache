@@ -42,7 +42,7 @@ const processJsonData = (jsonData: IconIndexFunzinnu): Promise<IconIndexFunzinnu
     try
     {
       const newDcConsData = await Promise.all(jsonData.dcConsData.map((dccon, index, arr): Promise<IconFunzinnu> => {
-        return new Promise(async (resolve, _) => {
+        return new Promise(async (resolve, reject) => {
           const dcconName = `${dccon.keywords[0]}.${dccon.uri.split('.').pop()}`
           const newDcCon: IconFunzinnu = {
             name: dcconName,
@@ -86,6 +86,8 @@ const processJsonData = (jsonData: IconIndexFunzinnu): Promise<IconIndexFunzinnu
               use_origin: true
             });
           }
+
+          reject(`unknown error? retries#${saveImageRetries} ${dccon} ${saveImageRetries}`);
         });   
       }));
 
