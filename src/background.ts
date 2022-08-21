@@ -3,6 +3,7 @@ import { DATABASE, CACHE_TIME } from "./constants";
 import { timeParser } from "./functions";
 import { StreamerData } from "./@types/interfaces";
 import processorFunctions from "./iconProcessor";
+
 import Logger from "./logger";
 const logger = Logger(module.filename);
 
@@ -32,10 +33,9 @@ class Cronjob
 
     this.getStreamersFromDatabase()
     .then((streamers: StreamerData[]) => {
-      for(const streamer of streamers)
-      {
+      streamers.forEach(streamer => {
         this.fetchDataForStreamer(streamer);
-      }
+      });
     })
     .catch(err => {
       logger.error(err);
@@ -45,27 +45,21 @@ class Cronjob
   async getStreamersFromDatabase(): Promise<StreamerData[]>
   {
     return new Promise((resolve, reject) => {
-      const streamers: StreamerData[] = [];
       const db = new sqlite3.Database(DATABASE);
-      db.each("SELECT * FROM streamers;", (err, row) => {
-        if(err)
-        {
-          reject(err);
-        }
-
-        streamers.push({
-          name: row["name"],
-          url: row["url"],
-        });
-      })
-      db.close();
-
-      resolve(streamers);
+      db.all("SELECT * FROM streamers;", (err: any, rows: StreamerData[]) => {
+        if(err) reject(err);
+        resolve(rows);
+      });
     });
   }
 
   fetchDataForStreamer(streamer: StreamerData)
   {
+    /** */
+    logger.info(`this function (fetchDataForStreamer()) disabled manually for development. uncomment this when production`);
+    return;
+    /** */
+
     processorFunctions[streamer.name](streamer);
   }
 }

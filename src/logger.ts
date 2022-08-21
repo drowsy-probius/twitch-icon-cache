@@ -11,7 +11,7 @@ export default (meta_url: string) => {
   const file_path = meta_url.replace(root, ".");
 
   const customFormat = printf(({ level, message, timestamp, stack }) => {
-    return `${timestamp} [${level}] ${file_path}: ${stack || message}`;
+    return `${timestamp} [${level}] ${file_path}: ${stack || typeof(message) === "object" ? JSON.stringify(message) : message}`;
   });
 
   const loggerInstance = createLogger({

@@ -20,9 +20,5 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 app.use(router);
 
 app.listen(PORT, HOST, () => {
-    logger.info(`
-  ################################################
-  🛡️  Server listening on ${HOST}:${PORT}
-  ################################################
-`);
+    logger.info(`Server listening on ${HOST}:${PORT}`);
 });

@@ -22,6 +22,10 @@ export const timeParser = (timeString: string, miliseconds=true) => {
   return multiplier;
 }
 
+export const sleep = (time: number) => {
+  return new Promise(resolve => setTimeout(resolve, time));
+}
+
 export const init_db = async () => {
   const db = new sqlite3.Database(DATABASE);
   makeTables(db);
