@@ -10,6 +10,7 @@ run_cronjob();
 
 const app = express();
 
+app.enable('trust proxy');
 app.use((req: Request, res: Response, next: NextFunction) => {
   const ip = req.headers["x-real-ip"] || req.ip;
   logger.info(`[${ip}] ${req.method} ${req.url}`);

@@ -1,17 +1,9 @@
-import { Router, Express, Request, Response, NextFunction } from "express";
+import { Router } from "express";
+import { iconHandler, listHandler, rootHandler } from "./handlers";
 
 const router = Router();
-
-router.get("/", (req: Request, res: Response, next: NextFunction) => {
-  res.send("404");
-});
-
-router.get("/list", (req: Request, res: Response, next: NextFunction) => {
-  res.send("list")
-});
-
-router.get("/icon/:streamer", (req: Request, res: Response, next: NextFunction) => {
-
-});
+router.get("/", rootHandler);
+router.get("/list", listHandler);
+router.use("/images/:streamer/", iconHandler);
 
 export default router;
