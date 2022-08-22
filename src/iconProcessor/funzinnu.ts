@@ -122,22 +122,17 @@ const saveImage = (dccon: IconFunzinnu, savePath: string): Promise<boolean> => {
        * sleep 해서 타겟 서버 부하 줄이기?
        */
       await sleep(Math.random() * 1000);
-      const writer = fs.createWriteStream(savePath);
       /**
        * 어떤 주소는 한글이 포함되어 있고 어떤 주소는 한글이 이미 encode된 것이 있어서
        * 한번 디코딩한 뒤에 인코딩하면 unescaped 에러 없이 요청이 가능함. 
        */
       const res = await axios.get(encodeURI(decodeURI(dccon.uri)), {
-        responseType: "stream",
-        timeout: 2000,
+        responseType: "arraybuffer",
       });
-      res.data.pipe(writer);
 
-      writer.on("finish", ()=>{
-        logger.debug(`Download image from ${dccon.uri} to ${savePath}`);
-        resolve(true);
-      });
-      writer.on("error", reject);
+      await fs.promises.writeFile(savePath, res.data);
+      logger.debug(`Download image from ${dccon.uri} to ${savePath}`);
+      resolve(true);
     }
     catch(err)
     {
