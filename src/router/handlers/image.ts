@@ -12,7 +12,7 @@ const basePath = resolve("./images")
 
 const handler = (req: Request, res: Response, next: NextFunction) => {
   const streamer = req.params.streamer;
-  const image = req.params.image;
+  const image = decodeURI(req.params.image);
   const imagePath = join(basePath, streamer, image);
 
   const ext = image.split('.').pop();
@@ -20,15 +20,7 @@ const handler = (req: Request, res: Response, next: NextFunction) => {
   {
     return res.status(404).json({
       status: false,
-      message: `That file is not image`
-    });
-  }
-
-  if(image.startsWith('.') || image.indexOf('/') !== -1 || image.indexOf('\\') !== -1)
-  {
-    return res.status(404).json({
-      status: false,
-      message: `DO NOT HACKING!!!`
+      message: `That file is not image ${image} -> ${ext}`
     });
   }
 
