@@ -1,4 +1,6 @@
 import { Executable, AnyFunction } from "./@types/interfaces";
+import fs from "fs";
+import sharp from "sharp";
 
 export const timeParser = (timeString: string, miliseconds=true) => {
   const unit = typeof(timeString.slice(-1)) === "string" ? timeString.slice(-1) : 's';
@@ -24,4 +26,12 @@ export const timeParser = (timeString: string, miliseconds=true) => {
 
 export const sleep = (time: number) => {
   return new Promise(resolve => setTimeout(resolve, time));
+}
+
+export const resizeImage = (inputPath: string, width: number): Promise<unknown> => {
+  const isGif = inputPath.endsWith("gif");
+
+  return isGif 
+  ? sharp(inputPath, {animated: true}).resize(width).gif().toBuffer()
+  : sharp(inputPath).resize(width).toBuffer()
 }

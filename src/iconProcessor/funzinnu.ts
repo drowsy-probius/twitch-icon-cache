@@ -42,7 +42,6 @@ const processJsonData = (jsonData: IconIndexFunzinnu): Promise<IconIndexFunzinnu
     try
     {
       const newDcConsData = await Promise.all(jsonData.dcConsData.map(async (dccon, index, arr): Promise<IconFunzinnu> => {
-        
         const dcconHash = createHash("md5").update(`${dccon.tags[0]}.${dccon.keywords[0]}`).digest('hex');
         const ext = dccon.uri.split('.').pop();
         const dcconExt = ext === undefined ? "jpg" : ext;
