@@ -129,6 +129,7 @@ const saveImage = (dccon: IconFunzinnu, savePath: string): Promise<boolean> => {
        */
       const res = await axios.get(encodeURI(decodeURI(dccon.uri)), {
         responseType: "stream",
+        timeout: 2000,
       });
       res.data.pipe(writer);
 
