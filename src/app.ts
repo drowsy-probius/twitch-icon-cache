@@ -14,7 +14,10 @@ const app = express();
 app.enable('trust proxy');
 app.use(cors());
 app.use((req: Request, res: Response, next: NextFunction) => {
-  const ip = req.headers["x-real-ip"] || req.ip;
+  const ip = req.headers['cf-connecting-ip'] || 
+              req.headers['x-forwarded-for'] || 
+              req.headers["x-real-ip"] || 
+              req.ip;
   logger.info(`[${ip}] ${req.method} ${req.url}`);
   next();
 });
