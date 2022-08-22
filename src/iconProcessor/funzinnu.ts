@@ -42,7 +42,7 @@ const processJsonData = (jsonData: IconIndexFunzinnu): Promise<IconIndexFunzinnu
     try
     {
       const newDcConsData = await Promise.all(jsonData.dcConsData.map(async (dccon, index, arr): Promise<IconFunzinnu> => {
-        const dcconName = `${dccon.keywords[0]}.${dccon.uri.split('.').pop()}`
+        const dcconName = `${dccon.tags[0]}.${dccon.keywords[0]}.${dccon.uri.split('.').pop()}`
         const newDcCon: IconFunzinnu = {
           name: dcconName,
           uri: `${basePath}/${dcconName}`,
