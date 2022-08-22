@@ -1,4 +1,5 @@
 import axios from "axios";
+import { createHash } from "crypto";
 import fs from "fs";
 import { resolve } from "path";
 
@@ -36,20 +37,23 @@ const handler: IconProcessorFunction = async (streamer: StreamerData) => {
 }
 
 
-
 const processJsonData = (jsonData: IconIndexFunzinnu): Promise<IconIndexFunzinnu> => {
   return new Promise(async (resolve, reject) => {
     try
     {
       const newDcConsData = await Promise.all(jsonData.dcConsData.map(async (dccon, index, arr): Promise<IconFunzinnu> => {
-        const dcconName = `${dccon.tags[0]}.${dccon.keywords[0]}.${dccon.uri.split('.').pop()}`
+        
+        const dcconHash = createHash("md5").update(`${dccon.tags[0]}.${dccon.keywords[0]}`).digest('hex');
+        const ext = dccon.uri.split('.').pop();
+        const dcconExt = ext === undefined ? "jpg" : ext;
         const newDcCon: IconFunzinnu = {
-          name: dcconName,
-          uri: `${basePath}/${dcconName}`,
+          name: dccon.name,
+          nameHash: dcconHash,
+          uri: `${basePath}/${dcconHash}.${dcconExt}`,
           keywords: dccon.keywords,
           tags: dccon.tags,
-          use_origin: false,
-          origin_uri: dccon.uri
+          useOrigin: false,
+          originUri: dccon.uri
         };
         
         let saveImageRetries = 0;
@@ -85,7 +89,7 @@ const processJsonData = (jsonData: IconIndexFunzinnu): Promise<IconIndexFunzinnu
           logger.error(`use origin uri`)
           return {
             ...newDcCon,
-            use_origin: true
+            useOrigin: true
           };
         }
       }));
@@ -93,9 +97,9 @@ const processJsonData = (jsonData: IconIndexFunzinnu): Promise<IconIndexFunzinnu
       const failedListJson: {[key: string]: IconFunzinnu} = {};
       for(const dccon of newDcConsData)
       {
-        if(dccon.use_origin)
+        if(dccon.useOrigin)
         {
-          failedListJson[dccon.name] = dccon;
+          failedListJson[dccon.nameHash || dccon.name] = dccon;
         }
       }
       await saveJsonIndex(failedListJson, `${basePath}/${FAILED_LIST_FILE}`);

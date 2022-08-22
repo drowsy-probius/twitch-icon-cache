@@ -31,7 +31,7 @@ const handler = (req: Request, res: Response, next: NextFunction) => {
   const failedListJson = JSON.parse(failedList);
   if(image in failedListJson)
   {
-    return res.status(302).redirect(failedListJson[image].origin_uri);
+    return res.status(302).redirect(failedListJson[image].originUri);
   }
 
 

@@ -20,8 +20,9 @@ export interface IconFunzinnu {
   uri: string, 
   keywords: string[],
   tags: string[],
-  use_origin?: boolean,
-  origin_uri?: string,
+  useOrigin?: boolean,
+  originUri?: string,
+  nameHash?: string,
 }
 
 export interface IconIndexFunzinnu extends JSON {
