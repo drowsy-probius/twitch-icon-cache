@@ -12,10 +12,10 @@ const basePath = resolve("./images")
 
 const handler = (req: Request, res: Response, next: NextFunction) => {
   const streamer = req.params.streamer;
-  const filename = req.params.filename;
-  const imagePath = join(basePath, streamer, filename);
+  const image = decodeURI(req.params.image);
+  const imagePath = join(basePath, streamer, image);
 
-  const ext = filename.split('.').pop();
+  const ext = image.split('.').pop();
   if(ext === undefined || !IMAGE.includes(ext))
   {
     return res.status(404).json({
@@ -24,7 +24,7 @@ const handler = (req: Request, res: Response, next: NextFunction) => {
     });
   }
 
-  if(filename.startsWith('.') || filename.indexOf('/') !== -1 || filename.indexOf('\\') !== -1)
+  if(image.startsWith('.') || image.indexOf('/') !== -1 || image.indexOf('\\') !== -1)
   {
     return res.status(404).json({
       status: false,
@@ -37,9 +37,9 @@ const handler = (req: Request, res: Response, next: NextFunction) => {
     "utf8"
   );
   const failedListJson = JSON.parse(failedList);
-  if(filename in failedListJson)
+  if(image in failedListJson)
   {
-    return res.status(302).redirect(failedListJson[filename].origin_uri);
+    return res.status(302).redirect(failedListJson[image].origin_uri);
   }
 
 
@@ -47,7 +47,7 @@ const handler = (req: Request, res: Response, next: NextFunction) => {
   {
     return res.status(404).json({
       status: false,
-      message: `there is no image for ${streamer}/${filename}`
+      message: `there is no image for ${streamer}/${image}`
     });
   }
 

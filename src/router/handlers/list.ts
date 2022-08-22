@@ -1,13 +1,20 @@
-import { Request, Response, NextFunction } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import { resolve } from "path";
-import { INDEX_FILE } from "../../constants";
 import fs from "fs";
 
-import Logger from "../../logger";
-const logger = Logger(module.filename);
+import { STREAMER_DATA } from "../../data";
+import { INDEX_FILE } from "../../constants";
+
+import checkStreamer from "./checkStreamer";
+
+const router = Router({mergeParams: true});
 const basePath = resolve(".");
 
-const handler = (req: Request, res: Response, next: NextFunction) => {
+const rootHandler = (req: Request, res: Response, next: NextFunction) => {
+  return res.status(200).json(STREAMER_DATA);
+}
+
+const listHandler = (req: Request, res: Response, next: NextFunction) => {
   const streamer = req.params.streamer;
   // const requestedURL = `${req.protocol}://${req.get("Host")}${req.originalUrl}`;
   const requestedURL = `${req.protocol}://${req.get("Host")}`;
@@ -37,4 +44,7 @@ const handler = (req: Request, res: Response, next: NextFunction) => {
   }
 }
 
-export default handler;
+router.get("/", rootHandler);
+router.get("/:streamer", checkStreamer, listHandler);
+
+export default router;
