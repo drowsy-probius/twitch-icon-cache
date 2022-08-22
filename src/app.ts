@@ -4,6 +4,7 @@ import cors from "cors";
 import router from "./router";
 import { PORT, HOST } from './constants';
 import { run_cronjob } from './background';
+import { getIpFromRequest, getRootFromRequest } from "./functions";
 import Logger from "./logger";
 const logger = Logger(module.filename);
 
@@ -14,11 +15,7 @@ const app = express();
 app.enable('trust proxy');
 app.use(cors());
 app.use((req: Request, res: Response, next: NextFunction) => {
-  const ip = req.headers['cf-connecting-ip'] || 
-              req.headers['x-forwarded-for'] || 
-              req.headers["x-real-ip"] || 
-              req.ip;
-  logger.info(`[${ip}] ${req.method} ${req.url}`);
+  logger.info(`[${getIpFromRequest(req)}] ${req.method} ${getRootFromRequest(req)}${req.url}`);
   next();
 });
 app.use(router);

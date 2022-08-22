@@ -1,5 +1,4 @@
-import { Executable, AnyFunction } from "./@types/interfaces";
-import fs from "fs";
+import { Request } from "express";
 import sharp from "sharp";
 
 export const timeParser = (timeString: string, miliseconds=true) => {
@@ -34,4 +33,17 @@ export const resizeImage = (inputPath: string, width: number): Promise<Buffer> =
   return isGif 
   ? sharp(inputPath, {animated: true}).resize(width).gif().toBuffer()
   : sharp(inputPath).resize(width).toBuffer()
+}
+
+export const getIpFromRequest = (req: Request) => {
+  return req.headers['cf-connecting-ip'] || 
+    req.headers['x-forwarded-for'] || 
+    req.headers["x-real-ip"] || 
+    req.ip;
+}
+
+export const getRootFromRequest = (req: Request) => {
+  const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+  const host = req.get("Host");
+  return `${protocol}://${host}`;
 }

@@ -4,6 +4,7 @@ import fs from "fs";
 
 import { STREAMER_DATA } from "../../data";
 import { INDEX_FILE } from "../../constants";
+import { getRootFromRequest } from "../../functions";
 
 import checkStreamer from "./checkStreamer";
 
@@ -17,7 +18,7 @@ const rootHandler = (req: Request, res: Response, next: NextFunction) => {
 const listHandler = (req: Request, res: Response, next: NextFunction) => {
   const streamer = req.params.streamer;
   // const requestedURL = `${req.protocol}://${req.get("Host")}${req.originalUrl}`;
-  const requestedURL = `${req.headers['x-forwarded-proto'] || req.protocol}://${req.get("Host")}`;
+  const requestedURL = getRootFromRequest(req);
   const jsonPath = resolve(`./images/${streamer}/${INDEX_FILE}`);
 
   if(!fs.existsSync(jsonPath))
