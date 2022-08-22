@@ -12,7 +12,7 @@ const basePath = resolve("./images")
 
 const handler = (req: Request, res: Response, next: NextFunction) => {
   const streamer = req.params.streamer;
-  const image = decodeURI(req.params.image);
+  const image = req.params.image;
   const imagePath = join(basePath, streamer, image);
 
   const ext = image.split('.').pop();
