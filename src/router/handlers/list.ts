@@ -17,7 +17,6 @@ const rootHandler = (req: Request, res: Response, next: NextFunction) => {
 
 const listHandler = (req: Request, res: Response, next: NextFunction) => {
   const streamer = req.params.streamer;
-  // const requestedURL = `${req.protocol}://${req.get("Host")}${req.originalUrl}`;
   const requestedURL = getRootFromRequest(req);
   const jsonPath = resolve(`./images/${streamer}/${INDEX_FILE}`);
 

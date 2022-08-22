@@ -43,7 +43,8 @@ export const getIpFromRequest = (req: Request) => {
 }
 
 export const getRootFromRequest = (req: Request) => {
-  const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+  const protocol = req.headers['x-forwarded-proto'] || 
+                    req.protocol;
   const host = req.get("Host");
   return `${protocol}://${host}`;
 }
