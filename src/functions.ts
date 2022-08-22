@@ -28,7 +28,7 @@ export const sleep = (time: number) => {
   return new Promise(resolve => setTimeout(resolve, time));
 }
 
-export const resizeImage = (inputPath: string, width: number): Promise<unknown> => {
+export const resizeImage = (inputPath: string, width: number): Promise<Buffer> => {
   const isGif = inputPath.endsWith("gif");
 
   return isGif 

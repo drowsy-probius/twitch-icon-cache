@@ -14,9 +14,10 @@ const basePath = resolve("./images")
 const handler = async (req: Request, res: Response, next: NextFunction) => {
   const streamer = req.params.streamer;
   const image = decodeURI(req.params.image);
-  const size = req.query.size;
+  const isSmall = ("small" in req.query);
 
   const imagePath = join(basePath, streamer, image);
+  const imagePathThumbnail = join(basePath, streamer, "thumbnail", image);
 
   const ext = image.split('.').pop();
   if(ext === undefined || !IMAGE.includes(ext))
@@ -46,24 +47,10 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
     });
   }
 
-  if(size !== undefined)
-  {
-    try 
-    {
-      const buffer = await resizeImage(imagePath, Number(size));
-      return res.status(200).contentType(`image/${ext}`).send(buffer);
-    }
-    catch(err)
-    {
-      logger.error(err);
-      return res.status(400).json({
-        status: false,
-        message: `bad image resize option ${image} ${size}`
-      });
-    }
-  }
 
-  return res.status(200).contentType(`image/${ext}`).sendFile(imagePath);
+  return isSmall
+  ? res.status(200).contentType(`image/${ext}`).sendFile(imagePathThumbnail)
+  : res.status(200).contentType(`image/${ext}`).sendFile(imagePath);
 }
 
 export default handler;
