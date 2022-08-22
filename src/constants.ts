@@ -12,4 +12,6 @@ export const INDEX_FILE: string = "index.json";
 
 export const FAILED_LIST_FILE: string = "fail.json";
 
+export const ICON_SIZE: number[] = [16, 32, 48, 128];
+
 /////////////////////////////////////

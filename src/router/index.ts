@@ -11,6 +11,6 @@ const router = Router();
 router.get("/", rootHandler);
 router.use("/list", listHandler);
 router.get("/images/:streamer/:image", checkStreamer, imageHandler);
-router.get("/icon/:streamer/:size", checkStreamer, iconHandler);
+router.get("/icon", iconHandler);
 
 export default router;

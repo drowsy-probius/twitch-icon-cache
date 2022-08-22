@@ -6,10 +6,9 @@ import fs from "fs";
 import { IMAGE } from "../../constants";
 
 import Logger from "../../logger";
-import { resizeImage } from "../../functions";
 const logger = Logger(module.filename);
 
-const basePath = resolve("./images")
+const basePath = resolve("./images");
 
 const handler = async (req: Request, res: Response, next: NextFunction) => {
   const streamer = req.params.streamer;
