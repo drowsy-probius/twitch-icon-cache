@@ -17,7 +17,7 @@ const rootHandler = (req: Request, res: Response, next: NextFunction) => {
 const listHandler = (req: Request, res: Response, next: NextFunction) => {
   const streamer = req.params.streamer;
   // const requestedURL = `${req.protocol}://${req.get("Host")}${req.originalUrl}`;
-  const requestedURL = `${req.protocol}://${req.get("Host")}`;
+  const requestedURL = `${req.secure ? "https" : "http"}://${req.get("Host")}`;
   const jsonPath = resolve(`./images/${streamer}/${INDEX_FILE}`);
 
   if(!fs.existsSync(jsonPath))
