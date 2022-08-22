@@ -1,4 +1,5 @@
 import express, {Request, Response, NextFunction} from 'express';
+import cors from "cors";
 
 import router from "./router";
 import { PORT, HOST } from './constants';
@@ -11,6 +12,7 @@ run_cronjob();
 const app = express();
 
 app.enable('trust proxy');
+app.use(cors());
 app.use((req: Request, res: Response, next: NextFunction) => {
   const ip = req.headers["x-real-ip"] || req.ip;
   logger.info(`[${ip}] ${req.method} ${req.url}`);
