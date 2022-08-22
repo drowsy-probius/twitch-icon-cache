@@ -43,7 +43,10 @@ export const getIpFromRequest = (req: Request) => {
 }
 
 export const getRootFromRequest = (req: Request) => {
-  const protocol = req.protocol;
+  /**
+   * Just assumes that the protocol of connection via cloudflare is https 
+   */
+  const protocol = req.headers['cf-connecting-ip'] ? "https" : req.protocol;
   const host = req.get("Host");
   return `${protocol}://${host}`;
 }
