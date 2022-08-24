@@ -1,0 +1,27 @@
+version: '3'
+services:
+  twitch-icon-cache:
+    image: twitch-icon-cache:1.0.0
+    container_name: twitch-icon-cache
+    shm_size: '2gb'
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 2G
+    user: 1000:1000
+    ports:
+      - "32189:32189"
+    environment:
+      - TWITCH_ICON_CACHE_HOST=0.0.0.0
+      - TWITCH_ICON_CACHE_CACHE_TIME=2w
+    volumes:
+    # If you want to force refresh local data, remove and create container
+    # Create host directory before you run docker compose command due to permission
+      - /path/to/log:/app/log
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "5"
+        max-size: "10m"
+    restart: unless-stopped
