@@ -42,10 +42,7 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
 
   if(!fs.existsSync(imagePath))
   {
-    return res.status(404).json({
-      status: false,
-      message: `there is no image for ${streamer}/${image}`
-    });
+    return res.status(404).redirect("/icon");
   }
 
   return isSmall
