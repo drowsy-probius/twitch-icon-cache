@@ -15,7 +15,7 @@ const app = express();
 app.enable('trust proxy');
 app.use(cors());
 app.use((req: Request, res: Response, next: NextFunction) => {
-  logger.info(`[${getIpFromRequest(req)}] ${req.method} ${getRootFromRequest(req)}${req.originalUrl}`);
+  logger.http(`[${getIpFromRequest(req)}] ${req.method} ${getRootFromRequest(req)}${req.originalUrl}`);
   next();
 });
 app.use(router);

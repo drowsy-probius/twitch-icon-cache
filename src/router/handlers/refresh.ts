@@ -3,7 +3,8 @@ import { StreamerData } from "../../@types/interfaces";
 import { REFRESH_KEY } from "../../constants";
 import { STREAMER_DATA } from "../../data";
 import processorFunctions from "../../iconProcessor";
-
+import Logger from "../../logger";
+const logger = Logger(module.filename);
 
 const handler = (req: Request, res: Response, next: NextFunction) => {
   const secretkey = req.query.key;
@@ -11,6 +12,7 @@ const handler = (req: Request, res: Response, next: NextFunction) => {
   
   if(secretkey !== REFRESH_KEY)
   {
+    logger.warn(`${secretkey} is not allowed`);
     return res.status(401).json({
       status: false,
       message: `Unauthorized request. ${secretkey} does not match to server's one.`,

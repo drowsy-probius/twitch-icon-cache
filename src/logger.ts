@@ -5,6 +5,16 @@ import { fileURLToPath } from "url";
 const { format, transports, createLogger } = winston;
 const { combine, timestamp, printf, colorize } = format;
 
+
+/**
+  error: 0,
+  warn: 1,
+  info: 2,
+  http: 3,
+  verbose: 4,
+  debug: 5,
+  silly: 6
+ */
 export default (meta_url: string) => {
   const root = resolve("./");
   // const file = fileURLToPath(new URL(meta_url));
@@ -15,7 +25,7 @@ export default (meta_url: string) => {
   });
 
   const loggerInstance = createLogger({
-    level: "info",
+    level: "http",
     format: combine(
       timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
       format.splat(),

@@ -42,6 +42,7 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
 
   if(!fs.existsSync(imagePath))
   {
+    logger.warn(`${imagePath} currently not available`);
     return res.status(404).redirect("/icon");
   }
 
