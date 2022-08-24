@@ -1,4 +1,4 @@
-import express, {Request, Response, NextFunction} from 'express';
+import express, { Request, Response, NextFunction} from 'express';
 import cors from "cors";
 
 import router from "./router";
@@ -19,6 +19,11 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 app.use(router);
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  logger.error(err);
+  res.status(503)
+  return res.render("error", {error: err});
+})
 
 app.listen(PORT, HOST, () => {
     logger.info(`Server listening on ${HOST}:${PORT}`);

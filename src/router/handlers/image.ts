@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { resolve, join } from "path";
-import { FAILED_LIST_FILE } from "../../constants";
 import fs from "fs";
 
-import { IMAGE } from "../../constants";
+import { FAILED_LIST_FILE, IMAGE } from "../../constants";
+import { IconFunzinnu } from "../../@types/interfaces";
 
 import Logger from "../../logger";
 const logger = Logger(module.filename);
@@ -27,16 +27,18 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
     });
   }
 
-  const failedList = fs.readFileSync(
-    resolve(`./images/${streamer}/${FAILED_LIST_FILE}`),
-    "utf8"
-  );
-  const failedListJson = JSON.parse(failedList);
-  if(image.split(".").slice(0, -1).join(".") in failedListJson)
+  const failedListFile = resolve(`./images/${streamer}/${FAILED_LIST_FILE}`);
+  let failedListJson: {[key: string]: IconFunzinnu} = {};
+  if(fs.existsSync(failedListFile))
   {
-    return res.status(302).redirect(failedListJson[image].originUri);
+    const failedList = fs.readFileSync(failedListFile, "utf8");
+    failedListJson = JSON.parse(failedList);
   }
-
+  const imageName = image.split(".").slice(0, -1).join(".");
+  if(imageName in failedListJson)
+  {
+    return res.status(302).redirect(failedListJson[image].originUri || "/icon");
+  }
 
   if(!fs.existsSync(imagePath))
   {
@@ -45,7 +47,6 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
       message: `there is no image for ${streamer}/${image}`
     });
   }
-
 
   return isSmall
   ? res.status(200).contentType(`image/${ext}`).sendFile(imagePathThumbnail)
