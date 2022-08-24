@@ -1,6 +1,6 @@
 import winston from "winston";
-import { resolve } from "path";
-import { fileURLToPath } from "url";
+import winstonDaily from "winston-daily-rotate-file";
+import { resolve, join } from "path";
 
 const { format, transports, createLogger } = winston;
 const { combine, timestamp, printf, colorize } = format;
@@ -17,12 +17,28 @@ const { combine, timestamp, printf, colorize } = format;
  */
 export default (meta_url: string) => {
   const root = resolve("./");
-  // const file = fileURLToPath(new URL(meta_url));
   const file_path = meta_url.replace(root, ".");
+  const logDir = join(root, "log");
 
   const customFormat = printf(({ level, message, timestamp, stack }) => {
     return `${timestamp} [${level}] ${file_path}: ${stack || typeof(message) === "object" ? JSON.stringify(message) : message}`;
   });
+
+  const customTransports = [
+    new winstonDaily({
+      filename: "all-%DATE%.log",
+      datePattern: "YYYY-MM-DD",
+      maxFiles: "60d",
+      dirname: logDir,
+    }),
+    new winstonDaily({
+      level: "error",
+      filename: "error-%DATE%.log",
+      datePattern: "YYYY-MM-DD",
+      maxFiles: "60d",
+      dirname: logDir,
+    }),
+  ]
 
   const loggerInstance = createLogger({
     level: "http",
@@ -33,10 +49,7 @@ export default (meta_url: string) => {
       customFormat
     ),
     defaultMeta: { service: "user-service" },
-    transports: [
-      new transports.File({ filename: "log/error.log", level: "error" }),
-      new transports.File({ filename: "log/common.log" }),
-    ],
+    transports: customTransports,
   });
 
   // Log also to console if not in production
