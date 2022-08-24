@@ -6,6 +6,7 @@ const handler = (req: Request, res: Response, next: NextFunction) => {
     "/list/:streamer": "Show streamers icon list",
     "/images/:streamer/:filename": "Get icon images",
     "/icon": "Get app icon",
+    "/refresh/:streamer?key=": "Refresh streamer's data",
   });
 }
 

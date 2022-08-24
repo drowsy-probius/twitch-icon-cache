@@ -4,7 +4,8 @@ import {
   listHandler, 
   rootHandler, 
   checkStreamer, 
-  iconHandler 
+  iconHandler,
+  refreshHandler,
 } from "./handlers";
 
 const router = Router();
@@ -12,5 +13,6 @@ router.get("/", rootHandler);
 router.use("/list", listHandler);
 router.get("/images/:streamer/:image", checkStreamer, imageHandler);
 router.get("/icon", iconHandler);
+router.get("/refresh/:streamer", refreshHandler);
 
 export default router;

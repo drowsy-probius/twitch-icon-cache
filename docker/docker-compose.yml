@@ -15,6 +15,7 @@ services:
     environment:
       - TWITCH_ICON_CACHE_HOST=0.0.0.0
       - TWITCH_ICON_CACHE_CACHE_TIME=2w
+      - TWITCH_ICON_REFRESH_KEY=secretkey
     volumes:
     # If you want to force refresh local data, remove and create container
     # Create host directory before you run docker compose command due to permission

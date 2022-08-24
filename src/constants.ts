@@ -4,6 +4,8 @@ export const HOST: string = process.env.TWITCH_ICON_CACHE_HOST || "0.0.0.0";
 
 export const CACHE_TIME: string = process.env.TWITCH_ICON_CACHE_CACHE_TIME || "2w";
 
+export const REFRESH_KEY: string = process.env.TWITCH_ICON_REFRESH_KEY || "secretkey";
+
 export const IMAGE: string[] = ["jpg", "png", "gif", "jpeg"];
 
 export const MAX_RETRY: number = 5;

@@ -3,6 +3,7 @@ import listHandler from "./list";
 import imageHandler from "./image";
 import checkStreamer from "./checkStreamer";
 import iconHandler from "./icon";
+import refreshHandler from "./refresh";
 
 export {
   rootHandler,
@@ -10,4 +11,5 @@ export {
   imageHandler,
   iconHandler,
   checkStreamer,
+  refreshHandler,
 }
