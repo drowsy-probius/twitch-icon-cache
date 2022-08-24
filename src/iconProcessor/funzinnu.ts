@@ -21,7 +21,7 @@ const handler: IconProcessorFunction = async (streamer: StreamerData) => {
   
   try
   {
-    const res = await axios.get(streamer.url);
+    const res = await axios.get(`${streamer.url}?ts=${Date.now()}`);
     const jsonString = res.data.replace("dcConsData = ", `{"dcConsData" : `).replace(/;$/, "}");
     const jsonData: IconIndexFunzinnu = {
       ...JSON.parse(jsonString),
