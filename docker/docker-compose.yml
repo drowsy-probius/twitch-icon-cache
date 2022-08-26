@@ -20,6 +20,7 @@ services:
     # If you want to force refresh local data, remove and create container
     # Create host directory before you run docker compose command due to permission
       - /path/to/log:/app/log
+      - /path/to/images:/app/images
     logging:
       driver: "json-file"
       options:
