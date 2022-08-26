@@ -28,32 +28,22 @@ const listHandler = (req: Request, res: Response, next: NextFunction) => {
     });
   }
 
-  try 
+  const data = fs.readFileSync(jsonPath, "utf8");
+  const regexp = new RegExp(basePath, "g");
+  const uriReplacedData = data.replace(regexp, requestedURL);
+  const jsonData = JSON.parse(uriReplacedData);
+  if(IMGPROXY_ENABLE)
   {
-    const data = fs.readFileSync(jsonPath, "utf8");
-    const regexp = new RegExp(basePath, "g");
-    const uriReplacedData = data.replace(regexp, requestedURL);
-    const jsonData = JSON.parse(uriReplacedData);
-    if(IMGPROXY_ENABLE)
+    for(const icon of jsonData.icons)
     {
-      for(const icon of jsonData.icons)
-      {
-        icon.thumbnailUri = createImgproxyUrl(icon.uri, {
-          size: 40
-        })
-        icon.uri = createImgproxyUrl(icon.uri);
-        
-      }
+      icon.thumbnailUri = createImgproxyUrl(icon.uri, {
+        size: 40
+      })
+      icon.uri = createImgproxyUrl(icon.uri);
+      
     }
-    return res.status(200).json(jsonData);
   }
-  catch(err)
-  {
-    return res.status(404).json({
-      status: false,
-      message: `${err}`
-    });
-  }
+  return res.status(200).json(jsonData);
 }
 
 router.get("/", rootHandler);
