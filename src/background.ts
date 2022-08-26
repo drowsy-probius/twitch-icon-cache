@@ -53,6 +53,8 @@ class Cronjob
           return;
         }
       }
+
+      logger.info(`[Cronjob] ${streamer.name}'s data is outdated. Downloading...`);
       this.fetchDataForStreamer(streamer);
     });
   }
