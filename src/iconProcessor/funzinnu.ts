@@ -21,9 +21,7 @@ const handler: IconProcessorFunction = async (streamer: StreamerData) => {
   
   try
   {
-    const res = await axios.get(`${streamer.url}?ts=${Date.now()}`);
-    const jsonString = res.data.replace("dcConsData = ", `{"icons" : `).replace(/;$/, "}");
-    const jsonData: IconIndexFunzinnu = JSON.parse(jsonString);
+    const jsonData = await indexDownloader(streamer.url);
     const newJsonData = await processJsonData(jsonData);
     logger.info(`Download Funzinnu's Icons done! -> ${basePath}`);
     await saveJsonFile(newJsonData, `${basePath}/${INDEX_FILE}`);
@@ -35,6 +33,12 @@ const handler: IconProcessorFunction = async (streamer: StreamerData) => {
   }  
 }
 
+export const indexDownloader = async (url: string): Promise<IconIndexFunzinnu> => {
+  const res = await axios.get(`${url}?ts=${Date.now()}`);
+  const jsonString = res.data.replace("dcConsData = ", `{"icons" : `).replace(/;$/, "}");
+  const jsonData: IconIndexFunzinnu = JSON.parse(jsonString);
+  return jsonData;
+}
 
 const processJsonData = (jsonData: IconIndexFunzinnu): Promise<IconIndex> => {
   return new Promise(async (resolve, reject) => {

@@ -9,7 +9,20 @@ export interface IconProcessorFunctionList {
   [key: string]: IconProcessorFunction
 }
 
-export interface IconIndexFunzinnu extends JSON {
+export interface IconPrototype {
+  name: string,
+  uri: string, 
+  keywords: string[],
+  tags: string[],
+  [key: string]: any,
+}
+
+export interface IconIndexPrototype {
+  icons: IconPrototype[],
+  [key: string]: any,
+}
+
+export interface IconIndexFunzinnu extends IconIndexPrototype {
   icons: {
     name: string,
     uri: string, 
@@ -19,19 +32,19 @@ export interface IconIndexFunzinnu extends JSON {
 }
 
 
-export interface Icon {
+export interface Icon extends IconPrototype{
   name: string,
-  nameHash: string,
   uri: string, 
-  thumbnailUri: string, 
-  keywords: string[],
   tags: string[],
+  keywords: string[],
+
+  nameHash: string,
+  thumbnailUri: string, 
   useOrigin: boolean,
   originUri: string,
 };
 
-export interface IconIndex
-{
+export interface IconIndex extends IconIndexPrototype{
   icons: Icon[],
   timestamp: number,
 }

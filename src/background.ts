@@ -3,9 +3,9 @@ import fs from "fs";
 
 import { CACHE_TIME, INDEX_FILE } from "./constants";
 import { STREAMER_DATA } from "./data";
-import { timeParser } from "./functions";
+import { timeParser, doUpdateJson } from "./functions";
 import { IconIndex, StreamerData } from "./@types/interfaces";
-import processorFunctions from "./iconProcessor";
+import processorFunctions, { indexDownloader } from "./iconProcessor";
 
 import Logger from "./logger";
 const logger = Logger(module.filename);
@@ -30,11 +30,11 @@ class Cronjob
     this.timerIdentifier = setInterval(this.job, this.cacheTime);
   }
 
-  async job()
+  job()
   {
     logger.info(`execute cronjob on ${(new Date()).toString()}`);
 
-    STREAMER_DATA.forEach(streamer => {
+    STREAMER_DATA.forEach(async streamer => {
       const jsonPath = resolve(`./images/${streamer.name}/${INDEX_FILE}`);
       if(fs.existsSync(jsonPath))
       {
@@ -43,7 +43,13 @@ class Cronjob
         const timestamp = json.timestamp;
         if((Date.now() - timestamp) <= this.cacheTime)
         {
-          logger.info(`${streamer.name}'s data is up-to-date. Skip downloading...`);
+          logger.info(`[Cronjob] ${streamer.name}'s data is up-to-date by timestamp. Skip downloading...`);
+          return;
+        }
+
+        if(!doUpdateJson(json.icons, (await indexDownloader[streamer.name](streamer.url)).icons))
+        {
+          logger.info(`[Cronjob] ${streamer.name}'s data is up-to-date by compare function. Skip downloading...`);
           return;
         }
       }
