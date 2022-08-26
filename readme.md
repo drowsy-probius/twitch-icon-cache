@@ -4,9 +4,9 @@
 # API
 `/list` -> show supported streamers
 
-`/images/:streamer` -> show all icon lists
+`/list/:streamer` -> show all icon lists of streamer
 
-`/images/:streamer/:name` -> get image
+`/images/:streamer/:filename(hashed).ext` -> get image
 
 `/icon` -> get app icon
 
