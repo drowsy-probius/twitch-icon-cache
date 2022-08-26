@@ -2,6 +2,8 @@
 `yarn dev`
 
 # API
+`/` -> list all icons (#TODO)
+
 `/list` -> show supported streamers
 
 `/list/:streamer` -> show all icon lists of streamer
