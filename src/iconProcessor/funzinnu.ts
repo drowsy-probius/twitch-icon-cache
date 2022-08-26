@@ -41,18 +41,18 @@ const processJsonData = (jsonData: IconIndexFunzinnu): Promise<IconIndexFunzinnu
   return new Promise(async (resolve, reject) => {
     try
     {
-      const newDcConsData = await Promise.all(jsonData.dcConsData.map(async (dccon, index, arr): Promise<IconFunzinnu> => {
-        const dcconHash = createHash("md5").update(`${dccon.tags[0]}.${dccon.keywords[0]}`).digest('hex');
-        const ext = dccon.uri.split('.').pop();
-        const dcconExt = ext === undefined ? "jpg" : ext;
-        const newDcCon: IconFunzinnu = {
-          name: dccon.name,
-          nameHash: dcconHash,
-          uri: `${basePath}/${dcconHash}.${dcconExt}`,
-          keywords: dccon.keywords,
-          tags: dccon.tags,
+      const newIconsData = await Promise.all(jsonData.icons.map(async (icon, index, arr): Promise<IconFunzinnu> => {
+        const iconHash = createHash("md5").update(`${icon.tags[0]}.${icon.keywords[0]}`).digest('hex');
+        const ext = icon.uri.split('.').pop();
+        const iconExt = ext === undefined ? "jpg" : ext;
+        const newIcon: IconFunzinnu = {
+          name: icon.name,
+          nameHash: iconHash,
+          uri: `${basePath}/${iconHash}.${iconExt}`,
+          keywords: icon.keywords,
+          tags: icon.tags,
           useOrigin: false,
-          originUri: dccon.uri
+          originUri: icon.uri
         };
         
         let saveImageRetries = 0;
@@ -61,16 +61,16 @@ const processJsonData = (jsonData: IconIndexFunzinnu): Promise<IconIndexFunzinnu
         {
           try 
           {
-            await saveImage(dccon, newDcCon.uri);
+            await saveImage(icon, newIcon.uri);
             if(saveImageRetries > 0)
             {
-              logger.info(`try#${saveImageRetries} - ${dccon.uri} - ${newDcCon.uri} : success!`);
+              logger.info(`try#${saveImageRetries} - ${icon.uri} - ${newIcon.uri} : success!`);
             }
             break;
           }
           catch(err)
           {
-            logger.error(`try#${saveImageRetries} - ${dccon.uri} - ${newDcCon.uri} : ${err}`);
+            logger.error(`try#${saveImageRetries} - ${icon.uri} - ${newIcon.uri} : ${err}`);
             saveImageRetries += 1;
             saveImageError = err;
           }
@@ -79,26 +79,26 @@ const processJsonData = (jsonData: IconIndexFunzinnu): Promise<IconIndexFunzinnu
 
         if(saveImageRetries < MAX_RETRY)
         {
-          return newDcCon;
+          return newIcon;
         }
         else 
         {
           logger.error(saveImageError);
-          logger.error(dccon);
+          logger.error(icon);
           logger.error(`use origin uri`)
           return {
-            ...newDcCon,
+            ...newIcon,
             useOrigin: true
           };
         }
       }));
 
       const failedListJson: {[key: string]: IconFunzinnu} = {};
-      for(const dccon of newDcConsData)
+      for(const icon of newIconsData)
       {
-        if(dccon.useOrigin)
+        if(icon.useOrigin)
         {
-          failedListJson[dccon.nameHash || dccon.name] = dccon;
+          failedListJson[icon.nameHash || icon.name] = icon;
         }
       }
       await saveJsonIndex(failedListJson, `${basePath}/${FAILED_LIST_FILE}`);
@@ -106,7 +106,7 @@ const processJsonData = (jsonData: IconIndexFunzinnu): Promise<IconIndexFunzinnu
 
       resolve({
         ...jsonData,
-        dcConsData: newDcConsData,
+        icons: newIconsData,
       });
     }
     catch(err)
@@ -117,7 +117,7 @@ const processJsonData = (jsonData: IconIndexFunzinnu): Promise<IconIndexFunzinnu
 }
 
 
-const saveImage = (dccon: IconFunzinnu, savePath: string): Promise<boolean> => {
+const saveImage = (icon: IconFunzinnu, savePath: string): Promise<boolean> => {
   return new Promise(async (resolve, reject) => {
     try
     {
@@ -129,12 +129,12 @@ const saveImage = (dccon: IconFunzinnu, savePath: string): Promise<boolean> => {
        * 어떤 주소는 한글이 포함되어 있고 어떤 주소는 한글이 이미 encode된 것이 있어서
        * 한번 디코딩한 뒤에 인코딩하면 unescaped 에러 없이 요청이 가능함. 
        */
-      const res = await axios.get(encodeURI(decodeURI(dccon.uri)), {
+      const res = await axios.get(encodeURI(decodeURI(icon.uri)), {
         responseType: "arraybuffer",
       });
 
       await fs.promises.writeFile(savePath, res.data);
-      logger.debug(`Download image from ${dccon.uri} to ${savePath}`);
+      logger.debug(`Download image from ${icon.uri} to ${savePath}`);
       resolve(true);
     }
     catch(err)

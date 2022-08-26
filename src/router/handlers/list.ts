@@ -36,8 +36,7 @@ const listHandler = (req: Request, res: Response, next: NextFunction) => {
     const jsonData = JSON.parse(uriReplacedData);
     if(IMGPROXY_ENABLE)
     {
-      // for(const icon of jsonData.icons)
-      for(const icon of jsonData.dcConsData)
+      for(const icon of jsonData.icons)
       {
         icon.thumbnailUri = createImgproxyUrl(icon.uri, {
           size: 40

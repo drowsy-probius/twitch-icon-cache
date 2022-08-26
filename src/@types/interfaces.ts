@@ -22,7 +22,7 @@ export interface IconFunzinnu {
 
 export interface IconIndexFunzinnu extends JSON {
   timestamp: number,
-  dcConsData: IconFunzinnu[],
+  icons: IconFunzinnu[],
 }
 
 export interface IconIndex extends JSON 
