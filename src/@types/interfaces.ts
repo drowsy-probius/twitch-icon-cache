@@ -10,8 +10,8 @@ export interface IconProcessorFunctionList {
 }
 
 export interface IconPrototype {
-  name: string,
-  uri: string, 
+  name?: string,
+  uri?: string, 
   keywords: string[],
   tags: string[],
   [key: string]: any,
@@ -22,15 +22,33 @@ export interface IconIndexPrototype {
   [key: string]: any,
 }
 
-export interface IconIndexFunzinnu extends IconIndexPrototype {
-  icons: {
-    name: string,
-    uri: string, 
-    keywords: string[],
-    tags: string[],
-  }[],
+////////////////////////////////////////////////////////////
+// 스트리머 특화 타입
+
+export interface IconFunzinnu extends IconPrototype {
+  name: string,
+  uri: string, 
+  keywords: string[],
+  tags: string[],
 }
 
+export interface IconIndexFunzinnu extends IconIndexPrototype {
+  dcConsData: IconFunzinnu[],
+}
+
+//////////
+
+export interface IconYeokka extends IconPrototype {
+  path: string,
+  keywords: string[],
+  tags: string[],
+}
+
+export interface IconIndexYeokka extends IconIndexPrototype {
+  dccons: IconYeokka[],
+}
+
+////////////////////////////////////////////////////////////
 
 export interface Icon extends IconPrototype{
   name: string,

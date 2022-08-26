@@ -3,7 +3,7 @@ import { createHash } from "crypto";
 import fs from "fs";
 import { resolve, extname } from "path";
 
-import { Icon, IconIndex, IconIndexFunzinnu, IconProcessorFunction, StreamerData } from "../@types/interfaces"
+import { Icon, IconIndex, IconIndexYeokka, IconProcessorFunction, StreamerData } from "../@types/interfaces"
 import { INDEX_FILE, FAILED_LIST_FILE } from "../constants";
 import { 
   getImageBasePath,
@@ -22,7 +22,7 @@ let basePathThumbnail: string;
 
 const handler: IconProcessorFunction = async (streamer: StreamerData) => {
   logger.info(`Downloading icons for ${streamer.name} from ${streamer.url}`);
-
+  
   streamerName = streamer.name;
   basePath = getImageBasePath(streamerName);
   basePathThumbnail = getThumbnailBasePath(streamerName);
@@ -44,34 +44,33 @@ const handler: IconProcessorFunction = async (streamer: StreamerData) => {
   }  
 }
 
-export const indexDownloader = async (url: string): Promise<IconIndexFunzinnu> => {
-  const res = await axios.get(`${url}?ts=${Date.now()}`);
-  const jsonString = res.data.replace("dcConsData = ", `{"dcConsData" : `).replace(/;$/, "}");
-  const jsonData: IconIndexFunzinnu = JSON.parse(jsonString);
+export const indexDownloader = async (url: string): Promise<IconIndexYeokka> => {
+  const res = await axios.get(`${url}?ts=${Date.now()}`, );
+  const jsonData: IconIndexYeokka = res.data;
   return jsonData;
 }
 
-const processJsonData = (jsonData: IconIndexFunzinnu): Promise<IconIndex> => {
+const processJsonData = (jsonData: IconIndexYeokka): Promise<IconIndex> => {
   return new Promise(async (resolve, reject) => {
     try
     {
-      const newIconsData = await Promise.all(jsonData.dcConsData.map(async (icon, index, arr): Promise<Icon> => {
+      const newIconsData = await Promise.all(jsonData.dccons.map(async (icon, index, arr): Promise<Icon> => {
         const iconHash = createHash("md5").update(`${icon.tags[0]}.${icon.keywords[0]}`).digest('hex');
-        const iconExt = extname(icon.uri) || ".jpg";
+        const iconExt = extname(icon.path) || ".jpg";
         const newIcon: Icon = {
-          name: icon.name,
+          name: `${icon.keywords[0]}${iconExt}`,
           nameHash: iconHash,
           uri: `${basePath}/${iconHash}${iconExt}`,
           thumbnailUri: `${basePath}/${iconHash}${iconExt}?small`,
           keywords: icon.keywords,
           tags: icon.tags,
           useOrigin: false,
-          originUri: icon.uri
+          originUri: icon.path
         };
         
         try 
         {
-          await saveImage(icon.uri, newIcon.uri);
+          await saveImage(icon.path, newIcon.uri);
           await saveThumbnail(newIcon.uri, `${basePathThumbnail}/${iconHash}${iconExt}`);
           return newIcon;
         }

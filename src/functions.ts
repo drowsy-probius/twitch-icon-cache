@@ -2,6 +2,7 @@ import { Request } from "express";
 import axios from "axios";
 import fs from "fs";
 import sharp from "sharp";
+import { resolve } from "path";
 
 import { Icon, IconPrototype } from "./@types/interfaces";
 import Logger from "./logger";
@@ -33,6 +34,16 @@ export const timeParser = (timeString: string, miliseconds=true) => {
 export const sleepForMs = (time: number) => {
   return new Promise(resolve => setTimeout(resolve, time));
 }
+
+export const getImageBasePath = (streamerName: string) => {
+  return resolve(`./images/${streamerName}`);
+}
+
+export const getThumbnailBasePath = (streamerName: string) => {
+  return resolve(`./images/${streamerName}/thumbnail`);
+}
+
+////////////////////////////////////////////////////////////
 
 export const resizeImage = (inputPath: string, width: number): Promise<Buffer> => {
   const isGif = inputPath.endsWith("gif");
