@@ -26,6 +26,7 @@ export default (meta_url: string) => {
 
   const customTransports = [
     new winstonDaily({
+      level: "http",
       filename: "all-%DATE%.log",
       datePattern: "YYYY-MM-DD",
       maxFiles: "60d",
@@ -41,7 +42,7 @@ export default (meta_url: string) => {
   ]
 
   const loggerInstance = createLogger({
-    level: "http",
+    level: "info",
     format: combine(
       timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
       format.splat(),
