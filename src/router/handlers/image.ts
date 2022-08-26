@@ -13,7 +13,7 @@ const basePath = resolve("./images");
 const handler = async (req: Request, res: Response, next: NextFunction) => {
   const streamer = req.params.streamer;
   const image = decodeURI(req.params.image);
-  const isSmall = ("small" in req.query);
+  // const isSmall = ("small" in req.query);
 
   const imagePath = join(basePath, streamer, image);
   const imagePathThumbnail = join(basePath, streamer, "thumbnail", image);
@@ -46,9 +46,10 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
     return res.status(404).redirect("/icon");
   }
 
-  return isSmall
-  ? res.status(200).contentType(`image/${ext}`).sendFile(imagePathThumbnail)
-  : res.status(200).contentType(`image/${ext}`).sendFile(imagePath);
+  // return isSmall
+  // ? res.status(200).contentType(`image/${ext}`).sendFile(imagePathThumbnail)
+  // : res.status(200).contentType(`image/${ext}`).sendFile(imagePath);
+  return res.status(200).contentType(`image/${ext}`).sendFile(imagePath);
 }
 
 export default handler;

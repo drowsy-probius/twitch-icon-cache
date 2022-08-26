@@ -11,13 +11,13 @@ import Logger from "../logger";
 const logger = Logger(module.filename);
 
 const basePath = resolve("./images/funzinnu");
-const basePathThumbnail = resolve("./images/funzinnu/thumbnail");
+// const basePathThumbnail = resolve("./images/funzinnu/thumbnail");
 
 const handler: IconProcessorFunction = async (streamer: StreamerData) => {
   logger.info(`Downloading icons for ${streamer.name} from ${streamer.url}`);
 
   if(!fs.existsSync(basePath)) fs.mkdirSync(basePath, {recursive: true});
-  if(!fs.existsSync(basePathThumbnail)) fs.mkdirSync(basePathThumbnail, {recursive: true});
+  // if(!fs.existsSync(basePathThumbnail)) fs.mkdirSync(basePathThumbnail, {recursive: true});
   
   try
   {
@@ -81,7 +81,7 @@ const processJsonData = (jsonData: IconIndexFunzinnu): Promise<IconIndexFunzinnu
 
         if(saveImageRetries < MAX_RETRY)
         {
-          await saveThumbnail(newDcCon.uri, `${basePathThumbnail}/${dcconHash}.${dcconExt}`)
+          // await saveThumbnail(newDcCon.uri, `${basePathThumbnail}/${dcconHash}.${dcconExt}`)
           return newDcCon;
         }
         else 
