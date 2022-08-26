@@ -21,8 +21,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 app.use(router);
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   logger.error(`[${getIpFromRequest(req)}] ${req.method} ${getRootFromRequest(req)}${req.originalUrl} ${req}`);
-  res.status(503)
-  return res.render("error", {error: err});
+  return res.json(err);
 })
 
 app.listen(PORT, HOST, () => {
