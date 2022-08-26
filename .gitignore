@@ -7,3 +7,5 @@ images/*
 
 yarn.lock 
 package-lock.json
+
+env.sh

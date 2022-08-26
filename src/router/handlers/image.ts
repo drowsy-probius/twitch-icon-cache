@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { resolve, join } from "path";
+import { resolve, join, extname } from "path";
 import fs from "fs";
 
 import { FAILED_LIST_FILE, IMAGE } from "../../constants";
@@ -18,7 +18,7 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
   const imagePath = join(basePath, streamer, image);
   const imagePathThumbnail = join(basePath, streamer, "thumbnail", image);
 
-  const ext = image.split('.').pop();
+  const ext = extname(imagePath); // .이 포함되어 있음.
   if(ext === undefined || !IMAGE.includes(ext))
   {
     return res.status(404).json({
@@ -46,10 +46,7 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
     return res.status(404).redirect("/icon");
   }
 
-  // return isSmall
-  // ? res.status(200).contentType(`image/${ext}`).sendFile(imagePathThumbnail)
-  // : res.status(200).contentType(`image/${ext}`).sendFile(imagePath);
-  return res.status(200).contentType(`image/${ext}`).sendFile(imagePath);
+  return res.status(200).contentType(`image/${ext.slice(1)}`).sendFile(imagePath);
 }
 
 export default handler;

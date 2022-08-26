@@ -5,24 +5,22 @@ import { resolve } from "path";
 
 import { IconFunzinnu, IconIndexFunzinnu, IconProcessorFunction, StreamerData } from "../@types/interfaces"
 import { MAX_RETRY, INDEX_FILE, FAILED_LIST_FILE } from "../constants";
-import { sleep, resizeImage } from "../functions";
+import { sleep } from "../functions";
 
 import Logger from "../logger";
 const logger = Logger(module.filename);
 
 const basePath = resolve("./images/funzinnu");
-// const basePathThumbnail = resolve("./images/funzinnu/thumbnail");
 
 const handler: IconProcessorFunction = async (streamer: StreamerData) => {
   logger.info(`Downloading icons for ${streamer.name} from ${streamer.url}`);
 
   if(!fs.existsSync(basePath)) fs.mkdirSync(basePath, {recursive: true});
-  // if(!fs.existsSync(basePathThumbnail)) fs.mkdirSync(basePathThumbnail, {recursive: true});
   
   try
   {
     const res = await axios.get(`${streamer.url}?ts=${Date.now()}`);
-    const jsonString = res.data.replace("dcConsData = ", `{"dcConsData" : `).replace(/;$/, "}");
+    const jsonString = res.data.replace("dcConsData = ", `{"icons" : `).replace(/;$/, "}");
     const jsonData: IconIndexFunzinnu = {
       ...JSON.parse(jsonString),
       timestamp: Date.now(),
@@ -81,7 +79,6 @@ const processJsonData = (jsonData: IconIndexFunzinnu): Promise<IconIndexFunzinnu
 
         if(saveImageRetries < MAX_RETRY)
         {
-          // await saveThumbnail(newDcCon.uri, `${basePathThumbnail}/${dcconHash}.${dcconExt}`)
           return newDcCon;
         }
         else 
@@ -145,29 +142,6 @@ const saveImage = (dccon: IconFunzinnu, savePath: string): Promise<boolean> => {
       reject(err);
     }
   });
-}
-
-const saveThumbnail = async (imagePath: string, filename: string) => {
-  let tries = 0;
-  do 
-  {
-    try 
-    {
-      await fs.promises.writeFile(filename, await resizeImage(imagePath, 40));
-
-      if(tries > 0)
-      {
-        logger.info(`[saveThumbnail] try#${tries} - ${imagePath} -> ${filename} : success!`);
-      }
-      return;
-    }
-    catch(err)
-    {
-      logger.error(`[saveThumbnail] try#${tries} - ${imagePath} -> ${filename} : ${err}`);
-      tries += 1;
-    }
-  }
-  while(tries < MAX_RETRY)
 }
 
 const saveJsonIndex = (jsonData: any, savePath: string) => {

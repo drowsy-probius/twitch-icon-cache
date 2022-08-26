@@ -14,6 +14,7 @@ export interface IconFunzinnu {
   uri: string, 
   keywords: string[],
   tags: string[],
+  thumbnailUri?: string, 
   useOrigin?: boolean,
   originUri?: string,
   nameHash?: string,

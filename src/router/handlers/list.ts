@@ -3,8 +3,8 @@ import { resolve } from "path";
 import fs from "fs";
 
 import { STREAMER_DATA } from "../../data";
-import { INDEX_FILE } from "../../constants";
-import { getRootFromRequest } from "../../functions";
+import { INDEX_FILE, IMGPROXY_ENABLE } from "../../constants";
+import { getRootFromRequest, createImgproxyUrl } from "../../functions";
 
 import checkStreamer from "./checkStreamer";
 
@@ -33,7 +33,20 @@ const listHandler = (req: Request, res: Response, next: NextFunction) => {
     const data = fs.readFileSync(jsonPath, "utf8");
     const regexp = new RegExp(basePath, "g");
     const uriReplacedData = data.replace(regexp, requestedURL);
-    return res.status(200).json(JSON.parse(uriReplacedData));
+    const jsonData = JSON.parse(uriReplacedData);
+    if(IMGPROXY_ENABLE)
+    {
+      // for(const icon of jsonData.icons)
+      for(const icon of jsonData.dcConsData)
+      {
+        icon.thumbnailUri = createImgproxyUrl(icon.uri, {
+          size: 40
+        })
+        icon.uri = createImgproxyUrl(icon.uri);
+        
+      }
+    }
+    return res.status(200).json(jsonData);
   }
   catch(err)
   {
