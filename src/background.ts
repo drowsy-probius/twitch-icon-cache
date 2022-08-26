@@ -41,25 +41,18 @@ class Cronjob
         const data = fs.readFileSync(jsonPath, "utf8");
         const json: IconIndex = JSON.parse(data);
         const timestamp = json.timestamp;
-
         if((Date.now() - timestamp) <= this.cacheTime)
         {
           logger.info(`${streamer.name}'s data is up-to-date. Skip downloading...`);
           return;
         }
       }
-
       this.fetchDataForStreamer(streamer);
     });
   }
 
   fetchDataForStreamer(streamer: StreamerData)
   {
-    // /** */
-    // logger.info(`this function (fetchDataForStreamer()) disabled manually for development. uncomment this when production`);
-    // return;
-    // /** */
-
     processorFunctions[streamer.name](streamer);
   }
 }

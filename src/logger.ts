@@ -54,6 +54,7 @@ export default (meta_url: string) => {
 
   // Log also to console if not in production
   if (process.env.NODE_ENV !== "production") {
+    loggerInstance.level = "debug";
     loggerInstance.add(
       new transports.Console({
         format: combine(colorize(), customFormat),

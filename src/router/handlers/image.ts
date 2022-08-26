@@ -3,7 +3,7 @@ import { resolve, join, extname } from "path";
 import fs from "fs";
 
 import { FAILED_LIST_FILE, IMAGE } from "../../constants";
-import { IconFunzinnu } from "../../@types/interfaces";
+import { Icon } from "../../@types/interfaces";
 
 import Logger from "../../logger";
 const logger = Logger(module.filename);
@@ -13,7 +13,7 @@ const basePath = resolve("./images");
 const handler = async (req: Request, res: Response, next: NextFunction) => {
   const streamer = req.params.streamer;
   const image = decodeURI(req.params.image);
-  // const isSmall = ("small" in req.query);
+  const isSmall = ("small" in req.query);
 
   const imagePath = join(basePath, streamer, image);
   const imagePathThumbnail = join(basePath, streamer, "thumbnail", image);
@@ -28,7 +28,7 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
   }
 
   const failedListFile = resolve(`./images/${streamer}/${FAILED_LIST_FILE}`);
-  let failedListJson: {[key: string]: IconFunzinnu} = {};
+  let failedListJson: {[key: string]: Icon} = {};
   if(fs.existsSync(failedListFile))
   {
     const failedList = fs.readFileSync(failedListFile, "utf8");
@@ -46,7 +46,9 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
     return res.status(404).redirect("/icon");
   }
 
-  return res.status(200).contentType(`image/${ext.slice(1)}`).sendFile(imagePath);
+  return isSmall
+  ? res.status(200).sendFile(imagePathThumbnail)
+  : res.status(200).sendFile(imagePath);
 }
 
 export default handler;

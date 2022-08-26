@@ -1,7 +1,11 @@
 import { Request } from "express";
-import path from "path";
-import crypto from "crypto";
-import { IMGPROXY_API, IMGPROXY_ENABLE, IMGPROXY_KEY, IMGPROXY_SALT } from "./constants";
+import axios from "axios";
+import fs from "fs";
+import sharp from "sharp";
+
+import Logger from "./logger";
+const logger = Logger(module.filename);
+
 
 export const timeParser = (timeString: string, miliseconds=true) => {
   const unit = typeof(timeString.slice(-1)) === "string" ? timeString.slice(-1) : 's';
@@ -25,9 +29,42 @@ export const timeParser = (timeString: string, miliseconds=true) => {
   return multiplier;
 }
 
-export const sleep = (time: number) => {
+export const sleepForMs = (time: number) => {
   return new Promise(resolve => setTimeout(resolve, time));
 }
+
+export const resizeImage = (inputPath: string, width: number): Promise<Buffer> => {
+  const isGif = inputPath.endsWith("gif");
+
+  return isGif 
+  ? sharp(inputPath, {animated: true}).resize(width).gif().toBuffer()
+  : sharp(inputPath).resize(width).toBuffer()
+}
+
+
+export const retryWithSleep = async (executable: any, failMessage: string, maxretry=5): Promise<unknown> => {
+  let tries = 0;
+  let error;
+  while(tries < maxretry)
+  {
+    try
+    {
+      const ret = await executable();
+      return ret;
+    }
+    catch(err)
+    {
+      error = err;
+      const sleepSecs = Math.min(Math.pow(2, tries) + Math.random(), 64)
+      tries += 1;
+      logger.error(`try:${tries} ${failMessage} ${err}. Wait for ${sleepSecs} seconds.`);
+      await sleepForMs(sleepSecs * 1000);
+    }
+  }
+  return error;
+}
+
+////////////////////////////////////////////////////////////////
 
 export const getIpFromRequest = (req: Request) => {
   return req.headers['cf-connecting-ip'] || 
@@ -45,27 +82,37 @@ export const getRootFromRequest = (req: Request) => {
   return `${protocol}://${host}`;
 }
 
-const urlSafeEncode = (data: any) => {
-  return Buffer.from(data, "utf8")
-    .toString("base64")
-    .replace(/=/g, "")
-    .replace(/\//g, '_')
-    .replace(/\+/g, '-');
-}
 
-export const createImgproxyUrl = (source: string, options:{[key:string]: any}={}, length?: number) => {
-  if(!IMGPROXY_ENABLE) return source;
-  const encodedUrl = urlSafeEncode(source);
-  const resize = options.size || "";
-  const ext = path.extname(source) || ""; // .이 포함되어있어야 함.
-  const enlarge = 0;
-  const gravity = false;
-  const hashLength = length ?? 32;
+export const saveImage = (url: string, savePath: string) => retryWithSleep(async () => {
+  /**
+   * sleep 해서 타겟 서버 부하 줄이기?
+   */
+  await sleepForMs(Math.random() * 10000);
 
-  const subPath = `/rs:auto:${resize}:${resize}:${enlarge}/g:${gravity ? "yes" : "no"}/${encodedUrl}${ext}`;
-  const hmac = crypto.createHmac("sha256", Buffer.from(IMGPROXY_KEY, "hex"))
-                  .update(Buffer.from(IMGPROXY_SALT, "hex"))
-                  .update(subPath)
-                  .digest();
-  return new URL(path.join(urlSafeEncode(hmac), subPath), IMGPROXY_API).href;
-}
+  /**
+    * 어떤 주소는 한글이 포함되어 있고 어떤 주소는 한글이 이미 encode된 것이 있어서
+    * 한번 디코딩한 뒤에 인코딩하면 unescaped 에러 없이 요청이 가능함. 
+    */
+  const res = await axios.get(encodeURI(decodeURI(url)), {
+    responseType: "arraybuffer",
+  });
+  await fs.promises.writeFile(savePath, res.data);
+  logger.debug(`[saveImage] Download image from ${url} to ${savePath}`);
+  return true;
+}, `[saveImage] ${url} -> ${savePath}`)
+
+
+
+export const saveThumbnail = (imagePath: string, filename: string) => retryWithSleep(async () => {
+  await fs.promises.writeFile(filename, await resizeImage(imagePath, 40));
+  logger.debug(`[saveThumbnail] Convert image to ${filename}`);
+  return true;
+}, `[saveThumbnail] ${imagePath} -> ${filename}`)
+
+
+
+export const saveJsonFile = (jsonData: any, savePath: string) => retryWithSleep(async () => {
+  await fs.promises.writeFile(savePath, JSON.stringify(jsonData, null, 2), "utf8");
+  logger.debug(`[saveJsonFile] Save json to ${savePath}`);
+  return true;
+}, `[saveJsonFile] ${jsonData.length} -> ${savePath}`)
