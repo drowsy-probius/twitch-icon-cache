@@ -17,7 +17,18 @@ app.enable('trust proxy');
 app.use(cors());
 app.use(express.static(path.join(__dirname, "../frontend/")));
 app.use((req: Request, res: Response, next: NextFunction) => {
-  logger.http(`[${getIpFromRequest(req)}] ${req.method} ${getRootFromRequest(req)}${req.originalUrl}`);
+  let loggerRoot = logger.http;
+
+  if(req.originalUrl.startsWith("/refresh"))
+  {
+    loggerRoot = logger.warn;
+  }
+  else if(req.originalUrl.startsWith("/images"))
+  {
+    loggerRoot = logger.silly;
+  }
+  loggerRoot(`[${getIpFromRequest(req)}] ${req.method} ${getRootFromRequest(req)}${req.originalUrl}`);
+
   next();
 });
 app.use(router);
