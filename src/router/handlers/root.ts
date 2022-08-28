@@ -1,13 +1,8 @@
 import { Request, Response, NextFunction } from "express";
+import path from "path";
 
 const handler = (req: Request, res: Response, next: NextFunction) => {
-  return res.status(200).json({
-    "/list": "Show supported streamers with origin icon list url",
-    "/list/:streamer": "Show streamers icon list",
-    "/images/:streamer/:filename": "Get icon images",
-    "/icon": "Get app icon",
-    "/refresh/:streamer?key=": "Refresh streamer's data",
-  });
+  return res.sendFile(path.join(__dirname, "../../../frontend/index.html"));
 }
 
 export default handler;

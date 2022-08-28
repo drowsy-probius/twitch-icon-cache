@@ -1,5 +1,6 @@
 import express, { Request, Response, NextFunction} from 'express';
 import cors from "cors";
+import path from "path";
 
 import router from "./router";
 import { PORT, HOST } from './constants';
@@ -14,6 +15,7 @@ const app = express();
 
 app.enable('trust proxy');
 app.use(cors());
+app.use(express.static(path.join(__dirname, "../frontend/")));
 app.use((req: Request, res: Response, next: NextFunction) => {
   logger.http(`[${getIpFromRequest(req)}] ${req.method} ${getRootFromRequest(req)}${req.originalUrl}`);
   next();
