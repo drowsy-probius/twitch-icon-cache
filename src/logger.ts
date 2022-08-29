@@ -26,7 +26,7 @@ export default (meta_url: string) => {
 
   const customTransports = [
     new winstonDaily({
-      level: "http",
+      level: "info",
       filename: "all-%DATE%.log",
       datePattern: "YYYY-MM-DD",
       maxFiles: "60d",
