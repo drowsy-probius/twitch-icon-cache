@@ -7,8 +7,7 @@ COPY start.sh /
 
 RUN \
   apk add --no-cache \
-    git openssh && \
-  npm install -g serve
+    git openssh
 
 
 RUN \
