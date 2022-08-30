@@ -18,4 +18,4 @@ rm -rf dist
 git pull origin main
 npm install
 npm run build
-npm run start
+serve dist
