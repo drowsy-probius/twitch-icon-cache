@@ -3,7 +3,7 @@ import { createHash } from "crypto";
 import fs from "fs";
 import { resolve, extname } from "path";
 
-import { Icon, IconIndex, IconIndexYeokka, IconProcessorFunction, StreamerData } from "../@types/interfaces"
+import { Icon, IconIndex, IconIndexYelk5093, IconProcessorFunction, StreamerData } from "../@types/interfaces"
 import { INDEX_FILE, FAILED_LIST_FILE } from "../constants";
 import { 
   getImageBasePath,
@@ -44,13 +44,13 @@ const handler: IconProcessorFunction = async (streamer: StreamerData) => {
   }  
 }
 
-export const indexDownloader = async (url: string): Promise<IconIndexYeokka> => {
-  const res = await axios.get(`${url}?ts=${Date.now()}`, );
-  const jsonData: IconIndexYeokka = res.data;
+export const indexDownloader = async (url: string): Promise<IconIndexYelk5093> => {
+  const res = await axios.get(`${url}${url.includes("?") ? "&" : "?"}ts=${Date.now()}`, );
+  const jsonData: IconIndexYelk5093 = res.data;
   return jsonData;
 }
 
-const processJsonData = (jsonData: IconIndexYeokka): Promise<IconIndex> => {
+const processJsonData = (jsonData: IconIndexYelk5093): Promise<IconIndex> => {
   return new Promise(async (resolve, reject) => {
     try
     {
@@ -66,12 +66,12 @@ const processJsonData = (jsonData: IconIndexYeokka): Promise<IconIndex> => {
           keywords: icon.keywords,
           tags: icon.tags,
           useOrigin: false,
-          originUri: icon.path
+          originUri: `https://tv.telk.kr/images/${icon.path}`
         };
         
         try 
         {
-          await saveImage(icon.path, newIcon.uri);
+          await saveImage(newIcon.originUri, newIcon.uri);
           await saveThumbnail(newIcon.uri, `${basePathThumbnail}/${iconHash}${iconExt}`);
           return newIcon;
         }

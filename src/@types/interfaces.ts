@@ -48,6 +48,19 @@ export interface IconIndexYeokka extends IconIndexPrototype {
   dccons: IconYeokka[],
 }
 
+//////////
+
+export interface IconYelk5093 extends IconPrototype {
+  path: string,
+  keywords: string[],
+  tags: string[],
+}
+
+export interface IconIndexYelk5093 extends IconIndexPrototype {
+  dccons: IconYelk5093[],
+}
+
+
 ////////////////////////////////////////////////////////////
 
 export interface Icon extends IconPrototype{
