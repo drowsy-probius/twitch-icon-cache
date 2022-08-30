@@ -132,8 +132,7 @@ export const saveJsonFile = (jsonData: any, savePath: string) => retryWithSleep(
 
 export const doUpdateJson = (localJson: Icon[], remoteJson: IconPrototype[]) => {
   /**
-   * 로컬에 데이터가 더 많은 경우는 문제가 안됨.
-   * 원격 데이터가 더 많으면 업데이트
+   * 
    */
   const jsonFromFile = localJson;
   const jsonFromUrl = remoteJson;
@@ -143,11 +142,11 @@ export const doUpdateJson = (localJson: Icon[], remoteJson: IconPrototype[]) => 
   for(let i=0; i<jsonFromUrl.length; i++)
   {
     if(jsonFromUrl[i].uri !== jsonFromFile[i].originUri) return true;
-    if(Object.keys(jsonFromUrl[i]).length > Object.keys(jsonFromFile[i]).length) return true;
+    if(Object.keys(jsonFromUrl[i]).length !== Object.keys(jsonFromFile[i]).length) return true;
     if(jsonFromUrl[i].name !== jsonFromFile[i].name) return true;
-    if(jsonFromUrl[i].keywords.length > jsonFromFile[i].keywords.length) return true;
+    if(jsonFromUrl[i].keywords.length !== jsonFromFile[i].keywords.length) return true;
     for(const keyword of jsonFromUrl[i].keywords) if(!jsonFromFile[i].keywords.includes(keyword)) return true;
-    if(jsonFromUrl[i].tags.length > jsonFromFile[i].tags.length) return true;
+    if(jsonFromUrl[i].tags.length !== jsonFromFile[i].tags.length) return true;
     for(const tag of jsonFromUrl[i].tags) if(!jsonFromFile[i].tags.includes(tag)) return true;
   }
   return false;
