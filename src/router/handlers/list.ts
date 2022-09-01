@@ -45,23 +45,26 @@ const listHandler = (req: Request, res: Response, next: NextFunction) => {
   return res.status(200).json(jsonData);
 }
 
-const originListHandler = (req: Request, res: Response, next: NextFunction) => {
+const openDcconListHandler = (req: Request, res: Response, next: NextFunction) => {
   const streamer = req.params.streamer;
   const jsonPath = resolve(`./images/${streamer}/${INDEX_FILE}`);
+  const requestedURL = getRootFromRequest(req);
   const data = fs.readFileSync(jsonPath, "utf8");
-  const jsonData: IconIndex = JSON.parse(data);
-  const replacedData = {
+  const regexp = new RegExp(basePath, "g");
+  const uriReplacedData = data.replace(regexp, requestedURL);
+  const jsonData: IconIndex = JSON.parse(uriReplacedData);
+  const openDcconJson = {
     dccons: [
       ...jsonData.icons
     ],
     timestamp: jsonData.timestamp
   }
 
-  return res.status(200).json(replacedData);
+  return res.status(200).json(openDcconJson);
 }
 
 router.get("/", rootHandler);
 router.get("/:streamer", checkStreamer, listHandler);
-router.get("/open-dccon/:streamer", checkStreamer, originListHandler);
+router.get("/open-dccon/:streamer", checkStreamer, openDcconListHandler);
 
 export default router;
