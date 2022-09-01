@@ -1,7 +1,7 @@
 import axios from "axios";
 import { createHash } from "crypto";
 import fs from "fs";
-import { resolve, extname } from "path";
+import { extname } from "path";
 
 import { Icon, IconIndex, IconIndexYeokka, IconProcessorFunction, StreamerData } from "../@types/interfaces"
 import { INDEX_FILE, FAILED_LIST_FILE } from "../constants";
@@ -45,7 +45,7 @@ const handler: IconProcessorFunction = async (streamer: StreamerData) => {
 }
 
 export const indexDownloader = async (url: string): Promise<IconIndexYeokka> => {
-  const res = await axios.get(`${url}?ts=${Date.now()}`, );
+  const res = await axios.get(`${url}${url.includes("?") ? "&" : "?"}ts=${Date.now()}`, );
   const jsonData: IconIndexYeokka = res.data;
   return jsonData;
 }

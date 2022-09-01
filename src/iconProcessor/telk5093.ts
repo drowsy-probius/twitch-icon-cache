@@ -1,7 +1,7 @@
 import axios from "axios";
 import { createHash } from "crypto";
 import fs from "fs";
-import { resolve, extname } from "path";
+import { extname } from "path";
 
 import { Icon, IconIndex, IconIndexYelk5093, IconProcessorFunction, StreamerData } from "../@types/interfaces"
 import { INDEX_FILE, FAILED_LIST_FILE } from "../constants";

@@ -12,6 +12,8 @@ export const MAX_RETRY: number = 5;
 
 export const INDEX_FILE: string = "index.json";
 
+export const INDEX_ORIGIN_FILE: string = "index_origin.json";
+
 export const FAILED_LIST_FILE: string = "fail.json";
 
 export const ICON_SIZE: number[] = [16, 32, 48, 128];

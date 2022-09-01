@@ -8,6 +8,8 @@
 
 `/list/:streamer` -> show all icon lists of streamer
 
+`/list/origin/:streamer` -> show original data from streamer's url
+
 `/images/:streamer/:filename(hashed).ext` -> get image
 
 `/icon` -> get app icon
