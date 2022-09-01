@@ -10,7 +10,7 @@ import {
   getThumbnailBasePath,
   saveImage, 
   saveThumbnail, 
-  saveJsonFile 
+  saveJsonFile,
 } from "../functions";
 
 import Logger from "../logger";

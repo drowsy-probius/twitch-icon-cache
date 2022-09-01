@@ -6,9 +6,9 @@
 
 `/list` -> show supported streamers
 
-`/list/:streamer` -> show all icon lists of streamer
+`/list/:streamer` -> show icon list of streamer
 
-`/list/origin/:streamer` -> show original data from streamer's url
+`/list/open-dccon/:streamer` -> show open-dccon format icon list of streamer
 
 `/images/:streamer/:filename(hashed).ext` -> get image
 

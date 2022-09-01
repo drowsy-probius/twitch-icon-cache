@@ -3,12 +3,11 @@ import { resolve } from "path";
 import fs from "fs";
 
 import { STREAMER_DATA } from "../../data";
-import { INDEX_FILE, INDEX_ORIGIN_FILE } from "../../constants";
+import { INDEX_FILE } from "../../constants";
 import { getRootFromRequest } from "../../functions";
 
 import checkStreamer from "./checkStreamer";
 import { IconIndex } from "../../@types/interfaces";
-import logger from "../../logger";
 
 const router = Router({mergeParams: true});
 const basePath = resolve(".");
@@ -48,21 +47,21 @@ const listHandler = (req: Request, res: Response, next: NextFunction) => {
 
 const originListHandler = (req: Request, res: Response, next: NextFunction) => {
   const streamer = req.params.streamer;
-  const jsonPath = resolve(`./images/${streamer}/${INDEX_ORIGIN_FILE}`);
+  const jsonPath = resolve(`./images/${streamer}/${INDEX_FILE}`);
   const data = fs.readFileSync(jsonPath, "utf8");
-  try 
-  {
-    const jsonData: IconIndex = JSON.parse(data);
-    return res.status(200).json(jsonData);
+  const jsonData: IconIndex = JSON.parse(data);
+  const replacedData = {
+    dccons: [
+      ...jsonData.icons
+    ],
+    timestamp: jsonData.timestamp
   }
-  catch(err)
-  {
-    return res.status(200).send(data);
-  }
+
+  return res.status(200).json(replacedData);
 }
 
 router.get("/", rootHandler);
 router.get("/:streamer", checkStreamer, listHandler);
-router.get("/origin/:streamer", checkStreamer, originListHandler);
+router.get("/open-dccon/:streamer", checkStreamer, originListHandler);
 
 export default router;

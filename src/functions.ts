@@ -130,13 +130,6 @@ export const saveJsonFile = (jsonData: any, savePath: string) => retryWithSleep(
 }, `[saveJsonFile] ${jsonData.length} -> ${savePath}`)
 
 
-export const saveRawFile = (data: any, savePath: string) => retryWithSleep(async () => {
-  if(typeof(data) === "object") return saveJsonFile(data, savePath);
-  await fs.promises.writeFile(savePath, data, "utf8");
-  logger.debug(`[saveRawFile] Save data to ${savePath}`);
-  return true;
-}, `[saveRawFile] ${data.length} -> ${savePath}`)
-
 export const doUpdateJson = (localJson: Icon[], remoteJson: IconPrototype[]) => {
   /**
    * 

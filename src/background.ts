@@ -2,9 +2,9 @@ import { resolve } from "path";
 import fs from "fs";
 import axios from "axios";
 
-import { CACHE_TIME, INDEX_FILE, INDEX_ORIGIN_FILE } from "./constants";
+import { CACHE_TIME, INDEX_FILE } from "./constants";
 import { STREAMER_DATA } from "./data";
-import { timeParser, doUpdateJson, saveRawFile } from "./functions";
+import { timeParser, doUpdateJson } from "./functions";
 import { IconIndex, StreamerData } from "./@types/interfaces";
 import processorFunctions, { indexDownloader } from "./iconProcessor";
 
@@ -34,9 +34,7 @@ class Cronjob
   job()
   {
     logger.info(`execute cronjob on ${(new Date()).toString()}`);
-
     STREAMER_DATA.forEach(async streamer => {
-      this.downloadOriginJson(streamer);
       const jsonPath = resolve(`./images/${streamer.name}/${INDEX_FILE}`);
       if(fs.existsSync(jsonPath))
       {
@@ -64,12 +62,5 @@ class Cronjob
   fetchDataForStreamer(streamer: StreamerData)
   {
     processorFunctions[streamer.name](streamer);
-  }
-
-  async downloadOriginJson(streamer: StreamerData)
-  {
-    const jsonOriginPath = resolve(`./images/${streamer.name}/${INDEX_ORIGIN_FILE}`);
-    const res = await axios.get(`${streamer.url}${streamer.url.includes("?") ? "&" : "?"}ts=${Date.now()}`);
-    await saveRawFile(res.data, jsonOriginPath);
   }
 }
