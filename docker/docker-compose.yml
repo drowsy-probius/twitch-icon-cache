@@ -13,6 +13,7 @@ services:
     ports:
       - "32189:32189"
     environment:
+      - TZ=Asia/Seoul
       - TWITCH_ICON_CACHE_HOST=0.0.0.0
       - TWITCH_ICON_CACHE_CACHE_TIME=2w
       - TWITCH_ICON_REFRESH_KEY=secretkey
