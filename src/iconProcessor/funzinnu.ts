@@ -69,23 +69,29 @@ const processJsonData = (jsonData: IconIndexFunzinnu): Promise<IconIndex> => {
           useOrigin: false,
           originUri: icon.uri
         };
+
+        return {
+          ...newIcon,
+          uri: icon.uri, // 220904 펀즈님이 자기 주소 써도 된다고 하심.
+          thumbnailUri: icon.uri,
+        }
         
-        try 
-        {
-          await saveImage(icon.uri, newIcon.uri);
-          await saveThumbnail(newIcon.uri, `${basePathThumbnail}/${iconHash}${iconExt}`);
-          return newIcon;
-        }
-        catch(err)
-        {
-          logger.error(err);
-          logger.error(icon);
-          logger.error(`use origin uri`)
-          return {
-            ...newIcon,
-            useOrigin: true
-          };
-        }
+        // try 
+        // {
+        //   await saveImage(icon.uri, newIcon.uri);
+        //   await saveThumbnail(newIcon.uri, `${basePathThumbnail}/${iconHash}${iconExt}`);
+        //   return newIcon;
+        // }
+        // catch(err)
+        // {
+        //   logger.error(err);
+        //   logger.error(icon);
+        //   logger.error(`use origin uri`)
+        //   return {
+        //     ...newIcon,
+        //     useOrigin: true
+        //   };
+        // }
       }));
 
       const failedListJson: {[key: string]: Icon} = {};
