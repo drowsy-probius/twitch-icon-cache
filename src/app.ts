@@ -1,4 +1,6 @@
 import express, { Request, Response, NextFunction} from 'express';
+import compression from "compression";
+import { Z_BEST_COMPRESSION } from 'zlib';
 import cors from "cors";
 import path from "path";
 
@@ -15,6 +17,9 @@ const app = express();
 
 app.enable('trust proxy');
 app.use(cors());
+app.use(compression({
+  level: Z_BEST_COMPRESSION,
+}));
 app.use(express.static(path.join(__dirname, "../frontend/")));
 app.use((req: Request, res: Response, next: NextFunction) => {
   let loggerRoot = logger.http;
