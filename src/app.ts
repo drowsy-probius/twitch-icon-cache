@@ -38,7 +38,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 app.use(router);
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  logger.error(`[${getIpFromRequest(req)}] ${req.method} ${getRootFromRequest(req)}${req.originalUrl} ${req}`);
+  logger.error(`[${getIpFromRequest(req)}] ${req.method} ${getRootFromRequest(req)}${req.originalUrl} | ${JSON.stringify(req)}`);
   return res.json(err);
 })
 
