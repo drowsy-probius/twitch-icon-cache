@@ -19,14 +19,6 @@ const handler = (req: Request, res: Response, next: NextFunction) => {
     })
   }
 
-  const isValidStreamer = streamer in processorFunctions;
-  if(!isValidStreamer)
-  {
-    return res.status(404).json({
-      status: false,
-      message: `No such streamer: ${streamer}`,
-    })
-  }
   const streamerData: StreamerData = STREAMER_DATA.filter(d => d.name === streamer)[0];
   processorFunctions[streamer](streamerData);
 

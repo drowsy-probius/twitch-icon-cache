@@ -25,3 +25,5 @@
 - 트래픽이 많이 발생해서 이미지가 원인인 줄 알았으나 `json` 데이터를 전송하는데 `약 60Mb/s` 정도를 계속 사용하고 있었음. 예를 들어서 `funzinnu`의 `index.json`파일은 약 `400KB`인데 `compression` 미들웨어를 이용하면 `46KB` 정도로 트래픽 감소가 가능함. 
 
 - `cloudflare`에서 규칙, 브라우저 캐시 TTL, 캐시 수준, 에지 캐시 TTL 설정하면 더 많은 트래픽 절약 가능 (링크)[https://stackoverflow.com/questions/11560101/caching-json-with-cloudflare]
+
+- `iconProcessor` 각 함수의 공통 부분을 빼서 따로 선언하기

@@ -45,6 +45,9 @@ const handler: IconProcessorFunction = async (streamer: StreamerData) => {
 }
 
 export const indexDownloader = async (url: string): Promise<IconIndexYelk5093> => {
+  /**
+   * 원본 주소에 이미 query가 포함된 경우가 있으므로 주소에 ?가 있는지 확인함
+   */
   const res = await axios.get(`${url}${url.includes("?") ? "&" : "?"}ts=${Date.now()}`, );
   const jsonData: IconIndexYelk5093 = res.data;
   return jsonData;
@@ -55,10 +58,12 @@ const processJsonData = (jsonData: IconIndexYelk5093): Promise<IconIndex> => {
     try
     {
       const newIconsData = await Promise.all(jsonData.dccons.map(async (icon, index, arr): Promise<Icon> => {
+        // tags에 아무 것도 없는 경우를 대비해서 추가함.
         if(icon.tags.length === 0) icon.tags = ["미지정"];
         const iconHash = createHash("md5").update(`${icon.tags[0]}.${icon.keywords[0]}`).digest('hex');
         const iconExt = extname(icon.path) || ".jpg";
         const newIcon: Icon = {
+          // name을 키로 가지지 않는 json도 있음. 키워드+확장자로 정함.
           name: `${icon.keywords[0]}${iconExt}`,
           nameHash: iconHash,
           uri: `${basePath}/${iconHash}${iconExt}`,
@@ -66,6 +71,7 @@ const processJsonData = (jsonData: IconIndexYelk5093): Promise<IconIndex> => {
           keywords: icon.keywords,
           tags: icon.tags,
           useOrigin: false,
+          // 이분 주소는 상대경로로 저장되어 있었음.
           originUri: `https://tv.telk.kr/images/${icon.path}`
         };
         
