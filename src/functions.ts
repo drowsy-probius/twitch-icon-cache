@@ -206,28 +206,35 @@ export const saveJsonFile = (jsonData: any, savePath: string) => retryWithSleep(
  * @returns 
  */
 export const doUpdateJson = (localJson: Icon[], remoteJson: IconPrototype[]) => {
-  const jsonFromFile = localJson;
-  const jsonFromUrl = remoteJson;
-
-  // 원격 json파일에서 요소를 제거했을 수도 있으니 같지 않음으로 비교함.
-  if(jsonFromUrl.length !== jsonFromFile.length) return true;
-
-  for(let i=0; i<jsonFromUrl.length; i++)
+  try 
   {
-    // 이미지 주소를 uri으로 하는 경우도 있음.
-    if(jsonFromUrl[i].uri && jsonFromUrl[i].uri !== jsonFromFile[i].originUri) return true;
-    // 이미지 주소를 path로 하는 경우도 있음.
-    if(jsonFromUrl[i].path && jsonFromUrl[i].path !== jsonFromFile[i].originUri) return true;
-    if(Object.keys(jsonFromUrl[i]).length !== Object.keys(jsonFromFile[i]).length) return true;
-    // `name` 속성은 옵션임.
-    if(jsonFromUrl[i].name && jsonFromUrl[i].name !== jsonFromFile[i].name) return true;
-    // 만약 로컬에서 새로운 키워드를 추가해서 제공하려면 여기를 <으로 바꾸어야 함.
-    if(jsonFromUrl[i].keywords.length !== jsonFromFile[i].keywords.length) return true;
-    // 원격에 새로운 키워드가 추가되는 경우
-    for(const keyword of jsonFromUrl[i].keywords) if(!jsonFromFile[i].keywords.includes(keyword)) return true;
-    // 만약 로컬에서 새로운 태그를 추가해서 제공하려면 여기를 <으로 바꾸어야 함.
-    if(jsonFromUrl[i].tags.length !== jsonFromFile[i].tags.length) return true;
-    for(const tag of jsonFromUrl[i].tags) if(!jsonFromFile[i].tags.includes(tag)) return true;
+    const jsonFromFile = localJson;
+    const jsonFromUrl = remoteJson;
+
+    // 원격 json파일에서 요소를 제거했을 수도 있으니 같지 않음으로 비교함.
+    if(jsonFromUrl.length !== jsonFromFile.length) return true;
+
+    for(let i=0; i<jsonFromUrl.length; i++)
+    {
+      // 이미지 주소를 uri으로 하는 경우도 있음.
+      if(jsonFromUrl[i].uri && jsonFromUrl[i].uri !== jsonFromFile[i].originUri) return true;
+      // 이미지 주소를 path로 하는 경우도 있음.
+      if(jsonFromUrl[i].path && jsonFromUrl[i].path !== jsonFromFile[i].originUri) return true;
+      if(Object.keys(jsonFromUrl[i]).length !== Object.keys(jsonFromFile[i]).length) return true;
+      // `name` 속성은 옵션임.
+      if(jsonFromUrl[i].name && jsonFromUrl[i].name !== jsonFromFile[i].name) return true;
+      // 만약 로컬에서 새로운 키워드를 추가해서 제공하려면 여기를 <으로 바꾸어야 함.
+      if(jsonFromUrl[i].keywords.length !== jsonFromFile[i].keywords.length) return true;
+      // 원격에 새로운 키워드가 추가되는 경우
+      for(const keyword of jsonFromUrl[i].keywords) if(!jsonFromFile[i].keywords.includes(keyword)) return true;
+      // 만약 로컬에서 새로운 태그를 추가해서 제공하려면 여기를 <으로 바꾸어야 함.
+      if(jsonFromUrl[i].tags.length !== jsonFromFile[i].tags.length) return true;
+      for(const tag of jsonFromUrl[i].tags) if(!jsonFromFile[i].tags.includes(tag)) return true;
+    }
+  }
+  catch(err)
+  {
+    logger.error(err);
   }
   return false;
 }
