@@ -65,7 +65,7 @@ class Cronjob
         }
 
         // 로컬의 icons값과 원격에서 가져온 icons값을 정해진 함수로 비교함.
-        if(!doUpdateJson(json.icons, (await indexDownloader[streamer.name](streamer.url)).icons))
+        if(!doUpdateJson(json.icons, (await indexDownloader[streamer.name](streamer.url))))
         {
           logger.info(`[Cronjob] ${streamer.name}'s data is up-to-date by compare function. Skip downloading...`);
           return;

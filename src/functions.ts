@@ -4,7 +4,7 @@ import fs from "fs";
 import sharp from "sharp";
 import { resolve } from "path";
 
-import { Icon, IconPrototype } from "./@types/interfaces";
+import { Icon, IconIndexPrototype } from "./@types/interfaces";
 import Logger from "./logger";
 const logger = Logger(module.filename);
 
@@ -205,11 +205,11 @@ export const saveJsonFile = (jsonData: any, savePath: string) => retryWithSleep(
  * @param remoteJson 
  * @returns 
  */
-export const doUpdateJson = (localJson: Icon[], remoteJson: IconPrototype[]) => {
+export const doUpdateJson = (localJson: Icon[], remoteJson: IconIndexPrototype) => {
   try 
   {
     const jsonFromFile = localJson;
-    const jsonFromUrl = remoteJson;
+    const jsonFromUrl = remoteJson.dccons || remoteJson.dcConsData || [];
 
     // 원격 json파일에서 요소를 제거했을 수도 있으니 같지 않음으로 비교함.
     if(jsonFromUrl.length !== jsonFromFile.length) return true;
