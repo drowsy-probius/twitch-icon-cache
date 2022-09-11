@@ -82,7 +82,8 @@ const listHandler = (req: Request, res: Response, next: NextFunction) => {
 const openDcconListHandler = (req: Request, res: Response, next: NextFunction) => {
   const streamer = req.params.streamer;
   const jsonPath = resolve(`./images/${streamer}/${INDEX_FILE}`);
-  const requestedURL = getRootFromRequest(req);
+  // const requestedURL = getRootFromRequest(req);
+  const requestedURL = ".";
   const data = fs.readFileSync(jsonPath, "utf8");
   const regexp = new RegExp(basePath, "g");
   const uriReplacedData = data.replace(regexp, requestedURL);
