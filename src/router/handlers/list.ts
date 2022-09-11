@@ -36,8 +36,11 @@ const listHandler = (req: Request, res: Response, next: NextFunction) => {
    * 
    * 그래서 외부에서 접속 가능한 주소를 만들어 내려면
    * 현재 요청을 받은 도메인 주소를 알아낼 필요가 있다. 
+   * 
+   * => 리버스프록시 거친 뒤에 path 알아낼 방법이 없으니 상대주소로 함.
    */
-  const requestedURL = getRootFromRequest(req);
+  // const requestedURL = getRootFromRequest(req);
+  const requestedURL = ".";
   const jsonPath = resolve(`./images/${streamer}/${INDEX_FILE}`);
   /**
    * 서버에 저장된 아이콘 목록 json파일이 존재하는지 확인.
