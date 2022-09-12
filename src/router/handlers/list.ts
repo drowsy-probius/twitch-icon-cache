@@ -29,6 +29,7 @@ const rootHandler = (req: Request, res: Response, next: NextFunction) => {
  */
 const listHandler = (req: Request, res: Response, next: NextFunction) => {
   const streamer = req.params.streamer;
+  // 1시간 단위의 timestamp임. Math.floor(timestamp / (1000 * 60 * 60))값.
   const timestamp = Number(req.query.ts || 0);  
   /**
    * 서버에 저장된 아이콘 목록 json에서 이미지 주소는
@@ -61,8 +62,11 @@ const listHandler = (req: Request, res: Response, next: NextFunction) => {
   /**
    * parameter로 받은 ts값과 서버의 json의 timestamp과 비교해서
    * 같다면 굳이 새 데이터를 리턴해줄 필요가 없음.
+   * 
+   * 앞에 비교는 legacy 지원하기 위함.
+   * 로컬 json에 저장된 데이터는 여전히 ms단위로 할 것임.
    */
-  if(timestamp === jsonData.timestamp)
+  if(timestamp === jsonData.timestamp || timestamp === Math.floor(jsonData.timestamp / (1000 * 60 * 60)))
   {
     return res.status(200).json({
       status: false,
