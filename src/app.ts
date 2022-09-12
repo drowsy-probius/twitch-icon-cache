@@ -49,7 +49,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 app.use(router);
 // 마지막 에러 핸들러. 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  logger.error(`[${getIpFromRequest(req)}] ${req.method} ${getRootFromRequest(req)}${req.originalUrl} | ${JSON.stringify(req)}`);
+  logger.error(`[${getIpFromRequest(req)}] ${req.method} ${getRootFromRequest(req)}${req.originalUrl} | ${JSON.stringify(err)}`);
   return res.json(err);
 })
 // constants.ts에서 정의한 호스트, 포트에 서버 열기

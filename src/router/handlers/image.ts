@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { resolve, join, extname } from "path";
-import fs from "fs";
+import { existsSync, readdirSync, readFileSync } from "fs";
 
 import { FAILED_LIST_FILE, IMAGE } from "../../constants";
-import { getIpFromRequest, getRootFromRequest } from "../../functions";
+import { getIpFromRequest, getRootFromRequest, getImageBasePath, getThumbnailBasePath } from "../../functions";
 import { Icon } from "../../@types/interfaces";
 
 import Logger from "../../logger";
@@ -25,8 +25,24 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
    * parameter로 받은 streamer와 image로부터
    * 원본 크기 이미지와 축소된 이미지의 로컬 경로를 계산함
    */
-  const imagePath = join(basePath, streamer, image);
-  const imagePathThumbnail = join(basePath, streamer, "thumbnail", image);
+  const basePath = isSmall ? getThumbnailBasePath(streamer) : getImageBasePath(streamer);
+  let imagePath = isSmall ? join(basePath, image) : join(basePath, image);
+  /**
+   * 요청 시에 파일 확장자를 지정하지 않아도 동작하도록 설정함.
+   */
+  if(!existsSync(imagePath))
+  {
+    const file = readdirSync(basePath).filter(i => i.startsWith(image));
+    if(file.length !== 1)
+    {
+      logger.warn(`[${getIpFromRequest(req)}] ${req.method} ${getRootFromRequest(req)}${req.originalUrl} | No image`);
+      return res.status(404).json({
+        status: false,
+        message: `No image ${image}`
+      });
+    }
+    return res.redirect(`${file[0]}${isSmall ? '?small' : ''}`);
+  }
 
   /**
    * 로컬 이미지 경로로부터 이미지의 확장자를 알아냄.
@@ -37,10 +53,9 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
    */
   const ext = extname(imagePath); // .이 포함되어 있음.
   /**
-   * 확장자가 없거나 (요청한 주소가 .png 이런 식으로 끝나지 않거나)
    * 가리키는 파일이 이미지가 아니면 404로 응답함.
    */
-  if(ext === undefined || !IMAGE.includes(ext))
+  if(!IMAGE.includes(ext))
   {
     logger.warn(`[${getIpFromRequest(req)}] ${req.method} ${getRootFromRequest(req)}${req.originalUrl} | Not image`);
     return res.status(404).json({
@@ -53,11 +68,11 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
    * 서버에서 백그라운드 작업을 할 때 다운로드 실패한 이미지 목록을 읽어옴.
    * 이 JSON파일은 키로 nameHash를 가짐.
    */
-  const failedListFile = resolve(`./images/${streamer}/${FAILED_LIST_FILE}`);
+  const failedListFile = resolve(join(getImageBasePath(streamer), FAILED_LIST_FILE));
   let failedListJson: {[key: string]: Icon} = {};
-  if(fs.existsSync(failedListFile))
+  if(existsSync(failedListFile))
   {
-    const failedList = fs.readFileSync(failedListFile, "utf8");
+    const failedList = readFileSync(failedListFile, "utf8");
     failedListJson = JSON.parse(failedList);
   }
   /**
@@ -89,7 +104,7 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
   /**
    * 요청한 이미지가 존재하지 않는 경우에
    */
-  if(!fs.existsSync(isSmall ? imagePathThumbnail : imagePath))
+  if(!existsSync(imagePath))
   {
     logger.warn(`[${getIpFromRequest(req)}] ${req.method} ${getRootFromRequest(req)}${req.originalUrl} | No image`);
     return res.status(404).json({
@@ -98,9 +113,7 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
     });
   }
 
-  return isSmall
-  ? res.status(200).sendFile(imagePathThumbnail)
-  : res.status(200).sendFile(imagePath);
+  return res.status(200).sendFile(imagePath);
 }
 
 export default handler;

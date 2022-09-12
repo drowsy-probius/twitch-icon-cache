@@ -1,10 +1,10 @@
-import { resolve } from "path";
+import { resolve, join } from "path";
 import fs from "fs";
 import axios from "axios";
 
 import { CACHE_TIME, INDEX_FILE } from "./constants";
 import { STREAMER_DATA } from "./data";
-import { timeParser, doUpdateJson } from "./functions";
+import { timeParser, doUpdateJson, getImageBasePath } from "./functions";
 import { IconIndex, StreamerData } from "./@types/interfaces";
 import processorFunctions, { indexDownloader } from "./iconProcessor";
 
@@ -44,7 +44,7 @@ class Cronjob
     logger.info(`execute cronjob on ${(new Date()).toString()}`);
     STREAMER_DATA.forEach(async streamer => {
       // 로컬에 저장되어있을 이미지 정보 json 파일 경로
-      const jsonPath = resolve(`./images/${streamer.name}/${INDEX_FILE}`);
+      const jsonPath = resolve(join(getImageBasePath(streamer.name), INDEX_FILE));
       // 로컬에 저장되어 있는 json파일이 있으면 업데이트할 지 결정함.
       if(fs.existsSync(jsonPath))
       {

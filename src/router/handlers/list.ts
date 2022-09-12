@@ -1,10 +1,10 @@
 import { Router, Request, Response, NextFunction } from "express";
-import { resolve } from "path";
+import { resolve, join } from "path";
 import fs from "fs";
 
 import { STREAMER_DATA } from "../../data";
 import { INDEX_FILE } from "../../constants";
-import { getRootFromRequest } from "../../functions";
+import { getImageBasePath } from "../../functions";
 
 import checkStreamer from "./checkStreamer";
 import { IconIndex } from "../../@types/interfaces";
@@ -39,8 +39,7 @@ const listHandler = (req: Request, res: Response, next: NextFunction) => {
    * 
    * => 리버스프록시 거친 뒤에 path 알아낼 방법이 없으니 상대주소로 함.
    */
-  const requestedURL = ".";
-  const jsonPath = resolve(`./images/${streamer}/${INDEX_FILE}`);
+  const jsonPath = resolve(join(getImageBasePath(streamer), INDEX_FILE));
   /**
    * 서버에 저장된 아이콘 목록 json파일이 존재하는지 확인.
    */
@@ -55,8 +54,8 @@ const listHandler = (req: Request, res: Response, next: NextFunction) => {
   const data = fs.readFileSync(jsonPath, "utf8");
   // 서버에서 구동되는 앱의 절대 경로를 모두 찾음.
   const regexp = new RegExp(basePath, "g");
-  // 앱의 절대 경로를 요청 받은 도메인 주소로 교체함.
-  const uriReplacedData = data.replace(regexp, requestedURL);
+  // 앱의 절대 경로를 상대경로로 교체함.
+  const uriReplacedData = data.replace(regexp, ".");
   // 교체한 후에 json으로 파싱함.
   const jsonData: IconIndex = JSON.parse(uriReplacedData);
   /**
@@ -83,11 +82,10 @@ const listHandler = (req: Request, res: Response, next: NextFunction) => {
  */
 const openDcconListHandler = (req: Request, res: Response, next: NextFunction) => {
   const streamer = req.params.streamer;
-  const jsonPath = resolve(`./images/${streamer}/${INDEX_FILE}`);
-  const requestedURL = ".";
+  const jsonPath = resolve(join(getImageBasePath(streamer), INDEX_FILE));
   const data = fs.readFileSync(jsonPath, "utf8");
   const regexp = new RegExp(basePath, "g");
-  const uriReplacedData = data.replace(regexp, requestedURL);
+  const uriReplacedData = data.replace(regexp, ".");
   const jsonData: IconIndex = JSON.parse(uriReplacedData);
   // 여기까지는 `listHandler`와 동일함.
 
