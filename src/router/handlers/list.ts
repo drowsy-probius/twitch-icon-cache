@@ -68,7 +68,6 @@ const listHandler = (req: Request, res: Response, next: NextFunction) => {
    * 앞에 비교는 legacy 지원하기 위함.
    * 로컬 json에 저장된 데이터는 여전히 ms단위로 할 것임.
    */
-  logger.debug(`parameter: ${timestamp}, file: ${jsonData.timestamp}, fileHours: ${Math.floor(jsonData.timestamp / (1000 * 60 * 60))}`);
   if(timestamp === jsonData.timestamp || timestamp === Math.floor(jsonData.timestamp / (1000 * 60 * 60)))
   {
     return res.status(200).json({
