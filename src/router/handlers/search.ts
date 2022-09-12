@@ -78,8 +78,6 @@ const searchStreamerOnly = (req: Request, res: Response, next: NextFunction) => 
   const streamer = req.params.streamer;
   const keyword = req.params.keyword;
 
-  logger.warn(`streamer: ${streamer}, keyword: ${keyword}`);
-
   const result: {match: Icon | null, candidate: Icon[]} = {
     match: null,
     candidate: [],
