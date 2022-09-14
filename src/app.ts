@@ -1,4 +1,4 @@
-import express, { Request, Response, NextFunction} from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import compression from "compression";
 import { Z_BEST_COMPRESSION } from 'zlib';
 import cors from "cors";
@@ -48,7 +48,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 // 정의한 라우터 사용
 app.use(router);
 // 마지막 에러 핸들러. 
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+app.use((err: Error, req: Request, res: Response) => {
   logger.error(`[${getIpFromRequest(req)}] ${req.method} ${getRootFromRequest(req)}${req.originalUrl} | ${JSON.stringify(err)}`);
   return res.json(err);
 })

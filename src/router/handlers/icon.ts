@@ -1,11 +1,11 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import { resolve, join } from "path";
 
 import { ICON_SIZE } from "../../constants";
 
 const basePath = resolve("./public/icon");
 
-const handler = (req: Request, res: Response, next: NextFunction) => {
+const handler = (req: Request, res: Response) => {
   const size = req.query.size ? Number(req.query.size) : 128;
   const imagePath = join(basePath, `${size}.icon.png`);
 

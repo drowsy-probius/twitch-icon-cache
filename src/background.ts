@@ -1,11 +1,10 @@
 import { resolve, join } from "path";
 import fs from "fs";
-import axios from "axios";
 
 import { CACHE_TIME, INDEX_FILE } from "./constants";
 import { STREAMER_DATA } from "./data";
 import { timeParser, doUpdateJson, getImageBasePath } from "./functions";
-import { IconIndex, StreamerData } from "./@types/interfaces";
+import { IconIndex } from "./@types/interfaces";
 import processorFunctions, { indexDownloader } from "./iconProcessor";
 
 import Logger from "./logger";

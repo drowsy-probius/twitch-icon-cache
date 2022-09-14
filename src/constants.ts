@@ -14,13 +14,13 @@ export const REFRESH_KEY: string = process.env.TWITCH_ICON_REFRESH_KEY || "secre
 export const IMAGE: string[] = [".jpg", ".png", ".gif", ".jpeg", ".webp"];
 
 // 최대 재시작 값
-export const MAX_RETRY: number = 5;
+export const MAX_RETRY = 5;
 
 // 이미지 데이터를 저장하는 json 파일 이름.
-export const INDEX_FILE: string = "index.json";
+export const INDEX_FILE = "index.json";
 
 // 다운로드 및 처리에 실패한 이미지 데이터를 저장하는 json 파일 이릉ㅁ
-export const FAILED_LIST_FILE: string = "fail.json";
+export const FAILED_LIST_FILE = "fail.json";
 
 // `/icon` api에서 제공하는 아이콘 이미지 크기 목록
 export const ICON_SIZE: number[] = [16, 32, 48, 128];

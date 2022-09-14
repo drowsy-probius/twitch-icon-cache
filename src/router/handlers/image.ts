@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import { resolve, join, extname } from "path";
 import { existsSync, readdirSync, readFileSync } from "fs";
 
@@ -9,9 +9,7 @@ import { Icon } from "../../@types/interfaces";
 import Logger from "../../logger";
 const logger = Logger(module.filename);
 
-const basePath = resolve("./images");
-
-const handler = async (req: Request, res: Response, next: NextFunction) => {
+const handler = async (req: Request, res: Response) => {
   const streamer = req.params.streamer;
   // url encode된 글자가 있을 수 있으므로 decode함.
   const image = decodeURI(req.params.image);
@@ -26,7 +24,7 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
    * 원본 크기 이미지와 축소된 이미지의 로컬 경로를 계산함
    */
   const basePath = isSmall ? getThumbnailBasePath(streamer) : getImageBasePath(streamer);
-  let imagePath = isSmall ? join(basePath, image) : join(basePath, image);
+  const imagePath = isSmall ? join(basePath, image) : join(basePath, image);
   /**
    * 요청 시에 파일 확장자를 지정하지 않아도 동작하도록 설정함.
    */

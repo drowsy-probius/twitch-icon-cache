@@ -1,4 +1,4 @@
-import { Router, Request, Response, NextFunction } from "express";
+import { Router, Request, Response } from "express";
 import { resolve, join } from "path";
 import { readFileSync } from "fs";
 
@@ -8,13 +8,10 @@ import { STREAMER_DATA } from "../../data";
 import { getImageBasePath } from "../../functions";
 import { IconIndex, Icon } from "../../@types/interfaces";
 
-import Logger from "../../logger";
-const logger = Logger(module.filename);
-
 const router = Router({mergeParams: true});
 const basePath = resolve(".");
 
-const searchAll = (req: Request, res: Response, next: NextFunction) => {
+const searchAll = (req: Request, res: Response) => {
   const keyword = req.params.keyword;
   const result: {match: Icon | null, candidate: Icon[]} = {
     match: null,
@@ -74,7 +71,7 @@ const searchAll = (req: Request, res: Response, next: NextFunction) => {
   return res.status(200).json(result);
 }
 
-const searchStreamerOnly = (req: Request, res: Response, next: NextFunction) => {
+const searchStreamerOnly = (req: Request, res: Response) => {
   const streamer = req.params.streamer;
   const keyword = req.params.keyword;
 
@@ -132,7 +129,7 @@ const searchStreamerOnly = (req: Request, res: Response, next: NextFunction) => 
   return res.status(200).json(result);
 }
 
-router.get("/", (req: Request, res: Response, next: NextFunction) => {
+router.get("/", (req: Request, res: Response) => {
   return res.status(200).json({
     message: "Usage: /search/:keyword, /search/:streamer/:keyword"
   });

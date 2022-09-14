@@ -1,4 +1,4 @@
-import { Router, Request, Response, NextFunction } from "express";
+import { Router, Request, Response } from "express";
 import { resolve, join } from "path";
 import fs from "fs";
 
@@ -8,8 +8,6 @@ import { getImageBasePath } from "../../functions";
 
 import checkStreamer from "./checkStreamer";
 import { IconIndex } from "../../@types/interfaces";
-import Logger from "../../logger";
-const logger = Logger(module.filename);
 
 const router = Router({mergeParams: true});
 const basePath = resolve(".");
@@ -18,7 +16,7 @@ const basePath = resolve(".");
  * 현재 서버에 어떤 스트리머를 지원하는지 보여줌.
  * 스트리머 이름, 아이콘 정보를 제공하는 원본 url 을 알려준다.
  */
-const rootHandler = (req: Request, res: Response, next: NextFunction) => {
+const rootHandler = (req: Request, res: Response) => {
   return res.status(200).json(STREAMER_DATA);
 }
 
@@ -29,7 +27,7 @@ const rootHandler = (req: Request, res: Response, next: NextFunction) => {
  * parameter의 ts 값이 다르다면 아이콘 목록 json을 리턴하고
  * 아니라면 상태 메시지 json을 리턴함.
  */
-const listHandler = (req: Request, res: Response, next: NextFunction) => {
+const listHandler = (req: Request, res: Response) => {
   const streamer = req.params.streamer;
   // 1시간 단위의 timestamp임. Math.floor(timestamp / (1000 * 60 * 60))값.
   const timestamp = Number(req.query.ts || 0);  
@@ -86,7 +84,7 @@ const listHandler = (req: Request, res: Response, next: NextFunction) => {
  * }
  * 이런 형식을 가짐.
  */
-const openDcconListHandler = (req: Request, res: Response, next: NextFunction) => {
+const openDcconListHandler = (req: Request, res: Response) => {
   const streamer = req.params.streamer;
   const jsonPath = resolve(join(getImageBasePath(streamer), INDEX_FILE));
   const data = fs.readFileSync(jsonPath, "utf8");

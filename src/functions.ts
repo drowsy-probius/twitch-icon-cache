@@ -4,7 +4,13 @@ import fs from "fs";
 import sharp from "sharp";
 import { resolve } from "path";
 
-import { Icon, IconIndexPrototype } from "./@types/interfaces";
+import { 
+  Icon, 
+  IconIndexPrototype,
+  IconIndexBridgeBBCC, 
+  IconIndexOpenDccon,
+} from "./@types/interfaces";
+import { Logger } from "winston";
 
 /**
  * 1s, 2m, 5d 등의 시간 문자열을 s 또는 ms 단위로 변경해줌.
@@ -89,7 +95,7 @@ export const resizeImage = (inputPath: string, width: number): Promise<Buffer> =
  * @param maxretry 
  * @returns Promise<any>
  */
-export const retryWithSleep = async (executable: any, failMessage: string, logger: any, maxretry=5): Promise<unknown> => {
+export const retryWithSleep = async (executable: CallableFunction, failMessage: string, logger: Logger, maxretry=5): Promise<unknown> => {
   let tries = 0;
   let error;
   while(tries < maxretry)
@@ -149,7 +155,7 @@ export const getRootFromRequest = (req: Request) => {
  * @param savePath local file path
  * @returns 
  */
-export const saveImage = (url: string, savePath: string, logger: any) => retryWithSleep(async () => {
+export const saveImage = (url: string, savePath: string, logger: Logger) => retryWithSleep(async () => {
   /**
    * sleep 해서 타겟 서버 부하 줄이기?
    */
@@ -175,7 +181,7 @@ export const saveImage = (url: string, savePath: string, logger: any) => retryWi
  * @param filename 
  * @returns 
  */
-export const saveThumbnail = (imagePath: string, filename: string, logger: any) => retryWithSleep(async () => {
+export const saveThumbnail = (imagePath: string, filename: string, logger: Logger) => retryWithSleep(async () => {
   await fs.promises.writeFile(filename, await resizeImage(imagePath, 40));
   logger.debug(`[saveThumbnail] Convert image to ${filename}`);
   return true;
@@ -189,11 +195,11 @@ export const saveThumbnail = (imagePath: string, filename: string, logger: any) 
  * @param savePath 
  * @returns 
  */
-export const saveJsonFile = (jsonData: any, savePath: string, logger: any) => retryWithSleep(async () => {
+export const saveJsonFile = (jsonData: IconIndexPrototype, savePath: string, logger: Logger) => retryWithSleep(async () => {
   await fs.promises.writeFile(savePath, JSON.stringify(jsonData, null, 2), "utf8");
   logger.debug(`[saveJsonFile] Save json to ${savePath}`);
   return true;
-}, `[saveJsonFile] ${jsonData.length} -> ${savePath}`, logger)
+}, `[saveJsonFile] ${JSON.stringify(jsonData).slice(0, 100)} -> ${savePath}`, logger)
 
 
 /**
@@ -203,9 +209,11 @@ export const saveJsonFile = (jsonData: any, savePath: string, logger: any) => re
  * @param remoteJson 
  * @returns 
  */
-export const doUpdateJson = (localJson: Icon[], remoteJson: IconIndexPrototype) => {
+export const doUpdateJson = (localJson: Icon[], remoteJson: IconIndexOpenDccon | IconIndexBridgeBBCC) => {
   const jsonFromFile = localJson;
-  const jsonFromUrl = remoteJson.dccons || remoteJson.dcConsData || [];
+  const jsonFromUrl = 
+    "dccons" in remoteJson ? remoteJson.dccons :
+    "dcConsData" in remoteJson ? remoteJson.dcConsData : [];
 
   // 원격 json파일에서 요소를 제거했을 수도 있으니 같지 않음으로 비교함.
   if(jsonFromUrl.length !== jsonFromFile.length) return true;

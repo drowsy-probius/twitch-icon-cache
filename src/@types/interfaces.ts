@@ -28,19 +28,23 @@ export interface IconProcessorFunctionList {
  * 그래서 마지막으로 [key: string]: any를 추가했음.
  */
 export interface IconPrototype {
-  name?: string,
-  uri?: string, 
   keywords: string[],
   tags: string[],
-  [key: string]: any,
+  name?: string,
+  uri?: string,
+  path?: string,
+  url?: string,
 }
+export type IconProps = "keywords" | "tags" | "name" | "uri" | "path" | "url";
+
+
 
 /**
  * 아이콘 목록 프로토타입.
  * 아이콘 목록과 기타 정보가 있음
  */
 export interface IconIndexPrototype {
-  [key: string]: any,
+  timestamp?: number
 }
 
 ////////////////////////////////////////////////////////////
@@ -54,7 +58,6 @@ export interface IconIndexOpenDccon extends IconIndexPrototype {
 
 export interface IconBridgeBBCC extends IconPrototype {
   name: string,
-  uri?: string,
 }
 
 export interface IconIndexBridgeBBCC extends IconIndexPrototype {
@@ -77,7 +80,7 @@ export interface Icon extends IconPrototype{
   thumbnailUri: string, 
   useOrigin: boolean,
   originUri: string,
-};
+}
 
 export interface IconIndex extends IconIndexPrototype{
   icons: Icon[],

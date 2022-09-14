@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import { StreamerData } from "../../@types/interfaces";
 import { REFRESH_KEY } from "../../constants";
 import { STREAMER_DATA } from "../../data";
@@ -6,7 +6,7 @@ import processorFunctions from "../../iconProcessor";
 import Logger from "../../logger";
 const logger = Logger(module.filename);
 
-const handler = (req: Request, res: Response, next: NextFunction) => {
+const handler = (req: Request, res: Response) => {
   const secretkey = req.query.key;
   const streamer: string = req.params.streamer;
   
