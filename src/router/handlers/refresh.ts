@@ -20,7 +20,7 @@ const handler = (req: Request, res: Response, next: NextFunction) => {
   }
 
   const streamerData: StreamerData = STREAMER_DATA.filter(d => d.name === streamer)[0];
-  processorFunctions[streamer](streamerData);
+  processorFunctions(streamerData);
 
   return res.status(200).json({
     status: true,

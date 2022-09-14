@@ -27,7 +27,7 @@ export default (meta_url: string) => {
 
   // 로그 포맷
   const customFormat = printf(({ level, message, timestamp, stack }) => {
-    return `${timestamp} [${level}] ${file_path}: ${stack || typeof(message) === "object" ? JSON.stringify(message) : message}`;
+    return `${timestamp} [${level}] ${file_path}: ${typeof(message) === "object" ? JSON.stringify(message) : message}${stack ? "\n"+stack : ""}`;
   });
 
   // 로그 파일 설정
@@ -46,16 +46,25 @@ export default (meta_url: string) => {
       maxFiles: "60d",
       dirname: logDir,
     }),
-  ]
+  ];
+
+  const errorStackTracer = format(info => {
+    if(info.meta && info.meta instanceof Error)
+    {
+      info.message = `${info.message} ${info.meta.stack}`;
+    }
+    return info;
+  })
 
   // winston 로그 객체 설정
   const loggerInstance = createLogger({
     level: "info",
     format: combine(
-      timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
       format.splat(),
       format.errors({ stack: true }),
-      customFormat
+      timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+      customFormat,
+      errorStackTracer(),
     ),
     defaultMeta: { service: "user-service" },
     transports: customTransports,

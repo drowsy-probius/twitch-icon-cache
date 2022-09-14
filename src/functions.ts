@@ -5,8 +5,6 @@ import sharp from "sharp";
 import { resolve } from "path";
 
 import { Icon, IconIndexPrototype } from "./@types/interfaces";
-import Logger from "./logger";
-const logger = Logger(module.filename);
 
 /**
  * 1s, 2m, 5d 등의 시간 문자열을 s 또는 ms 단위로 변경해줌.
@@ -91,7 +89,7 @@ export const resizeImage = (inputPath: string, width: number): Promise<Buffer> =
  * @param maxretry 
  * @returns Promise<any>
  */
-export const retryWithSleep = async (executable: any, failMessage: string, maxretry=5): Promise<unknown> => {
+export const retryWithSleep = async (executable: any, failMessage: string, logger: any, maxretry=5): Promise<unknown> => {
   let tries = 0;
   let error;
   while(tries < maxretry)
@@ -151,7 +149,7 @@ export const getRootFromRequest = (req: Request) => {
  * @param savePath local file path
  * @returns 
  */
-export const saveImage = (url: string, savePath: string) => retryWithSleep(async () => {
+export const saveImage = (url: string, savePath: string, logger: any) => retryWithSleep(async () => {
   /**
    * sleep 해서 타겟 서버 부하 줄이기?
    */
@@ -167,7 +165,7 @@ export const saveImage = (url: string, savePath: string) => retryWithSleep(async
   await fs.promises.writeFile(savePath, res.data);
   logger.debug(`[saveImage] Download image from ${url} to ${savePath}`);
   return true;
-}, `[saveImage] ${url} -> ${savePath}`)
+}, `[saveImage] ${url} -> ${savePath}`, logger)
 
 
 /**
@@ -177,11 +175,11 @@ export const saveImage = (url: string, savePath: string) => retryWithSleep(async
  * @param filename 
  * @returns 
  */
-export const saveThumbnail = (imagePath: string, filename: string) => retryWithSleep(async () => {
+export const saveThumbnail = (imagePath: string, filename: string, logger: any) => retryWithSleep(async () => {
   await fs.promises.writeFile(filename, await resizeImage(imagePath, 40));
   logger.debug(`[saveThumbnail] Convert image to ${filename}`);
   return true;
-}, `[saveThumbnail] ${imagePath} -> ${filename}`)
+}, `[saveThumbnail] ${imagePath} -> ${filename}`, logger)
 
 
 /**
@@ -191,11 +189,11 @@ export const saveThumbnail = (imagePath: string, filename: string) => retryWithS
  * @param savePath 
  * @returns 
  */
-export const saveJsonFile = (jsonData: any, savePath: string) => retryWithSleep(async () => {
+export const saveJsonFile = (jsonData: any, savePath: string, logger: any) => retryWithSleep(async () => {
   await fs.promises.writeFile(savePath, JSON.stringify(jsonData, null, 2), "utf8");
   logger.debug(`[saveJsonFile] Save json to ${savePath}`);
   return true;
-}, `[saveJsonFile] ${jsonData.length} -> ${savePath}`)
+}, `[saveJsonFile] ${jsonData.length} -> ${savePath}`, logger)
 
 
 /**
@@ -206,35 +204,28 @@ export const saveJsonFile = (jsonData: any, savePath: string) => retryWithSleep(
  * @returns 
  */
 export const doUpdateJson = (localJson: Icon[], remoteJson: IconIndexPrototype) => {
-  try 
-  {
-    const jsonFromFile = localJson;
-    const jsonFromUrl = remoteJson.dccons || remoteJson.dcConsData || [];
+  const jsonFromFile = localJson;
+  const jsonFromUrl = remoteJson.dccons || remoteJson.dcConsData || [];
 
-    // 원격 json파일에서 요소를 제거했을 수도 있으니 같지 않음으로 비교함.
-    if(jsonFromUrl.length !== jsonFromFile.length) return true;
+  // 원격 json파일에서 요소를 제거했을 수도 있으니 같지 않음으로 비교함.
+  if(jsonFromUrl.length !== jsonFromFile.length) return true;
 
-    for(let i=0; i<jsonFromUrl.length; i++)
-    {
-      // 이미지 주소를 uri으로 하는 경우도 있음.
-      if(jsonFromUrl[i].uri && jsonFromUrl[i].uri !== jsonFromFile[i].originUri) return true;
-      // 이미지 주소를 path로 하는 경우도 있음.
-      if(jsonFromUrl[i].path && jsonFromUrl[i].path !== jsonFromFile[i].originUri) return true;
-      if(Object.keys(jsonFromUrl[i]).length !== Object.keys(jsonFromFile[i]).length) return true;
-      // `name` 속성은 옵션임.
-      if(jsonFromUrl[i].name && jsonFromUrl[i].name !== jsonFromFile[i].name) return true;
-      // 만약 로컬에서 새로운 키워드를 추가해서 제공하려면 여기를 <으로 바꾸어야 함.
-      if(jsonFromUrl[i].keywords.length !== jsonFromFile[i].keywords.length) return true;
-      // 원격에 새로운 키워드가 추가되는 경우
-      for(const keyword of jsonFromUrl[i].keywords) if(!jsonFromFile[i].keywords.includes(keyword)) return true;
-      // 만약 로컬에서 새로운 태그를 추가해서 제공하려면 여기를 <으로 바꾸어야 함.
-      if(jsonFromUrl[i].tags.length !== jsonFromFile[i].tags.length) return true;
-      for(const tag of jsonFromUrl[i].tags) if(!jsonFromFile[i].tags.includes(tag)) return true;
-    }
-  }
-  catch(err)
+  for(let i=0; i<jsonFromUrl.length; i++)
   {
-    logger.error(err);
+    // 이미지 주소를 uri으로 하는 경우도 있음.
+    if(jsonFromUrl[i].uri && jsonFromUrl[i].uri !== jsonFromFile[i].originUri) return true;
+    // 이미지 주소를 path로 하는 경우도 있음.
+    if(jsonFromUrl[i].path && jsonFromUrl[i].path !== jsonFromFile[i].originUri) return true;
+    if(Object.keys(jsonFromUrl[i]).length !== Object.keys(jsonFromFile[i]).length) return true;
+    // `name` 속성은 옵션임.
+    if(jsonFromUrl[i].name && jsonFromUrl[i].name !== jsonFromFile[i].name) return true;
+    // 만약 로컬에서 새로운 키워드를 추가해서 제공하려면 여기를 <으로 바꾸어야 함.
+    if(jsonFromUrl[i].keywords.length !== jsonFromFile[i].keywords.length) return true;
+    // 원격에 새로운 키워드가 추가되는 경우
+    for(const keyword of jsonFromUrl[i].keywords) if(!jsonFromFile[i].keywords.includes(keyword)) return true;
+    // 만약 로컬에서 새로운 태그를 추가해서 제공하려면 여기를 <으로 바꾸어야 함.
+    if(jsonFromUrl[i].tags.length !== jsonFromFile[i].tags.length) return true;
+    for(const tag of jsonFromUrl[i].tags) if(!jsonFromFile[i].tags.includes(tag)) return true;
   }
   return false;
 }

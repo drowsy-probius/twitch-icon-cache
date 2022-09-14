@@ -65,7 +65,7 @@ class Cronjob
         }
 
         // 로컬의 icons값과 원격에서 가져온 icons값을 정해진 함수로 비교함.
-        if(!doUpdateJson(json.icons, (await indexDownloader[streamer.name](streamer.url))))
+        if(!doUpdateJson(json.icons, (await indexDownloader[streamer.type](streamer.url))))
         {
           logger.info(`[Cronjob] ${streamer.name}'s data is up-to-date by compare function. Skip downloading...`);
           return;
@@ -73,17 +73,7 @@ class Cronjob
       }
       
       // 원격 서버에 새로운 데이터가 있다고 판단되어 새로 다운함.
-      this.fetchDataForStreamer(streamer);
+      processorFunctions(streamer);
     });
-  }
-
-  /**
-   * 혹시 전처리/후처리가 필요할 수도 있으니
-   * 따로 만들었음.
-   */ 
-  fetchDataForStreamer(streamer: StreamerData)
-  {
-    logger.info(`[Cronjob] ${streamer.name}'s data is outdated. Downloading...`);
-    processorFunctions[streamer.name](streamer);
   }
 }

@@ -1,10 +1,11 @@
-/**
- * `./data.ts`에서 사용되는 서버 관리자가 설정하는
- * 스트리머 데이터 포맷
- */ 
 export interface StreamerData {
   name: string,
   url: string,
+  type: number,
+  
+  imagePrefix?: string,
+  id?: number,
+  nickname?: string,
 }
 
 // iconProcessor 메인 함수 타입
@@ -39,51 +40,25 @@ export interface IconPrototype {
  * 아이콘 목록과 기타 정보가 있음
  */
 export interface IconIndexPrototype {
-  icons: IconPrototype[],
   [key: string]: any,
 }
 
 ////////////////////////////////////////////////////////////
-/**
- * 스트리머 특화 타입
- * iconProcessor에 새로 추가할 때 여기에도 추가하는 것이 좋음.
- * 
- * 여기 있는 인터페이스는 url을 통해서 다운받은 정보를 할당할 때 사용됨.
- */
+export interface IconOpenDccon extends IconPrototype {
+  path: string,
+}
 
-export interface IconFunzinnu extends IconPrototype {
+export interface IconIndexOpenDccon extends IconIndexPrototype {
+  dccons: IconOpenDccon[],
+}
+
+export interface IconBridgeBBCC extends IconPrototype {
   name: string,
-  uri: string, 
-  keywords: string[],
-  tags: string[],
+  uri?: string,
 }
 
-export interface IconIndexFunzinnu extends IconIndexPrototype {
-  dcConsData: IconFunzinnu[],
-}
-
-//////////
-
-export interface IconYeokka extends IconPrototype {
-  path: string,
-  keywords: string[],
-  tags: string[],
-}
-
-export interface IconIndexYeokka extends IconIndexPrototype {
-  dccons: IconYeokka[],
-}
-
-//////////
-
-export interface IconYelk5093 extends IconPrototype {
-  path: string,
-  keywords: string[],
-  tags: string[],
-}
-
-export interface IconIndexYelk5093 extends IconIndexPrototype {
-  dccons: IconYelk5093[],
+export interface IconIndexBridgeBBCC extends IconIndexPrototype {
+  dcConsData: IconBridgeBBCC[],
 }
 
 
