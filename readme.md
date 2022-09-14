@@ -16,6 +16,10 @@
 
 `/refresh/:streamer?key=` -> refresh streamer's data
 
+`/search/:keyword` -> search icon by keyword. matched and candidates
+
+`/search/:streamer/:keyword` -> search streamer's icon by keyword. matched and candidates
+
 
 
 ## 개선점
