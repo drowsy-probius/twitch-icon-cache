@@ -257,7 +257,8 @@ export const doUpdateJson = (localJson: Icon[], remoteJson: IconIndexOpenDccon |
 
 
     // 만약 로컬에서 새로운 태그를 추가해서 제공하려면 여기를 <으로 바꾸어야 함.
-    if(jsonFromUrl[i].tags.length !== jsonFromFile[i].tags.length)
+    // 원격 태그 길이가 0일 때는 로컬에서 '미지정'을 추가하므로 그 경우는 제외함.
+    if(jsonFromUrl[i].tags.length !== 0 && jsonFromUrl[i].tags.length !== jsonFromFile[i].tags.length)
     {
       logger.debug(`download new json by different tags length. local: ${jsonFromFile[i].tags} remote: ${jsonFromUrl[i].tags}`);
       return true;
