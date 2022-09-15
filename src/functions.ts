@@ -11,6 +11,7 @@ import {
   IconIndexOpenDccon,
 } from "./@types/interfaces";
 import { Logger } from "winston";
+import LoggerFunction from "./logger";
 
 /**
  * 1s, 2m, 5d 등의 시간 문자열을 s 또는 ms 단위로 변경해줌.
@@ -210,30 +211,65 @@ export const saveJsonFile = (jsonData: IconIndexPrototype, savePath: string, log
  * @returns 
  */
 export const doUpdateJson = (localJson: Icon[], remoteJson: IconIndexOpenDccon | IconIndexBridgeBBCC) => {
+  const logger = LoggerFunction(`${module.filename}::doUpdateJson`);
+  const getJsonFromJsonFromUrl = (remoteJson: IconIndexOpenDccon | IconIndexBridgeBBCC) => {
+    if("dccons" in remoteJson)
+    {
+      logger.debug(`remote json type is IconIndexOpenDccon`);
+      return remoteJson.dccons;
+    }
+    if("dcConsData" in remoteJson)
+    {
+      logger.debug(`remote json type is IconIndexBridgeBBCC`);
+      return remoteJson.dcConsData;
+    }
+    logger.debug(`unknown json type ${remoteJson}`);
+    return [];
+  }
+
+
   const jsonFromFile = localJson;
-  const jsonFromUrl = 
-    "dccons" in remoteJson ? remoteJson.dccons :
-    "dcConsData" in remoteJson ? remoteJson.dcConsData : [];
+  const jsonFromUrl = getJsonFromJsonFromUrl(remoteJson);
 
   // 원격 json파일에서 요소를 제거했을 수도 있으니 같지 않음으로 비교함.
-  if(jsonFromUrl.length !== jsonFromFile.length) return true;
+  if(jsonFromUrl.length !== jsonFromFile.length)
+  {
+    logger.debug(`download new json by different length. local: ${jsonFromFile.length} remote: ${jsonFromUrl.length}`);
+    return true;
+  }
 
   for(let i=0; i<jsonFromUrl.length; i++)
   {
-    // 이미지 주소를 uri으로 하는 경우도 있음.
-    if(jsonFromUrl[i].uri && jsonFromUrl[i].uri !== jsonFromFile[i].originUri) return true;
-    // 이미지 주소를 path로 하는 경우도 있음.
-    if(jsonFromUrl[i].path && jsonFromUrl[i].path !== jsonFromFile[i].originUri) return true;
-    if(Object.keys(jsonFromUrl[i]).length !== Object.keys(jsonFromFile[i]).length) return true;
-    // `name` 속성은 옵션임.
-    if(jsonFromUrl[i].name && jsonFromUrl[i].name !== jsonFromFile[i].name) return true;
     // 만약 로컬에서 새로운 키워드를 추가해서 제공하려면 여기를 <으로 바꾸어야 함.
-    if(jsonFromUrl[i].keywords.length !== jsonFromFile[i].keywords.length) return true;
-    // 원격에 새로운 키워드가 추가되는 경우
-    for(const keyword of jsonFromUrl[i].keywords) if(!jsonFromFile[i].keywords.includes(keyword)) return true;
+    if(jsonFromUrl[i].keywords.length !== jsonFromFile[i].keywords.length)
+    {
+      logger.debug(`download new json by different keywords length. local: ${jsonFromFile[i].keywords} remote: ${jsonFromUrl[i].keywords}`);
+      return true;
+    }
+    for(const keyword of jsonFromUrl[i].keywords) 
+    {
+      if(!jsonFromFile[i].keywords.includes(keyword))
+      {
+        logger.debug(`download new json by new keywords detected. local: ${jsonFromFile[i].keywords} remote: ${jsonFromUrl[i].keywords}`);
+        return true;
+      }
+    }
+
+
     // 만약 로컬에서 새로운 태그를 추가해서 제공하려면 여기를 <으로 바꾸어야 함.
-    if(jsonFromUrl[i].tags.length !== jsonFromFile[i].tags.length) return true;
-    for(const tag of jsonFromUrl[i].tags) if(!jsonFromFile[i].tags.includes(tag)) return true;
+    if(jsonFromUrl[i].tags.length !== jsonFromFile[i].tags.length)
+    {
+      logger.debug(`download new json by different tags length. local: ${jsonFromFile[i].tags} remote: ${jsonFromUrl[i].tags}`);
+      return true;
+    }
+    for(const tag of jsonFromUrl[i].tags) 
+    {
+      if(!jsonFromFile[i].tags.includes(tag))
+      {
+        logger.debug(`download new json by new tags detected. local: ${jsonFromFile[i].tags} remote: ${jsonFromUrl[i].tags}`);
+        return true;
+      }
+    }
   }
   return false;
 }
