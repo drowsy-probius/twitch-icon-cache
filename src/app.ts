@@ -3,13 +3,40 @@ import compression from "compression";
 import { Z_BEST_COMPRESSION } from 'zlib';
 import cors from "cors";
 import path from "path";
+import mongoose from "mongoose";
 
 import router from "./router";
-import { PORT, HOST } from './constants';
+import {
+  PORT,
+  HOST,
+  DB_HOST,
+  DB_PORT,
+  DB_USER,
+  DB_PASS,
+  DB_NAME,
+} from './constants';
 import { run_cronjob } from './background';
 import { getIpFromRequest, getRootFromRequest } from "./functions";
 import Logger from "./logger";
+import { exit } from 'process';
 const logger = Logger(module.filename);
+
+/**
+ * mongodb 연결
+ */
+mongoose.connect(`mongodb://${DB_HOST}:${DB_PORT}`, {
+  auth: {
+    username: DB_USER,
+    password: DB_PASS,
+  },
+  dbName: DB_NAME,
+  autoIndex: true,
+  zlibCompressionLevel: 6,
+  loggerLevel: 'debug'
+}, () => {
+  logger.debug(`database connected!`);
+});
+
 
 /**
  * 서버 열기 전에 백그라운드 작업 등록

@@ -5,7 +5,7 @@ import { readFileSync } from "fs";
 import checkStreamer from "./checkStreamer";
 import { INDEX_FILE } from "../../constants";
 import { STREAMER_DATA } from "../../data";
-import { getImageBasePath } from "../../functions";
+import { getImageBasePath } from "../../iconIndexProcessor/functions";
 import { IconIndex, Icon } from "../../@types/interfaces";
 
 const router = Router({mergeParams: true});
@@ -29,8 +29,7 @@ const searchAll = (req: Request, res: Response) => {
       {
         result.match = {
           ...icon,
-          uri: icon.uri.replace(basePath, "."),
-          thumbnailUri: icon.thumbnailUri.replace(basePath, "."),
+          path: icon.path.replace(basePath, "."),
         }
       }
       else 
@@ -42,8 +41,7 @@ const searchAll = (req: Request, res: Response) => {
           {
             result.candidate.push({
               ...icon,
-              uri: icon.uri.replace(basePath, "."),
-              thumbnailUri: icon.thumbnailUri.replace(basePath, "."),
+              path: icon.path.replace(basePath, "."),
             });
             inserted = true;
             break;
@@ -57,8 +55,7 @@ const searchAll = (req: Request, res: Response) => {
           {
             result.candidate.push({
               ...icon,
-              uri: icon.uri.replace(basePath, "."),
-              thumbnailUri: icon.thumbnailUri.replace(basePath, "."),
+              path: icon.path.replace(basePath, "."),
             });
             inserted = true;
             break;
@@ -88,8 +85,7 @@ const searchStreamerOnly = (req: Request, res: Response) => {
     {
       result.match = {
         ...icon,
-        uri: icon.uri.replace(basePath, "."),
-        thumbnailUri: icon.thumbnailUri.replace(basePath, "."),
+        path: icon.path.replace(basePath, "."),
       }
     }
     else 
@@ -101,8 +97,7 @@ const searchStreamerOnly = (req: Request, res: Response) => {
         {
           result.candidate.push({
             ...icon,
-            uri: icon.uri.replace(basePath, "."),
-            thumbnailUri: icon.thumbnailUri.replace(basePath, "."),
+            path: icon.path.replace(basePath, "."),
           });
           inserted = true;
           break;
@@ -116,8 +111,7 @@ const searchStreamerOnly = (req: Request, res: Response) => {
         {
           result.candidate.push({
             ...icon,
-            uri: icon.uri.replace(basePath, "."),
-            thumbnailUri: icon.thumbnailUri.replace(basePath, "."),
+            path: icon.path.replace(basePath, "."),
           });
           inserted = true;
           break;

@@ -4,7 +4,7 @@ import fs from "fs";
 
 import { STREAMER_DATA } from "../../data";
 import { INDEX_FILE } from "../../constants";
-import { getImageBasePath } from "../../functions";
+import { getImageBasePath } from "../../iconIndexProcessor/functions";
 
 import checkStreamer from "./checkStreamer";
 import { IconIndex } from "../../@types/interfaces";

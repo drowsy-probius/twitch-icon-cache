@@ -1,8 +1,6 @@
 import { Request } from "express";
 import axios from "axios";
 import fs from "fs";
-import sharp from "sharp";
-import { resolve } from "path";
 
 import { 
   Icon, 
@@ -52,76 +50,8 @@ export const sleepForMs = (time: number) => {
   return new Promise(resolve => setTimeout(resolve, time));
 }
 
-/**
- * 스트리머 이름을 주면 해당 스트리머의 데이터가 저장된 폴더를 알려줌
- * @param streamerName 
- * @returns path-like-string
- */
-export const getImageBasePath = (streamerName: string) => {
-  return resolve(`./images/${streamerName}`);
-}
-
-/**
- * 스트리머 이름을 주면 해당 스트리머의 작은 이미지 파일이 저장된 폴더를 알려줌
- * @param streamerName 
- * @returns path-like-string
- */
-export const getThumbnailBasePath = (streamerName: string) => {
-  return resolve(`./images/${streamerName}/thumbnail`);
-}
 
 ////////////////////////////////////////////////////////////
-
-/**
- * sharp 모듈을 사용해서 `inputPath`에 해당하는 이미지를
- * `width`크기에 맞춰서 줄인 뒤 이미지 버퍼를 생성함.
- * @param inputPath 
- * @param width 
- * @returns resized Promise<Buffer>
- */
-export const resizeImage = (inputPath: string, width: number): Promise<Buffer> => {
-  // gif 파일 대응
-  const isGif = inputPath.endsWith("gif");
-
-  return isGif 
-  ? sharp(inputPath, {animated: true}).resize(width).gif().toBuffer()
-  : sharp(inputPath).resize(width).toBuffer()
-}
-
-
-/**
- * `executable`을 성공할 때까지 최대 `maxretry`만큼 실행한다. 
- * @param executable Function or Promise 
- * @param failMessage 
- * @param maxretry 
- * @returns Promise<any>
- */
-export const retryWithSleep = async (executable: CallableFunction, failMessage: string, logger: Logger, maxretry=5): Promise<unknown> => {
-  let tries = 0;
-  let error;
-  while(tries < maxretry)
-  {
-    try
-    {
-      const ret = await executable();
-      return ret;
-    }
-    catch(err)
-    {
-      error = err;
-      /**
-       * 2의 지수만큼 sleep함.
-       */
-      const sleepSecs = Math.min(Math.pow(2, tries) + Math.random(), 64)
-      tries += 1;
-      logger.error(`try:${tries} ${failMessage} ${err}. Wait for ${sleepSecs} seconds.`);
-      await sleepForMs(sleepSecs * 1000);
-    }
-  }
-  return error;
-}
-
-////////////////////////////////////////////////////////////////
 
 /**
  * express Request 객체를 받아서 실제 ip를 알려줌.
@@ -149,58 +79,6 @@ export const getRootFromRequest = (req: Request) => {
   const host = req.get("Host");
   return `${protocol}://${host}`;
 }
-
-/**
- * `url`으로부터 이미지 버퍼를 받아서 `savePath`에 저장함.
- * @param url remote image url
- * @param savePath local file path
- * @returns 
- */
-export const saveImage = (url: string, savePath: string, logger: Logger) => retryWithSleep(async () => {
-  /**
-   * sleep 해서 타겟 서버 부하 줄이기?
-   */
-  await sleepForMs(Math.random() * 10000);
-
-  /**
-    * 어떤 주소는 한글이 포함되어 있고 어떤 주소는 한글이 이미 encode된 것이 있어서
-    * 한번 디코딩한 뒤에 인코딩하면 unescaped 에러 없이 요청이 가능함. 
-    */
-  const res = await axios.get(encodeURI(decodeURI(url)), {
-    responseType: "arraybuffer",
-  });
-  await fs.promises.writeFile(savePath, res.data);
-  logger.debug(`[saveImage] Download image from ${url} to ${savePath}`);
-  return true;
-}, `[saveImage] ${url} -> ${savePath}`, logger)
-
-
-/**
- * `imagePath`로부터 이미지 버퍼를 읽어와서 어떤 절차(resize)를 거친 뒤 
- * filename에 저장함.
- * @param imagePath local file path
- * @param filename 
- * @returns 
- */
-export const saveThumbnail = (imagePath: string, filename: string, logger: Logger) => retryWithSleep(async () => {
-  await fs.promises.writeFile(filename, await resizeImage(imagePath, 40));
-  logger.debug(`[saveThumbnail] Convert image to ${filename}`);
-  return true;
-}, `[saveThumbnail] ${imagePath} -> ${filename}`, logger)
-
-
-/**
- * `jsonData`는 어떤 데이터여도 상관 없으나 json데이터를 상정함.
- * `savePath`에 해당 `jsonData`를 `JSON.stringify`를 사용해서 저장함.
- * @param jsonData any
- * @param savePath 
- * @returns 
- */
-export const saveJsonFile = (jsonData: IconIndexPrototype, savePath: string, logger: Logger) => retryWithSleep(async () => {
-  await fs.promises.writeFile(savePath, JSON.stringify(jsonData, null, 2), "utf8");
-  logger.debug(`[saveJsonFile] Save json to ${savePath}`);
-  return true;
-}, `[saveJsonFile] ${JSON.stringify(jsonData).slice(0, 100)} -> ${savePath}`, logger)
 
 
 /**
@@ -238,39 +116,6 @@ export const doUpdateJson = (localJson: Icon[], remoteJson: IconIndexOpenDccon |
     return true;
   }
 
-  for(let i=0; i<jsonFromUrl.length; i++)
-  {
-    // 만약 로컬에서 새로운 키워드를 추가해서 제공하려면 여기를 <으로 바꾸어야 함.
-    if(jsonFromUrl[i].keywords.length !== jsonFromFile[i].keywords.length)
-    {
-      logger.debug(`download new json by different keywords length. local: ${jsonFromFile[i].keywords} remote: ${jsonFromUrl[i].keywords}`);
-      return true;
-    }
-    for(const keyword of jsonFromUrl[i].keywords) 
-    {
-      if(!jsonFromFile[i].keywords.includes(keyword))
-      {
-        logger.debug(`download new json by new keywords detected. local: ${jsonFromFile[i].keywords} remote: ${jsonFromUrl[i].keywords}`);
-        return true;
-      }
-    }
 
-
-    // 만약 로컬에서 새로운 태그를 추가해서 제공하려면 여기를 <으로 바꾸어야 함.
-    // 원격 태그 길이가 0일 때는 로컬에서 '미지정'을 추가하므로 그 경우는 제외함.
-    if(jsonFromUrl[i].tags.length !== 0 && jsonFromUrl[i].tags.length !== jsonFromFile[i].tags.length)
-    {
-      logger.debug(`download new json by different tags length. local: ${jsonFromFile[i].tags} remote: ${jsonFromUrl[i].tags}`);
-      return true;
-    }
-    for(const tag of jsonFromUrl[i].tags) 
-    {
-      if(!jsonFromFile[i].tags.includes(tag))
-      {
-        logger.debug(`download new json by new tags detected. local: ${jsonFromFile[i].tags} remote: ${jsonFromUrl[i].tags}`);
-        return true;
-      }
-    }
-  }
   return false;
 }

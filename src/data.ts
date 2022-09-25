@@ -44,29 +44,32 @@ export const STREAMER_DATA: StreamerData[] = [
   {
     "name": "funzinnu",
     "id": 49469880,
-    "url": "https://www.funzinnu.com/stream/dccon.js",
-    "type": TYPE.BridgeBBCC,
+    "url": "https://api.probius.dev/twitch-icons/cdn/list/open-dccon/funzinnu", // image collision exists: 케이크가게, 쿠기가게
+    "imagePrefix": "https://api.probius.dev/twitch-icons/cdn/",
+    "type": TYPE.openDccon,
     "nickname": "펀즈",
   },
   {
     "name": "yeokka",
     "id": 124535126,
-    "url": "https://watert.gitlab.io/emotes/yeokka/ODF.json",
+    "url": "https://api.probius.dev/twitch-icons/cdn/list/open-dccon/yeokka",
+    "imagePrefix": "https://api.probius.dev/twitch-icons/cdn/",
     "type": TYPE.openDccon,
     "nickname": "여까",
   },
   {
     "name": "telk5093",
     "id": 106620687,
-    "url": "https://tv.telk.kr/?mode=json",
-    "imagePrefix": "https://tv.telk.kr/images/",
+    "url": "https://api.probius.dev/twitch-icons/cdn/list/open-dccon/telk5093", // image collision exists: 북한앵무
+    "imagePrefix": "https://api.probius.dev/twitch-icons/cdn/",
     "type": TYPE.openDccon,
     "nickname": "텔크",
   },
   {
     "name": "sleeping_ce",
     "id": 414759894,
-    "url": "https://open-dccon-selector.update.sh/api/channel/414759894/cached-dccon",
+    "url": "https://api.probius.dev/twitch-icons/cdn/list/open-dccon/sleeping_ce",
+    "imagePrefix": "https://api.probius.dev/twitch-icons/cdn/",
     "type": TYPE.openDccon,
     "nickname": "잠자는꼬마선충"
   },

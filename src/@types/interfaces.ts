@@ -1,11 +1,11 @@
 export interface StreamerData {
   name: string,
-  url: string,
-  type: number,
-  
+  nickname: string,
+  id: number,
+  type?: number,
+  url?: string,
   imagePrefix?: string,
-  id?: number,
-  nickname?: string,
+  lastUpdatedDate?: Date,
 }
 
 // iconProcessor 메인 함수 타입
@@ -72,17 +72,20 @@ export interface IconIndexBridgeBBCC extends IconIndexPrototype {
 
 export interface Icon extends IconPrototype{
   name: string,
-  uri: string, 
+  hash: string,
+  path: string, 
   tags: string[],
   keywords: string[],
 
-  nameHash: string,
-  thumbnailUri: string, 
   useOrigin: boolean,
-  originUri: string,
+  originPath: string,
 }
 
 export interface IconIndex extends IconIndexPrototype{
   icons: Icon[],
   timestamp: number,
 }
+
+////////////////////////////////////////////////////////////
+export type ImageSize = "large" | "medium" | "small";
+export type ImageSubpaths = { [size in ImageSize]: string };

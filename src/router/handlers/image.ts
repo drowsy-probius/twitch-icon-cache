@@ -3,7 +3,8 @@ import { resolve, join, extname } from "path";
 import { existsSync, readdirSync, readFileSync } from "fs";
 
 import { FAILED_LIST_FILE, IMAGE } from "../../constants";
-import { getIpFromRequest, getRootFromRequest, getImageBasePath, getThumbnailBasePath } from "../../functions";
+import { getIpFromRequest, getRootFromRequest } from "../../functions";
+import { getImageBasePath } from "../../iconIndexProcessor/functions";
 import { Icon } from "../../@types/interfaces";
 
 import Logger from "../../logger";
@@ -23,8 +24,8 @@ const handler = async (req: Request, res: Response) => {
    * parameter로 받은 streamer와 image로부터
    * 원본 크기 이미지와 축소된 이미지의 로컬 경로를 계산함
    */
-  const basePath = isSmall ? getThumbnailBasePath(streamer) : getImageBasePath(streamer);
-  const imagePath = isSmall ? join(basePath, image) : join(basePath, image);
+  const basePath = getImageBasePath(streamer);
+  const imagePath = isSmall ? join(basePath, image, "small") : join(basePath, image, "large");
   /**
    * 요청 시에 파일 확장자를 지정하지 않아도 동작하도록 설정함.
    */
@@ -91,8 +92,8 @@ const handler = async (req: Request, res: Response) => {
      * 플러그인에서 이미지 로딩 실패 시에 (400번대 statusCode 받을 때)
      * onerror 리스너로 백업 이미지 보여주도록 하기도 했음.
      */
-    return failedListJson[image].originUri 
-    ? res.status(302).redirect(failedListJson[image].originUri)
+    return failedListJson[image].originPath 
+    ? res.status(302).redirect(failedListJson[image].originPath)
     : res.status(404).json({
       status: false,
       message: `Failed image ${image}`

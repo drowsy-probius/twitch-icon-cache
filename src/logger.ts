@@ -21,13 +21,13 @@ export default (meta_url: string) => {
   // 앱 루트 디렉토리 절대 경로
   const root = resolve("./");
   // 인자로 받은 파일 경로를 .으로 대체
-  const file_path = meta_url.replace(root, ".");
+  const filepath = meta_url.replace(root, ".");
   // 로그파일 남길 경로
   const logDir = join(root, "log");
 
   // 로그 포맷
   const customFormat = printf(({ level, message, timestamp, stack }) => {
-    return `${timestamp} [${level}] ${file_path}: ${typeof(message) === "object" ? JSON.stringify(message) : message}${stack ? "\n"+stack : ""}`;
+    return `${timestamp} [${level}] ${filepath}: ${typeof(message) === "object" ? JSON.stringify(message) : message}${stack ? "\n"+stack : ""}`;
   });
 
   // 로그 파일 설정
@@ -58,7 +58,7 @@ export default (meta_url: string) => {
 
   // winston 로그 객체 설정
   const loggerInstance = createLogger({
-    level: "info",
+    level: process.env.LOG_LEVEL || "info",
     format: combine(
       format.splat(),
       format.errors({ stack: true }),
@@ -78,12 +78,6 @@ export default (meta_url: string) => {
         format: combine(colorize(), customFormat),
       })
     );
-  }
-
-  // 환경변수로 설정한 로그 레벨이 debug면 콘솔에 debug 단계 로그 표시함.
-  if(process.env.LOG_LEVEL === "debug")
-  {
-    loggerInstance.level = "debug";
   }
 
   return loggerInstance;

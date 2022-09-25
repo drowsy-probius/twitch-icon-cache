@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { StreamerData } from "../../@types/interfaces";
 import { REFRESH_KEY } from "../../constants";
 import { STREAMER_DATA } from "../../data";
-import processorFunctions from "../../iconProcessor";
+import IconIndexProcessor from "../../iconIndexProcessor";
 import Logger from "../../logger";
 const logger = Logger(module.filename);
 
@@ -20,7 +20,8 @@ const handler = (req: Request, res: Response) => {
   }
 
   const streamerData: StreamerData = STREAMER_DATA.filter(d => d.name === streamer)[0];
-  processorFunctions(streamerData);
+  const processor = new IconIndexProcessor(streamerData);
+  processor.run();    
 
   return res.status(200).json({
     status: true,
