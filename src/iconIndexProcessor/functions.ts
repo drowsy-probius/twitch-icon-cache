@@ -6,7 +6,9 @@ import axios from "axios";
 import { writeFile } from "fs/promises";
 import { existsSync } from 'fs';
 import { model } from "mongoose";
-import { iconSchema } from "../database/schema";
+import { 
+  iconListModel
+} from "../database";
 import { 
   Icon,
   StreamerData, 
@@ -24,8 +26,8 @@ export const imageSizeWidth = {
  * @param streamerName 
  * @returns path-like-string
  */
-export const getImageBasePath = (streamerName: string) => {
-  return resolve(`./images/`, streamerName);
+export const getImageBasePath = () => {
+  return resolve(`./images/`);
 }
 
 /**
@@ -33,8 +35,8 @@ export const getImageBasePath = (streamerName: string) => {
  * @param streamerName 
  * @returns path-like-string
  */
-export const getImageSubPaths = (streamerName: string) => {
-  const basePath = getImageBasePath(streamerName);
+export const getImageSubPaths = () => {
+  const basePath = getImageBasePath();
   return {
     "large": resolve(basePath, "large"),
     "medium": resolve(basePath, "medium"),
@@ -81,24 +83,42 @@ export const fetchImageAsBuffer = async (url: string, logger: Logger) => {
 
 export const saveImage = async (imageBuffer: Buffer, savePath: string, logger: Logger) => {
   await writeFile(savePath, imageBuffer);
+  logger.debug(`[saveImage] save to ${savePath}`);
   return true;
 }
 
 
-export const saveIcon = async (imageBuffer: Buffer, streamer: StreamerData, icon: Icon, logger: Logger): Promise<Icon> => {
+export const saveIcon = async (imageBuffer: Buffer, icon: Icon, logger: Logger): Promise<Icon> => {
   try 
   {
-    const subPaths = getImageSubPaths(streamer.name);
+    const subPaths = getImageSubPaths();
 
     for(const _size of Object.keys(subPaths))
     {
       const size = _size as ImageSize;
       await saveImage(
         await resizeImage(imageBuffer, imageSizeWidth[size]),
-        resolve(subPaths[size], `${icon.hash}.webp`),
+        resolve(subPaths[size], `${icon.iconHash}.webp`),
         logger
       )
     }
+
+    try 
+    {
+      await iconListModel.create({iconHash: icon.iconHash});
+    }
+    catch(err: any)
+    {
+      if(err.code === 11000) // dup key error caused by race condition
+      {
+        logger.warn(err); 
+      }
+      else 
+      {
+        logger.error(`[saveIcon] insert to iconttv.iconListModel failed ${JSON.stringify(err, null, 2)}`);
+      }
+    }
+
     return icon;
   }
   catch(err)
@@ -113,7 +133,14 @@ export const saveIcon = async (imageBuffer: Buffer, streamer: StreamerData, icon
  * sha256 해시를 사용함
  * createHash('sha256').update(string | Buffer | ...).digest('hex');
  */
-export const isImageInLocal = async (streamerName: string, hash: string): Promise<boolean> => {
-  const queryResult = await model(streamerName, iconSchema).count({ hash: hash });
-  return queryResult > 0;
+export const isImageInLocal = async (iconHash: string): Promise<boolean> => {
+  try
+  {
+    const queryResult = await iconListModel.count({ iconHash: iconHash });
+    return queryResult > 0;
+  }
+  catch(err)
+  {
+    return false; // assume it has no duplicated items.
+  }
 }

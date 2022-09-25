@@ -40,7 +40,7 @@ const listHandler = (req: Request, res: Response) => {
    * 
    * => 리버스프록시 거친 뒤에 path 알아낼 방법이 없으니 상대주소로 함.
    */
-  const jsonPath = resolve(join(getImageBasePath(streamer), INDEX_FILE));
+  const jsonPath = resolve(join(getImageBasePath(), INDEX_FILE));
   /**
    * 서버에 저장된 아이콘 목록 json파일이 존재하는지 확인.
    */
@@ -86,7 +86,7 @@ const listHandler = (req: Request, res: Response) => {
  */
 const openDcconListHandler = (req: Request, res: Response) => {
   const streamer = req.params.streamer;
-  const jsonPath = resolve(join(getImageBasePath(streamer), INDEX_FILE));
+  const jsonPath = resolve(join(getImageBasePath(), INDEX_FILE));
   const data = fs.readFileSync(jsonPath, "utf8");
   const regexp = new RegExp(basePath, "g");
   const uriReplacedData = data.replace(regexp, ".");

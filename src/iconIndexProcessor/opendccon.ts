@@ -120,7 +120,8 @@ class OpenDccon {
     const formattedIcon: Icon = {
       name: `${icon.keywords[0]}`,
       hash: '', // evaluated in saveIcon function
-      path: ``, // evaluated in saveIcon function eg. {hash}.gif
+      iconHash: '', // evaluated in saveIcon function
+      path: ``, // evaluated in router function
       keywords: icon.keywords,
       tags: icon.tags,
       useOrigin: false,
@@ -139,16 +140,17 @@ class OpenDccon {
           const imageBuffer = await retry(() => fetchImageAsBuffer(icon.originPath, this.logger), {
             retries: 5,
           });
-          icon.hash = createHash('sha256').update(imageBuffer).digest('hex');
+          icon.iconHash = createHash('sha256').update(imageBuffer).digest('hex');
+          icon.hash = createHash("sha256").update(`${icon.keywords[0]}`).digest('hex');
 
           // already same object in database (local)
-          if(await isImageInLocal(streamer.name, icon.hash))
+          if(await isImageInLocal(icon.iconHash))
           {
-            this.logger.debug(`[isImageInLocal] image is in local database`);
+            this.logger.info(`[isImageInLocal] image is in local database`);
             return icon;
           }
 
-          return retry(() => saveIcon(imageBuffer, streamer, icon, this.logger), {
+          return retry(() => saveIcon(imageBuffer, icon, this.logger), {
             retries: 5,
           });
         })

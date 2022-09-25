@@ -22,10 +22,11 @@ export const streamerListSchema = new Schema<StreamerData>({
 
 export const iconSchema = new Schema<Icon>({
   hash: { type: String, required: true, unique: true, },
+  iconHash: { type: String, required: true, ref: `iconList`},
   name: { type: String, required: true, },
   path: { type: String, }, // evaluated when router called.
   tags: { type: [String], required: true},
-  keywords: { type: [String], required: true, },
+  keywords: { type: [String], required: true },
 
   useOrigin: { type: Boolean, },
   originPath: { type: String, },
@@ -67,5 +68,21 @@ export const iconSchema = new Schema<Icon>({
 
       return false;
     },
-  }
+
+    hasKeyword (keyword: string) {
+      return this.keywords.includes(keyword);
+    },
+  },
+  
+});
+iconSchema.pre("validate", function(next){
+  this.tags = Array.from(new Set(this.tags)); // remove duplicated items;
+  this.keywords = Array.from(new Set(this.keywords)); // remove duplicated items;
+  next();
+});
+
+export const iconListSchema = new Schema({
+  iconHash: { type: String, required: true, unique: true, },
+}, {
+  timestamps: false,
 });

@@ -15,8 +15,15 @@ import {
 import Logger from "../logger";
 import { existsSync } from 'fs';
 import { getImageSubPaths } from "./functions";
-import { createStreamerIconModel } from "../database";
+import { getStreamerIconModel } from "../database";
 import retry from "async-retry";
+
+
+const subPaths = getImageSubPaths();
+Object.keys(subPaths).forEach((size) => {
+  const subPath = subPaths[size as ImageSize];
+  if (!existsSync(subPath)) mkdirSync(subPath, { recursive: true });
+})
 
 
 /**
@@ -25,21 +32,11 @@ import retry from "async-retry";
 export default class IconIndexProcessor {
   logger: winston.Logger;
   streamer: StreamerData;
-  subPaths: ImageSubpaths;
 
   constructor(streamer: StreamerData)
   {
     this.logger = Logger(`${module.filename} [${streamer.name}]`);
     this.streamer = streamer;
-    this.subPaths = getImageSubPaths(streamer.name);
-  }
-
-  mkdirImagePaths()
-  {
-    Object.keys(this.subPaths).forEach((size) => {
-      const subPath = this.subPaths[size as ImageSize];
-      if (!existsSync(subPath)) mkdirSync(subPath, { recursive: true });
-    })
   }
 
   downloadIndexFromUrl() {
@@ -50,7 +47,7 @@ export default class IconIndexProcessor {
 
   async saveToDatabase(iconIndex: IconIndex)
   {
-    const Model = createStreamerIconModel(this.streamer.name);
+    const Model = getStreamerIconModel(this.streamer.name);
     try 
     {
       await Model.insertMany(iconIndex.icons);
@@ -61,7 +58,7 @@ export default class IconIndexProcessor {
       if(err.code === 11000) // dup key error
       {
         this.logger.warn(`[saveToDatabase] duplicated keys error`);
-        let icons: Icon[] = [];
+        const icons: Icon[] = [];
         const errorIconsIDs = err.result.result.writeErrors.map(async (error: any) => {
           const parsedError = JSON.stringify(error);
           const icon = JSON.parse(parsedError).op;
@@ -102,15 +99,10 @@ export default class IconIndexProcessor {
       if(this.streamer.type === 0)
       {
         this.logger.info(`[IconProcessor] Processing icons start! ${JSON.stringify(this.streamer, null, 2)}`);
-        this.mkdirImagePaths();
         const processor = new OpenDccon(this.logger);
         processor.downloadIndexFromUrl(this.streamer.url)
-        .then((iconIndexRaw: IconIndexOpenDccon) => {
-          return processor.formatIconIndex(this.streamer, iconIndexRaw);
-        })
-        .then((iconIndex: IconIndex) => {
-          return this.saveToDatabase(iconIndex);
-        })
+        .then((iconIndexRaw: IconIndexOpenDccon) => processor.formatIconIndex(this.streamer, iconIndexRaw))
+        .then((iconIndex: IconIndex) => this.saveToDatabase(iconIndex))
         .then(() => {
           this.logger.info(`[IconProcessor] Processing icons done! ${JSON.stringify(this.streamer, null, 2)}`);
         });
@@ -118,17 +110,10 @@ export default class IconIndexProcessor {
       else if(this.streamer.type === 1)
       {
         this.logger.info(`[IconProcessor] Processing icons start! ${JSON.stringify(this.streamer, null, 2)}`);
-        this.mkdirImagePaths();
         const processor = new BridgeBBCC(this.logger);
         processor.downloadIndexFromUrl(this.streamer.url)
-        .then((iconIndexRaw: IconIndexBridgeBBCC) => {
-          return processor.formatIconIndex(this.streamer, iconIndexRaw);
-        })
-        .then((iconIndex: IconIndex) => {
-          // this.logger.error(iconIndex.icons.sort((a, b) => parseInt(a.hash, 16) - parseInt(b.hash, 16)));
-
-          return this.saveToDatabase(iconIndex);
-        })
+        .then((iconIndexRaw: IconIndexBridgeBBCC) => processor.formatIconIndex(this.streamer, iconIndexRaw))
+        .then((iconIndex: IconIndex) => this.saveToDatabase(iconIndex))
         .then(() => {
           this.logger.info(`[IconProcessor] Processing icons done! ${JSON.stringify(this.streamer, null, 2)}`);
         });

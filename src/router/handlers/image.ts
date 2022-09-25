@@ -24,7 +24,7 @@ const handler = async (req: Request, res: Response) => {
    * parameter로 받은 streamer와 image로부터
    * 원본 크기 이미지와 축소된 이미지의 로컬 경로를 계산함
    */
-  const basePath = getImageBasePath(streamer);
+  const basePath = getImageBasePath();
   const imagePath = isSmall ? join(basePath, image, "small") : join(basePath, image, "large");
   /**
    * 요청 시에 파일 확장자를 지정하지 않아도 동작하도록 설정함.
@@ -67,7 +67,7 @@ const handler = async (req: Request, res: Response) => {
    * 서버에서 백그라운드 작업을 할 때 다운로드 실패한 이미지 목록을 읽어옴.
    * 이 JSON파일은 키로 nameHash를 가짐.
    */
-  const failedListFile = resolve(join(getImageBasePath(streamer), FAILED_LIST_FILE));
+  const failedListFile = resolve(join(getImageBasePath(), FAILED_LIST_FILE));
   let failedListJson: {[key: string]: Icon} = {};
   if(existsSync(failedListFile))
   {

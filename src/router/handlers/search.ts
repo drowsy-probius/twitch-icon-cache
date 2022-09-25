@@ -20,7 +20,7 @@ const searchAll = (req: Request, res: Response) => {
   
   for(const streamerData of STREAMER_DATA)
   {
-    const jsonPath = resolve(join(getImageBasePath(streamerData.name), INDEX_FILE));
+    const jsonPath = resolve(join(getImageBasePath(), INDEX_FILE));
     const data = readFileSync(jsonPath, "utf8");
     const jsonData: IconIndex = JSON.parse(data);
     for(const icon of jsonData.icons)
@@ -76,7 +76,7 @@ const searchStreamerOnly = (req: Request, res: Response) => {
     match: null,
     candidate: [],
   };
-  const jsonPath = resolve(join(getImageBasePath(streamer), INDEX_FILE));
+  const jsonPath = resolve(join(getImageBasePath(), INDEX_FILE));
   const data = readFileSync(jsonPath, "utf8");
   const jsonData: IconIndex = JSON.parse(data);
   for(const icon of jsonData.icons)

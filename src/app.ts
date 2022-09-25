@@ -32,7 +32,9 @@ mongoose.connect(`mongodb://${DB_HOST}:${DB_PORT}`, {
   dbName: DB_NAME,
   autoIndex: true,
   zlibCompressionLevel: 6,
-  loggerLevel: 'debug'
+  loggerLevel: 'debug',
+  socketTimeoutMS: 0,
+  connectTimeoutMS: 0,
 }, () => {
   logger.debug(`database connected!`);
 });

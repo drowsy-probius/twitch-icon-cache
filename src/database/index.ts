@@ -1,11 +1,18 @@
 import mongoose from 'mongoose';
-import { streamerListSchema, iconSchema } from "./schema";
+import { Icon } from "../@types/interfaces";
+import { streamerListSchema, iconSchema, iconListSchema } from "./schema";
 
-export const StreamerList = mongoose.model("StreamerList", streamerListSchema);
+const streamerIconModel: {[streamerName: string]: mongoose.Model<Icon>} = {}
 
-export const createStreamerIconModel = (streamer_name: string) => {
-  return mongoose.model(streamer_name, iconSchema);
+export const streamerListModel = mongoose.model(`streamerList`, streamerListSchema);
+export const iconListModel = mongoose.model(`iconList`, iconListSchema);
+export const getStreamerIconModel = (streamerName: string) => {
+  if(streamerName in streamerIconModel) return streamerIconModel[streamerName];
+  const Model = mongoose.model(streamerName, iconSchema);
+  streamerIconModel[streamerName] = Model;
+  return Model;
 }
+
 
 /**
  * TODO:
