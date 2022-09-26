@@ -88,7 +88,7 @@ export const saveImage = async (imageBuffer: Buffer, savePath: string, logger: L
 }
 
 
-export const saveIcon = async (imageBuffer: Buffer, icon: Icon, logger: Logger): Promise<Icon> => {
+export const saveIcon = async (imageBuffer: Buffer, icon: Icon, streamerName: string, logger: Logger): Promise<Icon> => {
   try 
   {
     const subPaths = getImageSubPaths();
@@ -105,7 +105,10 @@ export const saveIcon = async (imageBuffer: Buffer, icon: Icon, logger: Logger):
 
     try 
     {
-      await iconListModel.create({iconHash: icon.iconHash});
+      await iconListModel.create({
+        iconHash: icon.iconHash,
+        uploadedBy: streamerName,
+      });
     }
     catch(err: any)
     {

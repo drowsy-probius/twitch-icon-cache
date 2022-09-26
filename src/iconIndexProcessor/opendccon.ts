@@ -150,7 +150,7 @@ class OpenDccon {
             return icon;
           }
 
-          return retry(() => saveIcon(imageBuffer, icon, this.logger), {
+          return retry(() => saveIcon(imageBuffer, icon, streamer.name, this.logger), {
             retries: 5,
           });
         })

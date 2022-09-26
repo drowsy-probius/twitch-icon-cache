@@ -59,7 +59,7 @@ export default class IconIndexProcessor {
       {
         this.logger.warn(`[saveToDatabase] duplicated keys error`);
         const icons: Icon[] = [];
-        const errorIconsIDs = err.result.result.writeErrors.map(async (error: any) => {
+        const errorIconsIDs = err.result.result.writeErrors.map((error: any) => {
           const parsedError = JSON.stringify(error);
           const icon = JSON.parse(parsedError).op;
           icons.push(icon);
@@ -70,18 +70,11 @@ export default class IconIndexProcessor {
         // 2- removing old duplicates.
         await Model.deleteMany({hash: {'$in': errorIconsIDs}});
         // 3- adding the orders
-        try{
-          this.logger.warn(JSON.stringify(errorIconsIDs));
-          this.logger.warn(JSON.stringify(icons));
-          await Model.insertMany(icons);
-          return Promise.resolve('Data Inserted');
-        }catch (e) {
-          return Promise.reject(e);
-        }
+        await Model.insertMany(icons);
       }
       else 
       {
-        return Promise.reject(err);
+        throw err;
       }
     }
 
