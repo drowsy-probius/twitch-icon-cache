@@ -4,7 +4,6 @@ import { readFileSync } from "fs";
 
 import checkStreamer from "./checkStreamer";
 import { INDEX_FILE } from "../../constants";
-import { STREAMER_DATA } from "../../data";
 import { getImageBasePath } from "../../iconIndexProcessor/functions";
 import { IconIndex, Icon } from "../../@types/interfaces";
 
@@ -18,52 +17,53 @@ const searchAll = (req: Request, res: Response) => {
     candidate: [],
   };
   
-  for(const streamerData of STREAMER_DATA)
-  {
-    const jsonPath = resolve(join(getImageBasePath(), INDEX_FILE));
-    const data = readFileSync(jsonPath, "utf8");
-    const jsonData: IconIndex = JSON.parse(data);
-    for(const icon of jsonData.icons)
-    {
-      if(result.match === null && icon.keywords.includes(keyword))
-      {
-        result.match = {
-          ...icon,
-          path: icon.path.replace(basePath, "."),
-        }
-      }
-      else 
-      {
-        let inserted = false;
-        for(const keyw of icon.keywords)
-        {
-          if(keyw.includes(keyword))
-          {
-            result.candidate.push({
-              ...icon,
-              path: icon.path.replace(basePath, "."),
-            });
-            inserted = true;
-            break;
-          }
-        }
-        if(inserted) continue;
+
+  // for(const streamerData of STREAMER_DATA)
+  // {
+  //   const jsonPath = resolve(join(getImageBasePath(), INDEX_FILE));
+  //   const data = readFileSync(jsonPath, "utf8");
+  //   const jsonData: IconIndex = JSON.parse(data);
+  //   for(const icon of jsonData.icons)
+  //   {
+  //     if(result.match === null && icon.keywords.includes(keyword))
+  //     {
+  //       result.match = {
+  //         ...icon,
+  //         // path: icon.path.replace(basePath, "."),
+  //       }
+  //     }
+  //     else 
+  //     {
+  //       let inserted = false;
+  //       for(const keyw of icon.keywords)
+  //       {
+  //         if(keyw.includes(keyword))
+  //         {
+  //           result.candidate.push({
+  //             ...icon,
+  //             // path: icon.path.replace(basePath, "."),
+  //           });
+  //           inserted = true;
+  //           break;
+  //         }
+  //       }
+  //       if(inserted) continue;
   
-        for(const tag of icon.tags)
-        {
-          if(tag.includes(keyword))
-          {
-            result.candidate.push({
-              ...icon,
-              path: icon.path.replace(basePath, "."),
-            });
-            inserted = true;
-            break;
-          }
-        }
-      }
-    }
-  }
+  //       for(const tag of icon.tags)
+  //       {
+  //         if(tag.includes(keyword))
+  //         {
+  //           result.candidate.push({
+  //             ...icon,
+  //             // path: icon.path.replace(basePath, "."),
+  //           });
+  //           inserted = true;
+  //           break;
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
 
   return res.status(200).json(result);
 }
@@ -85,7 +85,7 @@ const searchStreamerOnly = (req: Request, res: Response) => {
     {
       result.match = {
         ...icon,
-        path: icon.path.replace(basePath, "."),
+        // path: icon.path.replace(basePath, "."),
       }
     }
     else 
@@ -97,7 +97,7 @@ const searchStreamerOnly = (req: Request, res: Response) => {
         {
           result.candidate.push({
             ...icon,
-            path: icon.path.replace(basePath, "."),
+            // path: icon.path.replace(basePath, "."),
           });
           inserted = true;
           break;
@@ -111,7 +111,7 @@ const searchStreamerOnly = (req: Request, res: Response) => {
         {
           result.candidate.push({
             ...icon,
-            path: icon.path.replace(basePath, "."),
+            // path: icon.path.replace(basePath, "."),
           });
           inserted = true;
           break;

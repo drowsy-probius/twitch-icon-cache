@@ -152,9 +152,7 @@ class BridgeBBCC {
     });
     const formattedIcon: Icon = {
       name: icon.name,
-      hash: ``, // evaluated in saveIcon function
       iconHash: '', // evaluated in saveIcon function
-      path: ``, // evaluated in router function
       keywords: icon.keywords,
       tags: icon.tags,
       useOrigin: false,
@@ -174,7 +172,6 @@ class BridgeBBCC {
             retries: 5,
           });
           icon.iconHash = createHash("sha256").update(imageBuffer).digest('hex');
-          icon.hash = createHash("sha256").update(`${icon.keywords[0]}`).digest('hex');
           
           // already same object in database (local)
           if(await isImageInLocal(icon.iconHash))

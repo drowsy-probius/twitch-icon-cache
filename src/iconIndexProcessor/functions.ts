@@ -7,7 +7,8 @@ import { writeFile } from "fs/promises";
 import { existsSync } from 'fs';
 import { model } from "mongoose";
 import { 
-  iconListModel
+  IconListModel,
+  StreamerListModel,
 } from "../database";
 import { 
   Icon,
@@ -105,9 +106,15 @@ export const saveIcon = async (imageBuffer: Buffer, icon: Icon, streamerName: st
 
     try 
     {
-      await iconListModel.create({
+      const streamerDoc = await StreamerListModel.findOne({name: streamerName});
+      if(streamerDoc === null) 
+      {
+        throw new Error(`${streamerName} is not exists in streamerList database.`);
+      }
+
+      await IconListModel.create({
         iconHash: icon.iconHash,
-        uploadedBy: streamerName,
+        uploadedBy: streamerDoc._id,
       });
     }
     catch(err: any)
@@ -139,7 +146,7 @@ export const saveIcon = async (imageBuffer: Buffer, icon: Icon, streamerName: st
 export const isImageInLocal = async (iconHash: string): Promise<boolean> => {
   try
   {
-    const queryResult = await iconListModel.count({ iconHash: iconHash });
+    const queryResult = await IconListModel.count({ iconHash: iconHash });
     return queryResult > 0;
   }
   catch(err)

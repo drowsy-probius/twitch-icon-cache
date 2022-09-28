@@ -1,9 +1,14 @@
-import iconListModel from "./iconListSchema";
-import streamerListModel from "./streamerListSchema";
-import getStreamerIconModel from "./iconSchema";
+import mongoose from "mongoose";
+import iconSchema from "./iconSchema";
+import streamerSchema from "./streamerSchema";
+import iconInfoSchema from "./iconInfoSchema";
+
+const StreamerListModel = mongoose.model(`streamerList`, streamerSchema, `streamerList`);
+const IconListModel = mongoose.model(`iconList`, iconSchema, `iconList`);
+const IconInfoListModel = mongoose.model(`iconInfo`, iconInfoSchema, `iconInfo`);
 
 export {
-  iconListModel,
-  streamerListModel,
-  getStreamerIconModel,
+  StreamerListModel,
+  IconListModel,
+  IconInfoListModel,
 }

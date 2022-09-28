@@ -1,13 +1,19 @@
+import { IconInfoSchema, IconSchema } from './../../@types/schemas';
 import { Router, Request, Response } from "express";
-import { resolve, join } from "path";
-import fs from "fs";
+import { resolve } from "path";
 
-import { STREAMER_DATA } from "../../data";
-import { INDEX_FILE } from "../../constants";
+import { DOMAIN } from "../../constants";
 import { getImageBasePath } from "../../iconIndexProcessor/functions";
 
 import checkStreamer from "./checkStreamer";
 import { IconIndex } from "../../@types/interfaces";
+import { 
+  StreamerListModel,
+  IconInfoListModel,
+  IconListModel,
+} from "../../database";
+import Logger from "../../logger";
+const logger = Logger(module.filename);
 
 const router = Router({mergeParams: true});
 const basePath = resolve(".");
@@ -16,8 +22,11 @@ const basePath = resolve(".");
  * 현재 서버에 어떤 스트리머를 지원하는지 보여줌.
  * 스트리머 이름, 아이콘 정보를 제공하는 원본 url 을 알려준다.
  */
-const rootHandler = (req: Request, res: Response) => {
-  return res.status(200).json(STREAMER_DATA);
+const rootHandler = async (req: Request, res: Response) => {
+  const streamerData = await StreamerListModel
+                            .find()
+                            .select('id name nickname lastUpdateDate -_id');
+  return res.status(200).json(streamerData);
 }
 
 /**
@@ -27,8 +36,9 @@ const rootHandler = (req: Request, res: Response) => {
  * parameter의 ts 값이 다르다면 아이콘 목록 json을 리턴하고
  * 아니라면 상태 메시지 json을 리턴함.
  */
-const listHandler = (req: Request, res: Response) => {
+const listHandler = async (req: Request, res: Response) => {
   const streamer = req.params.streamer;
+  const streamerNumber = Number(streamer);
   // 1시간 단위의 timestamp임. Math.floor(timestamp / (1000 * 60 * 60))값.
   const timestamp = Number(req.query.ts || 0);  
   /**
@@ -40,41 +50,28 @@ const listHandler = (req: Request, res: Response) => {
    * 
    * => 리버스프록시 거친 뒤에 path 알아낼 방법이 없으니 상대주소로 함.
    */
-  const jsonPath = resolve(join(getImageBasePath(), INDEX_FILE));
-  /**
-   * 서버에 저장된 아이콘 목록 json파일이 존재하는지 확인.
-   */
-  if(!fs.existsSync(jsonPath))
+  const streamerDoc = await StreamerListModel.findOne(isNaN(streamerNumber) ? {name: streamer} : {id: streamerNumber});
+  if(streamerDoc === null)
   {
+    logger.warn(`${streamer} is not in database`);
     return res.status(404).json({
       status: false,
-      message: `server has not downloaded any data from ${streamer}`
+      message: `Unsupported streamer ${streamer}`,
     });
   }
 
-  const data = fs.readFileSync(jsonPath, "utf8");
-  // 서버에서 구동되는 앱의 절대 경로를 모두 찾음.
-  const regexp = new RegExp(basePath, "g");
-  // 앱의 절대 경로를 상대경로로 교체함.
-  const uriReplacedData = data.replace(regexp, ".");
-  // 교체한 후에 json으로 파싱함.
-  const jsonData: IconIndex = JSON.parse(uriReplacedData);
-  /**
-   * parameter로 받은 ts값과 서버의 json의 timestamp과 비교해서
-   * 같다면 굳이 새 데이터를 리턴해줄 필요가 없음.
-   * 
-   * 앞에 비교는 legacy 지원하기 위함.
-   * 로컬 json에 저장된 데이터는 여전히 ms단위로 할 것임.
-   */
-  if(timestamp === jsonData.timestamp || timestamp === Math.floor(jsonData.timestamp / (1000 * 60 * 60)))
-  {
-    return res.status(200).json({
-      status: false,
-      message: `your data is not outdated.`
-    })
-  }
 
-  return res.status(200).json(jsonData);
+  const iconInfoDocs = await IconInfoListModel.find({owner: streamerDoc._id}).select('icon name tags keywords -_id').populate('icon');
+  const icons = iconInfoDocs.map((iconInfoDoc: IconInfoSchema) => {
+    const icon = iconInfoDoc.icon as IconSchema;
+    return {
+      name: iconInfoDoc.name,
+      tags: iconInfoDoc.tags,
+      keywords: iconInfoDoc.keywords,
+      path: `${DOMAIN}/images/${streamer}/${icon.iconHash}`
+    }
+  })
+  return res.status(200).json(icons);
 }
 
 /**
@@ -86,25 +83,25 @@ const listHandler = (req: Request, res: Response) => {
  */
 const openDcconListHandler = (req: Request, res: Response) => {
   const streamer = req.params.streamer;
-  const jsonPath = resolve(join(getImageBasePath(), INDEX_FILE));
-  const data = fs.readFileSync(jsonPath, "utf8");
-  const regexp = new RegExp(basePath, "g");
-  const uriReplacedData = data.replace(regexp, ".");
-  const jsonData: IconIndex = JSON.parse(uriReplacedData);
-  // 여기까지는 `listHandler`와 동일함.
+  // const jsonPath = resolve(join(getImageBasePath(), INDEX_FILE));
+  // const data = fs.readFileSync(jsonPath, "utf8");
+  // const regexp = new RegExp(basePath, "g");
+  // const uriReplacedData = data.replace(regexp, ".");
+  // const jsonData: IconIndex = JSON.parse(uriReplacedData);
+  // // 여기까지는 `listHandler`와 동일함.
 
-  /**
-   * open dccon에서 사용할 수 있는 포맷으로 새 객체를 만듦.
-   * timestamp 값은 기존 포맷에는 없지만 나중에 효율성을 위해서 추가함.
-   */
-  const openDcconJson = {
-    dccons: [
-      ...jsonData.icons
-    ],
-    timestamp: jsonData.timestamp
-  }
+  // /**
+  //  * open dccon에서 사용할 수 있는 포맷으로 새 객체를 만듦.
+  //  * timestamp 값은 기존 포맷에는 없지만 나중에 효율성을 위해서 추가함.
+  //  */
+  // const openDcconJson = {
+  //   dccons: [
+  //     ...jsonData.icons
+  //   ],
+  //   timestamp: jsonData.timestamp
+  // }
 
-  return res.status(200).json(openDcconJson);
+  return res.status(200).json(streamer);
 }
 
 router.get("/", rootHandler);

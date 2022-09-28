@@ -18,7 +18,6 @@ import {
 import { run_cronjob } from './background';
 import { getIpFromRequest, getRootFromRequest } from "./functions";
 import Logger from "./logger";
-import { exit } from 'process';
 const logger = Logger(module.filename);
 
 /**
@@ -43,7 +42,7 @@ mongoose.connect(`mongodb://${DB_HOST}:${DB_PORT}`, {
 /**
  * 서버 열기 전에 백그라운드 작업 등록
  */
-run_cronjob();
+// run_cronjob();
 
 // express 생성
 const app = express();
@@ -80,7 +79,7 @@ app.use(router);
 app.use((err: Error, req: Request, res: Response) => {
   logger.error(`[${getIpFromRequest(req)}] ${req.method} ${getRootFromRequest(req)}${req.originalUrl} | ${JSON.stringify(err)}`);
   return res.json(err);
-})
+});
 // constants.ts에서 정의한 호스트, 포트에 서버 열기
 app.listen(PORT, HOST, () => {
     logger.info(`Server listening on ${HOST}:${PORT}`);

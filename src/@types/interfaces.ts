@@ -73,8 +73,6 @@ export interface IconIndexBridgeBBCC extends IconIndexPrototype {
 export interface Icon extends IconPrototype{
   name: string,
   iconHash: string,
-  hash: string,
-  path: string, 
   tags: string[],
   keywords: string[],
 

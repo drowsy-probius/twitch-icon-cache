@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 import { StreamerData } from "../../@types/interfaces";
 import { REFRESH_KEY } from "../../constants";
-import { STREAMER_DATA } from "../../data";
 import IconIndexProcessor from "../../iconIndexProcessor";
 import Logger from "../../logger";
+import { StreamerListModel } from "../../database";
 const logger = Logger(module.filename);
 
-const handler = (req: Request, res: Response) => {
+const handler = async (req: Request, res: Response) => {
   const secretkey = req.query.key;
   const streamer: string = req.params.streamer;
   
@@ -19,7 +19,16 @@ const handler = (req: Request, res: Response) => {
     })
   }
 
-  const streamerData: StreamerData = STREAMER_DATA.filter(d => d.name === streamer)[0];
+  const streamerData = await StreamerListModel.findOne({ $or: [{name: streamer}, {id: streamer}]});
+  if(streamerData === null)
+  {
+    logger.warn(`${streamer} is not in database`);
+    return res.status(404).json({
+      status: false,
+      message: `Unsupported streamer ${streamer}`,
+    });
+  }
+
   const processor = new IconIndexProcessor(streamerData);
   processor.run();    
 

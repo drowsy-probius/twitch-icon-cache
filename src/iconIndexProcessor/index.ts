@@ -15,7 +15,11 @@ import {
 import Logger from "../logger";
 import { existsSync } from 'fs';
 import { getImageSubPaths } from "./functions";
-import { getStreamerIconModel } from "../database";
+import { 
+  StreamerListModel,
+  IconInfoListModel,
+  IconListModel
+} from "../database";
 import retry from "async-retry";
 
 
@@ -47,11 +51,32 @@ export default class IconIndexProcessor {
 
   async saveToDatabase(iconIndex: IconIndex)
   {
-    const Model = getStreamerIconModel(this.streamer.name);
+    const streamerDoc = await StreamerListModel.findOne({name: this.streamer.name});
     try 
     {
-      await Model.insertMany(iconIndex.icons);
-      this.logger.info(`[saveToDatabase] icons are inserted to database`);
+      if(streamerDoc === null)
+      {
+        throw new Error(`${this.streamer.name} is not exists in streamerList database.`);
+      }
+
+      const icons = await Promise.all(iconIndex.icons.map(async (icon: Icon) => {
+        const iconDoc = await IconListModel.findOne({iconHash: icon.iconHash});
+        if(iconDoc === null)
+        {
+          throw new Error(`${JSON.stringify(icon, null, 2)} is not exists in streamerList database.`);
+        }
+        await iconDoc.update({ usedBy: Array.from(new Set([...iconDoc.usedBy, streamerDoc._id])) });
+        await iconDoc.save();
+
+        return {
+          owner: streamerDoc._id,
+          icon: iconDoc._id,
+          ...icon,
+        }
+      }));
+
+      await IconInfoListModel.insertMany(icons);
+      this.logger.info(`[saveToDatabase] Total ${icons.length} icons are inserted to database`);
     }
     catch(err: any)
     {
@@ -59,18 +84,18 @@ export default class IconIndexProcessor {
       {
         this.logger.warn(`[saveToDatabase] duplicated keys error`);
         const icons: Icon[] = [];
-        const errorIconsIDs = err.result.result.writeErrors.map((error: any) => {
+        const errorIconObjectIds = err.result.result.writeErrors.map((error: any) => {
           const parsedError = JSON.stringify(error);
           const icon = JSON.parse(parsedError).op;
           icons.push(icon);
           this.logger.warn(`dup: ${JSON.stringify(icon)}`);
-          return icon.hash;
+          return icon.icon;
         });
 
         // 2- removing old duplicates.
-        await Model.deleteMany({hash: {'$in': errorIconsIDs}});
+        await IconInfoListModel.deleteMany({icon: {'$in': errorIconObjectIds}});
         // 3- adding the orders
-        await Model.insertMany(icons);
+        await IconInfoListModel.insertMany(icons);
       }
       else 
       {
