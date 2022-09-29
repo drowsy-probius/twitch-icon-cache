@@ -1,18 +1,23 @@
-import { Request, Response } from "express";
-import { resolve, join, extname } from "path";
-import { existsSync, readdirSync, readFileSync } from "fs";
-
-import { FAILED_LIST_FILE, IMAGE } from "../../constants";
-import { getIpFromRequest, getRootFromRequest } from "../../functions";
-import { getImageBasePath } from "../../iconIndexProcessor/functions";
+import { Router, Request, Response, NextFunction } from "express";
+import { join } from "path";
+import { 
+  getIpFromRequest, 
+  getRootFromRequest,
+  getImageSubPaths,
+  imageSizeWidth,
+  getImageBasePath,
+} from "../../functions";
+import { existsSync } from "fs";
 import { Icon } from "../../@types/interfaces";
 import { IconListModel } from "../../database";
 
 import Logger from "../../logger";
 const logger = Logger(module.filename);
 
-const handler = async (req: Request, res: Response) => {
-  const streamer = req.params.streamer;
+const router = Router({mergeParams: true});
+
+
+const imageDatabaseCheckHandler = async (req: Request, res: Response, next: NextFunction) => {
   // url encode된 글자가 있을 수 있으므로 decode함.
   const imageHash = decodeURI(req.params.imageHash);
   const imageDoc = await IconListModel.findOne({iconHash: imageHash});
@@ -24,13 +29,20 @@ const handler = async (req: Request, res: Response) => {
       message: `No image ${imageHash}`
     });
   }
+  res.locals.imageHash = imageHash;
+  next();
+}
 
-  /**
-   * 요청 주소에 ?small이 있으면 작은 이미지를 리턴함. 
-   * 웹 앱에서 조금 더 빠른 로딩을 위해서 설정함.
-   */
-  const querySize = (req.query.size)?.toString() || "";
-  const size = ["small", "medium", "large"].includes(querySize) ? querySize : "large";
+const appendSizeHandler = (req: Request, res: Response, next: NextFunction) => {
+  res.locals.size = "original";
+  next();
+}
+
+const imagePathResolveHandler = (req: Request, res: Response, next: NextFunction) => {
+  const imageHash = `${res.locals.imageHash}`;
+  const imageParamSize = `${req.params.size}` || `${res.locals.size}`;
+  const sizeOptions = Object.keys(imageSizeWidth);
+  const size = sizeOptions.includes(imageParamSize) ? imageParamSize : "original";
 
   /**
    * parameter로 받은 streamer와 image로부터
@@ -38,7 +50,30 @@ const handler = async (req: Request, res: Response) => {
    */
   const basePath = getImageBasePath();
   const imagePath = join(basePath, size, `${imageHash}.webp`);
+  
+  res.locals.imagePath = imagePath;
+  next();
+}
+
+const imageExistsInLocal = (req: Request, res: Response, next: NextFunction) => {
+  const imagePath = `${res.locals.imagePath}`;
+  if(!existsSync(imagePath))
+  {
+    logger.warn(`[${getIpFromRequest(req)}] ${req.method} ${getRootFromRequest(req)}${req.originalUrl} | No image`);
+    return res.status(404).json({
+      status: false,
+      message: `No image ${imagePath}`
+    });
+  }
+  next();
+}
+
+const imageHandler = (req: Request, res: Response) => {
+  const imagePath = `${res.locals.imagePath}`;
   return res.status(200).sendFile(imagePath);
 }
 
-export default handler;
+router.get("/:imageHash", imageDatabaseCheckHandler, appendSizeHandler, imagePathResolveHandler, imageExistsInLocal, imageHandler);
+router.get("/:imageHash/:size", imageDatabaseCheckHandler, imagePathResolveHandler, imageExistsInLocal, imageHandler);
+
+export default router;

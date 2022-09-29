@@ -3,7 +3,7 @@ import { Router, Request, Response } from "express";
 import { resolve } from "path";
 
 import { DOMAIN } from "../../constants";
-import { getImageBasePath } from "../../iconIndexProcessor/functions";
+import { getImageBasePath } from "../../functions";
 
 import checkStreamer from "./checkStreamer";
 import { IconIndex } from "../../@types/interfaces";
@@ -68,7 +68,7 @@ const listHandler = async (req: Request, res: Response) => {
       name: iconInfoDoc.name,
       tags: iconInfoDoc.tags,
       keywords: iconInfoDoc.keywords,
-      path: `${DOMAIN}/images/${streamer}/${icon.iconHash}`
+      path: `${DOMAIN}/images/${icon.iconHash}`
     }
   })
   return res.status(200).json(icons);

@@ -14,7 +14,7 @@ import {
 } from "../@types/interfaces";
 import Logger from "../logger";
 import { existsSync } from 'fs';
-import { getImageSubPaths } from "./functions";
+import { getImageSubPaths } from "../functions";
 import { 
   StreamerListModel,
   IconInfoListModel,

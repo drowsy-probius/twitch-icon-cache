@@ -1,6 +1,7 @@
 import { Request } from "express";
 import axios from "axios";
 import fs from "fs";
+import { resolve } from "path";
 
 import { 
   Icon, 
@@ -118,4 +119,36 @@ export const doUpdateJson = (localJson: Icon[], remoteJson: IconIndexOpenDccon |
 
 
   return false;
+}
+
+////////////////////////////////////
+export const imageSizeWidth = {
+  original: -1,
+  large: 100,
+  medium: 70,
+  small: 40,
+}
+
+/**
+ * 스트리머 이름을 주면 해당 스트리머의 데이터가 저장된 폴더를 알려줌
+ * @param streamerName 
+ * @returns path-like-string
+ */
+export const getImageBasePath = () => {
+  return resolve(`./images/`);
+}
+
+/**
+ * 스트리머 이름을 주면 해당 스트리머의 작은 이미지 파일이 저장된 폴더를 알려줌
+ * @param streamerName 
+ * @returns path-like-string
+ */
+export const getImageSubPaths = () => {
+  const basePath = getImageBasePath();
+  return {
+    "original": resolve(basePath, "original"),
+    "large": resolve(basePath, "large"),
+    "medium": resolve(basePath, "medium"),
+    "small": resolve(basePath, "small"),
+  }
 }

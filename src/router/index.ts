@@ -18,10 +18,7 @@ router.get("/", rootHandler);
  */
 router.use("/list", listHandler);
 
-/**
- * `checkStreamer`는 요청한 스트리머가 유효한 것인지 확인하는 미들웨어임.
- */
-router.get("/images/:streamer/:imageHash", checkStreamer, imageHandler);
+router.use("/images", imageHandler);
 
 router.get("/icon", iconHandler);
 

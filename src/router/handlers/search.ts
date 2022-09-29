@@ -4,7 +4,7 @@ import { readFileSync } from "fs";
 
 import checkStreamer from "./checkStreamer";
 import { INDEX_FILE } from "../../constants";
-import { getImageBasePath } from "../../iconIndexProcessor/functions";
+import { getImageBasePath } from "../../functions";
 import { IconIndex, Icon } from "../../@types/interfaces";
 
 const router = Router({mergeParams: true});

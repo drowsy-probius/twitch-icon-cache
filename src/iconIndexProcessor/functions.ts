@@ -1,6 +1,10 @@
 import { resolve } from "path";
 import sharp from "sharp";
-import { sleepForMs } from "../functions";
+import { 
+  sleepForMs,
+  getImageSubPaths,
+  imageSizeWidth,
+} from "../functions";
 import { Logger } from "winston";
 import axios from "axios";
 import { writeFile } from "fs/promises";
@@ -15,35 +19,6 @@ import {
   StreamerData, 
   ImageSize,
 } from "../@types/interfaces";
-
-export const imageSizeWidth = {
-  large: 100,
-  medium: 70,
-  small: 40,
-}
-
-/**
- * 스트리머 이름을 주면 해당 스트리머의 데이터가 저장된 폴더를 알려줌
- * @param streamerName 
- * @returns path-like-string
- */
-export const getImageBasePath = () => {
-  return resolve(`./images/`);
-}
-
-/**
- * 스트리머 이름을 주면 해당 스트리머의 작은 이미지 파일이 저장된 폴더를 알려줌
- * @param streamerName 
- * @returns path-like-string
- */
-export const getImageSubPaths = () => {
-  const basePath = getImageBasePath();
-  return {
-    "large": resolve(basePath, "large"),
-    "medium": resolve(basePath, "medium"),
-    "small": resolve(basePath, "small"),
-  }
-}
 
 /**
  * sharp 모듈을 사용해서 `inputPath`에 해당하는 이미지를
@@ -97,11 +72,8 @@ export const saveIcon = async (imageBuffer: Buffer, icon: Icon, streamerName: st
     for(const _size of Object.keys(subPaths))
     {
       const size = _size as ImageSize;
-      await saveImage(
-        await resizeImage(imageBuffer, imageSizeWidth[size]),
-        resolve(subPaths[size], `${icon.iconHash}.webp`),
-        logger
-      )
+      const buffer = (size === "original") ? imageBuffer : await resizeImage(imageBuffer, imageSizeWidth[size]);
+      await saveImage(buffer, resolve(subPaths[size], `${icon.iconHash}.webp`), logger);
     }
 
     try 

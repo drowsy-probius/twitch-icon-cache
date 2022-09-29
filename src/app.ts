@@ -75,12 +75,14 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 // 정의한 라우터 사용
 app.use(router);
-// 마지막 에러 핸들러. 
-app.use((err: Error, req: Request, res: Response) => {
-  logger.error(`[${getIpFromRequest(req)}] ${req.method} ${getRootFromRequest(req)}${req.originalUrl} | ${JSON.stringify(err)}`);
-  return res.json(err);
-});
+
 // constants.ts에서 정의한 호스트, 포트에 서버 열기
 app.listen(PORT, HOST, () => {
     logger.info(`Server listening on ${HOST}:${PORT}`);
+});
+
+// 마지막 에러 핸들러. 
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  logger.error(`[${getIpFromRequest(req)}] ${req.method} ${getRootFromRequest(req)}${req.originalUrl} | ${err.stack}`);
+  next(err);
 });

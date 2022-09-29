@@ -86,5 +86,5 @@ export interface IconIndex extends IconIndexPrototype{
 }
 
 ////////////////////////////////////////////////////////////
-export type ImageSize = "large" | "medium" | "small";
+export type ImageSize = "original" | "large" | "medium" | "small";
 export type ImageSubpaths = { [size in ImageSize]: string };
