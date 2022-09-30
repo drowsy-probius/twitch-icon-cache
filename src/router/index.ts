@@ -16,7 +16,7 @@ router.get("/", rootHandler);
  * `/list`에는 서브 디렉토리가 있으니 `listHandler`는 express.Router로 만들어졌음.
  */
 router.use("/list", listHandler);
-router.use("/images", imageHandler);
+router.use("/image", imageHandler);
 router.use("/icon", iconHandler);
 
 /**

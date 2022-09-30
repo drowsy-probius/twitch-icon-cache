@@ -16,7 +16,7 @@ import Logger from "../../logger";
 const logger = Logger(module.filename);
 
 const router = Router({ mergeParams: true });
-const basePath = resolve(".");
+const imageDirectory = "image"
 
 /**
  * 현재 서버에 어떤 스트리머를 지원하는지 보여줌.
@@ -57,7 +57,7 @@ const listHandler = async (req: Request, res: Response) => {
       name: iconInfoDoc.name,
       tags: iconInfoDoc.tags,
       keywords: iconInfoDoc.keywords,
-      path: `${DOMAIN}/images/${icon.iconHash}`,
+      path: `${DOMAIN}/${imageDirectory}/${icon.iconHash}`,
     };
   });
   return res.status(200).json(icons);
@@ -78,7 +78,7 @@ const openDcconListHandler = (req: Request, res: Response) => {
       name: iconInfoDoc.name,
       tags: iconInfoDoc.tags,
       keywords: iconInfoDoc.keywords,
-      path: `${DOMAIN}/images/${icon.iconHash}`,
+      path: `${DOMAIN}/${imageDirectory}/${icon.iconHash}`,
     };
   });
   return res.status(200).json(icons);
@@ -92,7 +92,7 @@ const bridgebbccListHandler = (req: Request, res: Response) => {
       name: iconInfoDoc.name,
       tags: iconInfoDoc.tags,
       keywords: iconInfoDoc.keywords,
-      uri: `${DOMAIN}/images/${icon.iconHash}`,
+      uri: `${DOMAIN}/${imageDirectory}/${icon.iconHash}`,
     };
   });
   return res.status(200).json(icons);

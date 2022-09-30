@@ -10,7 +10,7 @@
 
 `/list/open-dccon/:streamer` -> show open-dccon format icon list of streamer
 
-`/images/:streamer/:filename(hashed).ext` -> get image
+`/image/:streamer/:filename(hashed).ext` -> get image
 
 `/icon` -> get app icon
 
