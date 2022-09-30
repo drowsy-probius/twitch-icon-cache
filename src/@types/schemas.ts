@@ -1,4 +1,4 @@
-import { PopulatedDoc, ObjectId } from "mongoose";
+import { PopulatedDoc } from "mongoose";
 
 export interface StreamerSchema {
   id: number,

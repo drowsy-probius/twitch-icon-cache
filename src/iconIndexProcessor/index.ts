@@ -65,7 +65,7 @@ export default class IconIndexProcessor {
         {
           throw new Error(`${JSON.stringify(icon, null, 2)} is not exists in streamerList database.`);
         }
-        await iconDoc.update({ usedBy: Array.from(new Set([...iconDoc.usedBy, streamerDoc._id])) });
+        await iconDoc.updateOne({ usedBy: Array.from(new Set([...iconDoc.usedBy, streamerDoc._id])) });
         await iconDoc.save();
 
         return {

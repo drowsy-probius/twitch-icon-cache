@@ -1,5 +1,5 @@
-import { Schema, HydratedDocument } from "mongoose";
-import { IconInfoSchema, StreamerSchema } from "../@types/schemas";
+import { Schema } from "mongoose";
+import { IconInfoSchema } from "../@types/schemas";
 import Logger from "../logger";
 const logger = Logger(module.filename);
 

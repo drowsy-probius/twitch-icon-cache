@@ -2,7 +2,7 @@ import { Router, Request, Response } from "express";
 import { resolve, join } from "path";
 import { readFileSync } from "fs";
 
-import checkStreamer from "./checkStreamer";
+import { checkStreamerHandler } from "./functions";
 import { INDEX_FILE } from "../../constants";
 import { getImageBasePath } from "../../functions";
 import { IconIndex, Icon } from "../../@types/interfaces";
@@ -129,7 +129,7 @@ router.get("/", (req: Request, res: Response) => {
   });
 });
 router.get("/:keyword", searchAll);
-router.get("/:streamer/:keyword", checkStreamer, searchStreamerOnly);
+router.get("/:streamer/:keyword", checkStreamerHandler, searchStreamerOnly);
 
 
 export default router;
