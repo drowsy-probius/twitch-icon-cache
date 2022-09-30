@@ -12,4 +12,4 @@ export {
   iconHandler,
   refreshHandler,
   searchHandler,
-}
+};

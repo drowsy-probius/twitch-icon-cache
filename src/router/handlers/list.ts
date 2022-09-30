@@ -1,13 +1,13 @@
 import { Router, Request, Response, NextFunction } from "express";
-import { IconInfoSchema, IconSchema } from './../../@types/schemas';
+import { IconInfoSchema, IconSchema } from "./../../@types/schemas";
 import { resolve } from "path";
 
 import { DOMAIN } from "../../constants";
 import { getImageBasePath } from "../../functions";
 
-import { checkStreamerHandler } from './functions';
+import { checkStreamerHandler } from "./functions";
 import { IconIndex } from "../../@types/interfaces";
-import { 
+import {
   StreamerListModel,
   IconInfoListModel,
   IconListModel,
@@ -15,7 +15,7 @@ import {
 import Logger from "../../logger";
 const logger = Logger(module.filename);
 
-const router = Router({mergeParams: true});
+const router = Router({ mergeParams: true });
 const basePath = resolve(".");
 
 /**
@@ -23,24 +23,28 @@ const basePath = resolve(".");
  * 스트리머 이름, 아이콘 정보를 제공하는 원본 url 을 알려준다.
  */
 const rootHandler = async (req: Request, res: Response) => {
-  const streamerData = await StreamerListModel
-                            .find()
-                            .select('id name nickname lastUpdateDate -_id');
+  const streamerData = await StreamerListModel.find().select(
+    "id name nickname lastUpdateDate -_id"
+  );
   return res.status(200).json(streamerData);
-}
+};
 
-
-const streamerIconsListHandler = async (req: Request, res: Response, next: NextFunction) => {
-  const streamerDoc = res.locals.streamerDoc; 
-  const iconInfoDocs = await IconInfoListModel.find({owner: streamerDoc._id}).select('icon name tags keywords -_id').populate('icon');
+const streamerIconsListHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const streamerDoc = res.locals.streamerDoc;
+  const iconInfoDocs = await IconInfoListModel.find({ owner: streamerDoc._id })
+    .select("icon name tags keywords -_id")
+    .populate("icon");
   res.locals.streamerIconList = iconInfoDocs;
   next();
-}
-
+};
 
 /**
  * parameter로 받은 스트리머에 해당하는 아이콘 목록 json을 리턴함.
- * parameter에 `ts`값이 있다면 
+ * parameter에 `ts`값이 있다면
  * 서버에 저장된 아이콘 목록 json의 timestamp 값과 비교하여
  * parameter의 ts 값이 다르다면 아이콘 목록 json을 리턴하고
  * 아니라면 상태 메시지 json을 리턴함.
@@ -53,11 +57,11 @@ const listHandler = async (req: Request, res: Response) => {
       name: iconInfoDoc.name,
       tags: iconInfoDoc.tags,
       keywords: iconInfoDoc.keywords,
-      path: `${DOMAIN}/images/${icon.iconHash}`
-    }
-  })
+      path: `${DOMAIN}/images/${icon.iconHash}`,
+    };
+  });
   return res.status(200).json(icons);
-}
+};
 
 /**
  * open dccon 포맷으로 서버의 json을 보여줌.
@@ -74,11 +78,11 @@ const openDcconListHandler = (req: Request, res: Response) => {
       name: iconInfoDoc.name,
       tags: iconInfoDoc.tags,
       keywords: iconInfoDoc.keywords,
-      path: `${DOMAIN}/images/${icon.iconHash}`
-    }
-  })
+      path: `${DOMAIN}/images/${icon.iconHash}`,
+    };
+  });
   return res.status(200).json(icons);
-}
+};
 
 const bridgebbccListHandler = (req: Request, res: Response) => {
   const iconInfoDocs = res.locals.streamerIconList;
@@ -88,15 +92,30 @@ const bridgebbccListHandler = (req: Request, res: Response) => {
       name: iconInfoDoc.name,
       tags: iconInfoDoc.tags,
       keywords: iconInfoDoc.keywords,
-      uri: `${DOMAIN}/images/${icon.iconHash}`
-    }
-  })
+      uri: `${DOMAIN}/images/${icon.iconHash}`,
+    };
+  });
   return res.status(200).json(icons);
-}
+};
 
 router.get("/", rootHandler);
-router.get("/:streamer", checkStreamerHandler, streamerIconsListHandler, listHandler);
-router.get("/:streamer/opendccon", checkStreamerHandler, streamerIconsListHandler, openDcconListHandler);
-router.get("/:streamer/bridgebbcc", checkStreamerHandler, streamerIconsListHandler, bridgebbccListHandler);
+router.get(
+  "/:streamer",
+  checkStreamerHandler,
+  streamerIconsListHandler,
+  listHandler
+);
+router.get(
+  "/:streamer/opendccon",
+  checkStreamerHandler,
+  streamerIconsListHandler,
+  openDcconListHandler
+);
+router.get(
+  "/:streamer/bridgebbcc",
+  checkStreamerHandler,
+  streamerIconsListHandler,
+  bridgebbccListHandler
+);
 
 export default router;

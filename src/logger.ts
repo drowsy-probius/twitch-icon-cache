@@ -5,7 +5,6 @@ import { resolve, join } from "path";
 const { format, transports, createLogger } = winston;
 const { combine, timestamp, printf, colorize } = format;
 
-
 /**
  * 인자로 파일 경로를 받음.
  * 
@@ -27,7 +26,9 @@ export default (meta_url: string) => {
 
   // 로그 포맷
   const customFormat = printf(({ level, message, timestamp, stack }) => {
-    return `${timestamp} [${level}] ${filepath}: ${typeof(message) === "object" ? JSON.stringify(message) : message}${stack ? "\n"+stack : ""}`;
+    return `${timestamp} [${level}] ${filepath}: ${
+      typeof message === "object" ? JSON.stringify(message) : message
+    }${stack ? "\n" + stack : ""}`;
   });
 
   // 로그 파일 설정
@@ -48,13 +49,12 @@ export default (meta_url: string) => {
     }),
   ];
 
-  const errorStackTracer = format(info => {
-    if(info.meta && info.meta instanceof Error)
-    {
+  const errorStackTracer = format((info) => {
+    if (info.meta && info.meta instanceof Error) {
       info.message = `${info.message} ${info.meta.stack}`;
     }
     return info;
-  })
+  });
 
   // winston 로그 객체 설정
   const loggerInstance = createLogger({
@@ -64,7 +64,7 @@ export default (meta_url: string) => {
       format.errors({ stack: true }),
       timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
       customFormat,
-      errorStackTracer(),
+      errorStackTracer()
     ),
     defaultMeta: { service: "user-service" },
     transports: customTransports,

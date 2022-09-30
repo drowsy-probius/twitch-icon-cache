@@ -4,19 +4,21 @@ export const PORT: number = Number(process.env.ICONTTV_PORT) || 32189;
 // 서버가 동작할 호스트
 export const HOST: string = process.env.ICONTTV_HOST || "0.0.0.0";
 
-// 
-export const DOMAIN: string = process.env.ICONTTV_DOMAIN || "./"
+//
+export const DOMAIN: string = process.env.ICONTTV_DOMAIN || "./";
 
 // 이 시간이 지나면 자동으로 백그라운드 작업을 수행함
-export const REFRESH_INTERVAL: string = process.env.ICONTTV_REFRESH_INTERVAL || "2w";
+export const REFRESH_INTERVAL: string =
+  process.env.ICONTTV_REFRESH_INTERVAL || "2w";
 
 // `/refresh/:streamer?key=` api에 접속할 때 사용할 키 값. 외부 유출에 유의
-export const REFRESH_KEY: string = process.env.ICONTTV_REFRESH_KEY || "secretkey";
+export const REFRESH_KEY: string =
+  process.env.ICONTTV_REFRESH_KEY || "secretkey";
 
 // database host and port
 export const DB_HOST: string = process.env.ICONTTV_DB_HOST || "localhost";
 export const DB_PORT: number = Number(process.env.ICONTTV_DB_PORT) || 27017;
-export const DB_NAME: string = process.env.ICONTTV_DB_NAME || "iconttv"
+export const DB_NAME: string = process.env.ICONTTV_DB_NAME || "iconttv";
 
 // database user and pass
 export const DB_USER: string = process.env.ICONTTV_DB_USER || "";

@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { 
-  imageHandler, 
-  listHandler, 
-  rootHandler, 
+import {
+  imageHandler,
+  listHandler,
+  rootHandler,
   refreshHandler,
   searchHandler,
   iconHandler,
@@ -28,6 +28,6 @@ router.use("/refresh", refreshHandler);
  * 키워드 값이 들어올 때 해당되는 주소 리턴하는 것
  * 추후 확장성을 위해서 검색 api가 있는 것이 좋다고 생각함.
  */
-router.use("/search", searchHandler); 
+router.use("/search", searchHandler);
 
 export default router;

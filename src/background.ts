@@ -1,5 +1,5 @@
 import { REFRESH_INTERVAL } from "./constants";
-import { StreamerData } from './@types/interfaces';
+import { StreamerData } from "./@types/interfaces";
 import { timeParser } from "./functions";
 import IconIndexProcessor from "./iconIndexProcessor";
 import { StreamerListModel } from "./database";
@@ -14,16 +14,14 @@ const logger = Logger(module.filename);
 export const run_cronjob = (): Cronjob => {
   const cronjob = new Cronjob();
   return cronjob;
-}
+};
 
-class Cronjob
-{
+class Cronjob {
   lastTime: Date;
   refreshInterval: number;
   timerIdentifier: NodeJS.Timer;
 
-  constructor()
-  {
+  constructor() {
     // 마지막으로 실행한 날짜
     this.lastTime = new Date();
     // 설정에서 읽어온 캐시 시간 (새고로침 간격)
@@ -35,15 +33,13 @@ class Cronjob
     this.timerIdentifier = setInterval(this.job, this.refreshInterval);
   }
 
-  async job()
-  {
-    logger.info(`execute cronjob on ${(new Date()).toString()}`);
+  async job() {
+    logger.info(`execute cronjob on ${new Date().toString()}`);
 
     /**
      * TEST INSERTION CODE
      */
-    try 
-    {
+    try {
       await StreamerListModel.insertMany([
         {
           name: "funzinnu",
@@ -75,17 +71,18 @@ class Cronjob
           url: "https://api.probius.dev/twitch-icons/cdn/list/open-dccon/sleeping_ce",
           imagePrefix: "https://api.probius.dev/twitch-icons/cdn/",
           type: 0,
-          nickname: "잠자는꼬마선충"
+          nickname: "잠자는꼬마선충",
         },
       ]);
+    } catch (e) {
+      console.error(e);
     }
-    catch(e) { console.error(e) }
 
     const streamerData = await StreamerListModel.find();
     streamerData.forEach((streamer: StreamerData) => {
       setTimeout(async () => {
         const processor = new IconIndexProcessor(streamer);
-        await processor.run();   
+        await processor.run();
       }, 0);
     });
   }

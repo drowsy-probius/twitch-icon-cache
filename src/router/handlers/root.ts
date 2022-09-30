@@ -6,6 +6,6 @@ import path from "path";
  */
 const handler = (req: Request, res: Response) => {
   return res.sendFile(path.join(__dirname, "../../../frontend/index.html"));
-}
+};
 
 export default handler;

@@ -8,19 +8,18 @@ import { checkStreamerHandler } from "./functions";
 
 const logger = Logger(module.filename);
 
-const router = Router({mergeParams: true});
+const router = Router({ mergeParams: true });
 
 const refreshHandler = async (req: Request, res: Response) => {
   const secretkey = req.query.key;
   const streamer: string = req.params.streamer;
-  
-  if(secretkey !== REFRESH_KEY)
-  {
+
+  if (secretkey !== REFRESH_KEY) {
     logger.warn(`${secretkey} is not allowed`);
     return res.status(401).json({
       status: false,
       message: `Unauthorized request. ${secretkey} does not match to server's one.`,
-    })
+    });
   }
 
   const streamerDoc = res.locals.streamerDoc;
@@ -30,8 +29,8 @@ const refreshHandler = async (req: Request, res: Response) => {
   return res.status(200).json({
     status: true,
     message: `Now refresh data for ${streamer} at timestamp ${Date.now()}. It takes some time...`,
-  })
-}
+  });
+};
 
 router.get(`/:streamer`, checkStreamerHandler, refreshHandler);
 

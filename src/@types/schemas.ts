@@ -1,30 +1,29 @@
 import { PopulatedDoc } from "mongoose";
 
 export interface StreamerSchema {
-  id: number,
-  name: string,
-  nickname: string,
+  id: number;
+  name: string;
+  nickname: string;
 
-  url?: string,
-  imagePrefix?: string,
-  type?: number,
-  lastUpdatedDate?: Date,
+  url?: string;
+  imagePrefix?: string;
+  type?: number;
+  lastUpdatedDate?: Date;
 }
 
 export interface IconSchema {
-  iconHash: string,
-  uploadedBy: PopulatedDoc<StreamerSchema>,
-  usedBy: PopulatedDoc<StreamerSchema>[],
+  iconHash: string;
+  uploadedBy: PopulatedDoc<StreamerSchema>;
+  usedBy: PopulatedDoc<StreamerSchema>[];
 }
 
 export interface IconInfoSchema {
-  owner: PopulatedDoc<StreamerSchema>,
-  icon: PopulatedDoc<IconSchema>,
-  name: string,
-  tags: string[],
-  keywords: string[],
+  owner: PopulatedDoc<StreamerSchema>;
+  icon: PopulatedDoc<IconSchema>;
+  name: string;
+  tags: string[];
+  keywords: string[];
 
-  useOrigin?: boolean,
-  originPath?: boolean,
+  useOrigin?: boolean;
+  originPath?: boolean;
 }
-
