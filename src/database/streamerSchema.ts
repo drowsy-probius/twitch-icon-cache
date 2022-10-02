@@ -40,6 +40,7 @@ const streamerSchema = new Schema<StreamerSchema>(
     id: { type: Number, required: true, unique: true }, // twitch number id
     name: { type: String, required: true, unique: true }, // twitch id
     nickname: { type: String, required: true }, // twitch nickname
+    penalty: { type: Number, required: true, default: 0 }, // count for bad behaviors
 
     url: { type: String }, // opendccon or bridgebbcc url
     imagePrefix: { type: String }, // use when url is provided.

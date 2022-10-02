@@ -4,6 +4,7 @@ node_modules
 
 log/*
 images/*
+tmp/*
 
 yarn.lock 
 yarn-error.log

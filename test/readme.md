@@ -14,6 +14,10 @@
 - [ ] `/icon/update`
 - [ ] `/icon/delete`
 - [ ] `/admin/`
+- [ ] `/admin/icon/:objectId/resolve`
+- [ ] `/admin/icon/:objectId/reject`
+- [ ] `/admin/icon/:objectId/report`
+- [ ] `/admin/ban/:streamerName`
 
 
 ## icon downloader

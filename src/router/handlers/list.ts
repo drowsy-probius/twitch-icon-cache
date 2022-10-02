@@ -101,21 +101,15 @@ const bridgebbccListHandler = (req: Request, res: Response) => {
 router.get("/", rootHandler);
 router.get(
   "/:streamer",
-  checkStreamerHandler,
-  streamerIconsListHandler,
   listHandler
 );
 router.get(
   "/:streamer/opendccon",
-  checkStreamerHandler,
-  streamerIconsListHandler,
   openDcconListHandler
 );
 router.get(
   "/:streamer/bridgebbcc",
-  checkStreamerHandler,
-  streamerIconsListHandler,
   bridgebbccListHandler
 );
 
-export default router;
+export default router.use(checkStreamerHandler, streamerIconsListHandler);

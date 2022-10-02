@@ -14,7 +14,12 @@ const iconSchema = new Schema<IconSchema>(
       ref: `streamerList`,
       required: true,
     },
-    usedBy: { // 한 스트리머가 여러 개의 iconInfo Document로 여러 개의 icon을 참조하지 못하도록 함.
+    /**
+     * 제한사항
+     * 하나의 스트리머의 iconInfoList에서 여러 개의 iconInfo가 하나의 icon을 가리키도록 하면 안됨.
+     * 그렇게 하지 않으면 icon이 참조되는데도 usedBy에 streamer ObjectId가 존재하지 않을 수 있음.  
+     */
+    usedBy: { 
       type: [{ type: Schema.Types.ObjectId, ref: `streamerList` }],
       required: true,
       default: [],
@@ -31,7 +36,11 @@ iconSchema.pre(/findOneAndUpdate|updateOne|save/, function(next){
 })
 
 iconSchema.post(/findOneAndUpdate|updateOne/, async function () {
+  /**
+   * 타입 정하는게 어려웠는데 이게 맞는 지 확실하지 않다.
+   */
   const query = (this as unknown) as IconModelQuery & { _conditions: any };
+  // _conditions에 icon ObjectId가 담겨있어야 함.
   const doc: HydratedDocument<IconSchema> | null = await query.model.findOne(query._conditions);
   if(doc !== null && doc.usedBy.length === 0)
   {
@@ -40,6 +49,7 @@ iconSchema.post(/findOneAndUpdate|updateOne/, async function () {
       logger.debug(`delete icon due to referenced by none`);
       logger.debug(doc.toJSON());
       doc.deleteOne();
+      // 로컬에 저장된 이미지 모두 제거
       deleteIcon(doc.iconHash, logger);
     }
     catch(err)

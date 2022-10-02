@@ -16,6 +16,9 @@ const logger = Logger(module.filename);
 
 const router = Router({ mergeParams: true });
 
+/**
+ * 해시 값(요청 주소)으로 데이터베이스에 이미지가 있는지 확인.
+ */
 const imageDatabaseCheckHandler = async (
   req: Request,
   res: Response,
@@ -39,11 +42,17 @@ const imageDatabaseCheckHandler = async (
   next();
 };
 
+/**
+ * 이미지 크기를 명시하지 않았으면 large로 설정함 (100 x 100)
+ */
 const appendSizeHandler = (req: Request, res: Response, next: NextFunction) => {
-  res.locals.size = "original";
+  res.locals.size = "large";
   next();
 };
 
+/**
+ * 로컬 이미지 절대 경로를 찾음
+ */
 const imagePathResolveHandler = (
   req: Request,
   res: Response,
@@ -54,7 +63,7 @@ const imagePathResolveHandler = (
   const sizeOptions = Object.keys(imageSizeWidth);
   const size = sizeOptions.includes(imageParamSize)
     ? imageParamSize
-    : "original";
+    : "large";
 
   /**
    * parameter로 받은 streamer와 image로부터
@@ -67,6 +76,9 @@ const imagePathResolveHandler = (
   next();
 };
 
+/**
+ * 절대 경로에 이미지가 존재하는지 확인
+ */
 const imageExistsInLocal = (
   req: Request,
   res: Response,
@@ -87,6 +99,9 @@ const imageExistsInLocal = (
   next();
 };
 
+/**
+ * 이미지 전송
+ */
 const imageHandler = (req: Request, res: Response) => {
   const imagePath = `${res.locals.imagePath}`;
   return res.status(200).sendFile(imagePath);
@@ -94,7 +109,6 @@ const imageHandler = (req: Request, res: Response) => {
 
 router.get(
   "/:imageHash",
-  imageDatabaseCheckHandler,
   appendSizeHandler,
   imagePathResolveHandler,
   imageExistsInLocal,
@@ -102,10 +116,9 @@ router.get(
 );
 router.get(
   "/:imageHash/:size",
-  imageDatabaseCheckHandler,
   imagePathResolveHandler,
   imageExistsInLocal,
   imageHandler
 );
 
-export default router;
+export default router.use(imageDatabaseCheckHandler);

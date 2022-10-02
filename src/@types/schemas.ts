@@ -4,6 +4,7 @@ export interface StreamerSchema {
   id: number;
   name: string;
   nickname: string;
+  penalty: number,
 
   url?: string;
   imagePrefix?: string;
@@ -26,4 +27,21 @@ export interface IconInfoSchema {
 
   useOrigin?: boolean;
   originPath?: boolean;
+}
+
+export interface IconWaitSchema {
+  uploader: PopulatedDoc<StreamerSchema>,
+  fieldname: string,
+  originalname: string,
+  encoding: string,
+  mimetype: string,
+  destination: string,
+  filename: string,
+  path: string,
+  size: number,
+  hash: string,
+
+  iconName: string,
+  iconKeywords: string[],
+  iconTags: string[],
 }

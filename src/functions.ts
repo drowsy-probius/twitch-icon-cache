@@ -1,15 +1,11 @@
 import { Request } from "express";
-import axios from "axios";
-import fs from "fs";
 import { resolve } from "path";
 
 import {
   Icon,
-  IconIndexPrototype,
   IconIndexBridgeBBCC,
   IconIndexOpenDccon,
 } from "./@types/interfaces";
-import { Logger } from "winston";
 import LoggerFunction from "./logger";
 
 /**
@@ -130,6 +126,14 @@ export const imageSizeWidth = {
   medium: 70,
   small: 40,
 };
+
+/**
+ * 임시 폴더 절대 경로 리턴
+ * @returns path-like-string
+ */
+export const getTempPath = () => {
+  return resolve(`./tmp`);
+}
 
 /**
  * 스트리머 이름을 주면 해당 스트리머의 데이터가 저장된 폴더를 알려줌
