@@ -13,6 +13,7 @@
 - [ ] `/icon/upload`
 - [ ] `/icon/update`
 - [ ] `/icon/delete`
+- [ ] `/admin/`
 
 
 ## icon downloader
