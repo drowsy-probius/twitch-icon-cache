@@ -1,12 +1,11 @@
 import { Router } from "express";
-import {
-  imageHandler,
-  listHandler,
-  rootHandler,
-  refreshHandler,
-  searchHandler,
-  iconHandler,
-} from "./handlers";
+import rootHandler from "./handlers/root";
+import listHandler from "./handlers/list";
+import imageHandler from "./handlers/image";
+import iconHandler from "./handlers/icon";
+import refreshHandler from "./handlers/refresh";
+import searchHandler from "./handlers/search";
+import adminHandler from "./handlers/admin";
 
 const router = Router();
 
@@ -29,5 +28,11 @@ router.use("/refresh", refreshHandler);
  * 추후 확장성을 위해서 검색 api가 있는 것이 좋다고 생각함.
  */
 router.use("/search", searchHandler);
+
+
+/**
+ * back
+ */
+router.use("/admin", adminHandler);
 
 export default router;

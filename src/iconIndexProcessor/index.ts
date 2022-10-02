@@ -73,10 +73,15 @@ export default class IconIndexProcessor {
               )} is not exists in streamerList database.`
             );
           }
-          await iconDoc.updateOne({
-            usedBy: Array.from(new Set([...iconDoc.usedBy, streamerDoc._id])),
-          });
-          await iconDoc.save();
+
+          await IconListModel.findOneAndUpdate(
+            {
+              iconHash: icon.iconHash,
+            },
+            {
+              $push: { usedBy: streamerDoc._id },
+            }
+          ).exec(); // callback이 없으면 query를 리턴함.
 
           return {
             owner: streamerDoc._id,

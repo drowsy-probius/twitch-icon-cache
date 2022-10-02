@@ -1,5 +1,5 @@
-import { Schema } from "mongoose";
-import { IconInfoSchema } from "../@types/schemas";
+import { Schema, PopulatedDoc, ObjectId, Document } from "mongoose";
+import { IconInfoSchema, IconSchema } from "../@types/schemas";
 import Logger from "../logger";
 const logger = Logger(module.filename);
 
@@ -16,54 +16,47 @@ const iconInfoSchema = new Schema<IconInfoSchema>(
   },
   {
     timestamps: true,
-    statics: {
-      isOutdated(icon: IconInfoSchema) {
-        // if (this.keywords.length !== icon.tags.length)
-        // {
-        //   logger.debug(`apply update as new keywords are detected. local: ${this.keywords} remote: ${icon.keywords}`);
-        //   return true;
-        // }
-        // if (this.tags.length !== icon.tags.length)
-        // {
-        //   logger.debug(`apply update as new tags are detected. local: ${this.tags} remote: ${icon.tags}`);
-        //   return true;
-        // }
-        // if (this.originPath !== icon.originPath)
-        // {
-        //   logger.debug(`apply update as originPath is different. local: ${this.originPath} remote: ${icon.originPath}`);
-        //   return true;
-        // }
-        // for (const keyword of icon.keywords)
-        // {
-        //   if (!this.keywords.includes(keyword))
-        //   {
-        //     logger.debug(`apply update as some keywords are changed. local: ${this.keywords} remote: ${icon.keywords}`);
-        //     return true;
-        //   }
-        // }
-        // for (const tag of icon.tags)
-        // {
-        //   if (!this.tags.includes(tag))
-        //   {
-        //     logger.debug(`apply update as some tags are changed. local: ${this.tags} remote: ${icon.tags}`);
-        //     return true;
-        //   }
-        // }
-
-        return false;
-      },
-
-      hasKeyword(keyword: string) {
-        // return this.keywords.includes(keyword);
-        return false;
-      },
-    },
   }
 );
+
 iconInfoSchema.pre("validate", function (next) {
   this.tags = Array.from(new Set(this.tags)); // remove duplicated items;
   this.keywords = Array.from(new Set(this.keywords)); // remove duplicated items;
   next();
+});
+
+iconInfoSchema.post("save", function (res) {
+  res
+    .populate<{ icon: IconSchema }>("icon")
+    .then((doc) => {
+      const iconDoc = doc.icon as Document<ObjectId> & IconSchema;
+      if (iconDoc === null || iconDoc === undefined) return;
+      return iconDoc.updateOne({
+        $push: { usedBy: doc.owner }
+      });
+    })
+    .catch((err) => {
+      logger.error(`iconInfoSchema post save`);
+      logger.error(err);
+    });
+});
+
+iconInfoSchema.pre("deleteOne", function (next) {
+  this.populate<{ icon: IconSchema }>("icon")
+    .then((doc) => {
+      const iconDoc = doc.icon as Document<ObjectId> & IconSchema;
+      if (iconDoc === null || iconDoc === undefined) return;
+      return iconDoc.updateOne({
+        $pull: { usedBy: doc.owner } // 해당 항목만 제거함.
+      });
+    })
+    .catch((err: any) => {
+      logger.error(`iconInfoSchema pre deleteOne`);
+      logger.error(err);
+    })
+    .then(() => {
+      next();
+    });
 });
 
 export default iconInfoSchema;

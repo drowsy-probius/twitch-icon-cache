@@ -37,13 +37,18 @@ export const checkStreamerHandler = async (
      * return으로 명시해야 next()함수를 호출하지 않고
      * 여기서 종료됨.
      */
-    logger.warn(`Unsupported streamer ${streamer}`);
-    return res.status(404).json({
-      status: false,
-      message: `Unsupported streamer ${streamer}`,
-    });
+    logger.warn(`Unlisted streamer ${streamer}`);
+    // return res.status(404).json({
+    //   status: false,
+    //   message: `Unsupported streamer ${streamer}`,
+    // });
+    return res.status(200).json([]);
   }
 
   res.locals.streamerDoc = streamerDoc;
   next();
+};
+
+export const isStringArray = (obj: any) => {
+  return Array.isArray(obj) && obj.every((i) => typeof i === "string");
 };

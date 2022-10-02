@@ -1,4 +1,5 @@
 import express, { Request, Response, NextFunction } from "express";
+import bodyParser from "body-parser";
 import compression from "compression";
 import { Z_BEST_COMPRESSION } from "zlib";
 import cors from "cors";
@@ -60,6 +61,11 @@ app.use(
     level: Z_BEST_COMPRESSION,
   })
 );
+
+// body-parser를 사용해서 req body를 json으로 받기
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
 // 루트(/)에 만들어 놓은 프론트엔드 앱 사용하기 위함.
 app.use(express.static(path.join(__dirname, "../frontend/")));
 // 전체 접속 로그 남기는 미들웨어

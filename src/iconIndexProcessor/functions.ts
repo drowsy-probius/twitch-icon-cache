@@ -3,11 +3,10 @@ import sharp from "sharp";
 import { sleepForMs, getImageSubPaths, imageSizeWidth } from "../functions";
 import { Logger } from "winston";
 import axios from "axios";
-import { writeFile } from "fs/promises";
-import { existsSync } from "fs";
-import { model } from "mongoose";
+import { writeFile, unlink } from "fs/promises";
 import { IconListModel, StreamerListModel } from "../database";
-import { Icon, StreamerData, ImageSize } from "../@types/interfaces";
+import { Icon, ImageSize } from "../@types/interfaces";
+import retry from "async-retry";
 
 /**
  * sharp 모듈을 사용해서 `inputPath`에 해당하는 이미지를
@@ -118,6 +117,18 @@ export const saveIcon = async (
     return icon;
   }
 };
+
+export const deleteIcon = async (iconHash: string, logger: Logger) => {
+  const subPaths = getImageSubPaths();
+  for (const _size of Object.keys(subPaths)) {
+    const size = _size as ImageSize;
+    const imagePath = resolve(subPaths[size], `${iconHash}.webp`);
+    await retry(() => unlink(imagePath), {
+      retries: 3,
+    });
+    logger.debug(`${imagePath} deleted`);
+  }
+}
 
 /**
  * sha256 해시를 사용함
