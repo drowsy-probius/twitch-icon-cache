@@ -4,11 +4,14 @@ import { REFRESH_KEY } from "../../constants";
 import IconIndexProcessor from "../../iconIndexProcessor";
 import Logger from "../../logger";
 import { StreamerListModel } from "../../database";
-import { checkStreamerHandler } from "./functions";
+import { 
+  checkStreamerHandler,
+  failResponder,
+  successResponder
+} from "./functions";
 
 const logger = Logger(module.filename);
 
-const router = Router({ mergeParams: true });
 
 const refreshHandler = async (req: Request, res: Response) => {
   const secretkey = req.query.key;
@@ -16,21 +19,17 @@ const refreshHandler = async (req: Request, res: Response) => {
 
   if (secretkey !== REFRESH_KEY) {
     logger.warn(`${secretkey} is not allowed`);
-    return res.status(401).json({
-      status: false,
-      message: `Unauthorized request. ${secretkey} does not match to server's one.`,
-    });
+    return failResponder(res, `Unauthorized request. ${secretkey} does not match to server's one.`, '', 401);
   }
 
   const streamerDoc = res.locals.streamerDoc;
   const processor = new IconIndexProcessor(streamerDoc);
   processor.run();
 
-  return res.status(200).json({
-    status: true,
-    message: `Now refresh data for ${streamer} at timestamp ${Date.now()}. It takes some time...`,
-  });
+  return successResponder(res, `Now refresh data for ${streamer} at timestamp ${Date.now()}. It takes some time...`);
 };
+
+const router = Router({ mergeParams: true });
 
 router.get(`/:streamer`, checkStreamerHandler, refreshHandler);
 

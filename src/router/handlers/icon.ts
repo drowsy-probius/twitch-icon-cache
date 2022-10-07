@@ -7,8 +7,13 @@ import {
   IconInfoListModel,
   IconListModel,
   IconWaitListModel,
+  RejectedIconListModel,
 } from "../../database";
-import { isStringArray } from "./functions";
+import { 
+  isStringArray,
+  successResponder,
+  failResponder,
+} from "./functions";
 import { saveIcon } from "../../iconIndexProcessor/functions";
 import { 
   getTempPath,
@@ -16,7 +21,6 @@ import {
 import { IMAGE } from "../../constants";
 import Logger from "../../logger";
 
-const router = Router({ mergeParams: true });
 const TEMP_PATH = getTempPath();
 const IMAGE_REGEX = new RegExp(IMAGE.map(ext => ext.slice(1)).join("|"));
 
@@ -25,6 +29,9 @@ const imageTypeCheckerByName = (name: string) => IMAGE_REGEX.test(name);
 /**
  * <form action="/icon/upload" enctype="multipart/form-data" method="post">
  *    <input type="file" name="icon">
+ * 
+ * 
+ * tmp폴더에 일단 저장되도록 설정 함.
  */
 const filesizeLimit = multer({
   limits: {
@@ -75,16 +82,8 @@ const loginCheckHandler = async (
  */
 const uploadHandler = async (req: Request, res: Response) => {
   const logger = Logger(`${module.filename}:[uploadHandler]`);
-  const errorSender = (message: string) => {
-    return res.status(400).json({
-      status: false,
-      message: message,
-    });
-  };
 
   logger.silly(req.body);
-  // type checker
-
   /**
    * req.file
    * {
@@ -98,40 +97,48 @@ const uploadHandler = async (req: Request, res: Response) => {
    *  "size":282499
    * }
    */
-  if(req.file === undefined) return errorSender(`file required`);
+  // type checker
+  if(req.file === undefined) return failResponder(res, `file required`);
   const buffer = readFileSync(req.file.path);
   const _uploader = req.body.uploader;
   const _name = req.body.name;
   const _tags = req.body.tags;
   const _keywords = req.body.keywords;
-  if (typeof _name !== "string") return errorSender(`name type error`);
-  if (!isStringArray(_tags)) return errorSender(`tags type error`);
-  if (!isStringArray(_keywords)) return errorSender(`keywords type error`);
-  if (typeof _uploader !== "string") return errorSender(`uploader type error`);
+  if (typeof _name !== "string") return failResponder(res, `name type error`);
+  if (!isStringArray(_tags)) return failResponder(res, `tags type error`);
+  if (!isStringArray(_keywords)) return failResponder(res, `keywords type error`);
+  if (typeof _uploader !== "string") return failResponder(res, `uploader type error`);
 
   const uploader = _uploader as string;
   const name = _name as string;
   const tags = _tags as string[];
   const keywords = _keywords as string[];
   const iconHash = createHash("sha256").update(buffer).digest("hex");
-  if (name.length === 0) return errorSender(`name is empty`);
-  if (keywords.length === 0) return errorSender(`keyword is empty`);
-  if (uploader.length === 0) return errorSender(`uploader is empty`);
+  if (name.length === 0) return failResponder(res, `name is empty`);
+  if (keywords.length === 0) return failResponder(res, `keyword is empty`);
+  if (uploader.length === 0) return failResponder(res, `uploader is empty`);
   if (tags.length === 0) tags.push("미지정");
+
+  // check denylist
+  const rejectedIconDoc = await RejectedIconListModel.findOne({ hash: iconHash });
+  if(rejectedIconDoc !== null)
+  {
+    return failResponder(res, `this icon is in our denylist`);
+  }
 
   // db checker
   const streamerDoc = await StreamerListModel.findOne({ name: uploader });
-  if (streamerDoc === null) return errorSender(`uploader does not exists`);
+  if (streamerDoc === null) return failResponder(res, `uploader does not exists`);
   const nameConflict = await IconInfoListModel.findOne({
     owner: streamerDoc._id,
     name: name,
   });
-  if (nameConflict !== null) return errorSender(`duplicated icon name`);
+  if (nameConflict !== null) return failResponder(res, `duplicated icon name`);
   const keywordsConflict = await IconInfoListModel.findOne({
     owner: streamerDoc._id,
     keywords: { $in: keywords },
   });
-  if (keywordsConflict !== null) return errorSender(`duplicated icon keywords`);
+  if (keywordsConflict !== null) return failResponder(res, `duplicated icon keywords`);
 
   // insert to database
   // 동일한 이미지가 존재하는지 확인
@@ -150,13 +157,15 @@ const uploadHandler = async (req: Request, res: Response) => {
       originPath: "",
     });
 
-    return res.status(200).json({
-      status: true,
-      message: "upload"
-    });
+    return successResponder(res, "upload");
   }
 
-  // 새로운 이미지 업로드일 경우에는 iconWait db에 추가함.
+
+  /**
+   * 업로드 한 이미지가 새 이미지인 경우에는 원본을 tmp폴더에 저장한 뒤 (미들웨어가 수행)
+   * iconWait db에 추가하고 관리자의 승인을 기다림.
+   * 이미지가 승인이 되면 IconInfoListModel에 항목을 추가해야 함.
+   */
   logger.debug(`${uploader} ${keywords} new icon requested`);
   await IconWaitListModel.create({
     ...req.file,
@@ -166,49 +175,18 @@ const uploadHandler = async (req: Request, res: Response) => {
     iconKeywords: keywords,
     iconTags: tags,
   });
-
-  // if (iconDoc === null) {
-  //   // 새로운 이미지라면 로컬에 저장하고 db에 추가한다.
-  //   logger.debug(`${uploader} ${keywords} new icon added`);
-  //   await saveIcon(
-  //     buffer,
-  //     {
-  //       iconHash: iconHash,
-  //       keywords: keywords,
-  //       name: name,
-  //       tags: tags,
-  //       useOrigin: false,
-  //       originPath: "",
-  //     },
-  //     uploader,
-  //     logger
-  //   );
-  //   iconDoc = await IconListModel.findOne({ iconHash: iconHash });
-  // }
-  // if (iconDoc === null) return errorSender(`database error`);
-  // // 아이콘 목록에서 usedBy가 제대로 처리되지 않았을 때 에러
-  // if(!iconDoc.usedBy.includes(streamerDoc._id)) return errorSender(`iconList usedBy reference error`);
-
-  
-  return res.status(200).json({
-    status: true,
-    message: "wait"
-  });
+  return successResponder(res, "wait");
 };
 
 const updateHandler = (req: Request, res: Response) => {
-  return res.status(200).json({
-    status: true,
-    message: "update",
-  });
+  return successResponder(res, "update");
 };
 
 const deleteHandler = (req: Request, res: Response) => {
-  return res.status(200).json({
-    status: true,
-    message: "delete",
-  });
+  return successResponder(res, "delete");
 };
+
+const router = Router({ mergeParams: true }).use(loginCheckHandler);
 
 router.post(
   "/upload",
@@ -225,4 +203,4 @@ router.post(
   deleteHandler
 );
 
-export default router.use(loginCheckHandler);
+export default router;

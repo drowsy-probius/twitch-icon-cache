@@ -15,7 +15,6 @@ import {
 import Logger from "../../logger";
 const logger = Logger(module.filename);
 
-const router = Router({ mergeParams: true });
 const imageDirectory = "image";
 
 /**
@@ -37,7 +36,7 @@ const streamerIconsListHandler = async (
   const streamerDoc = res.locals.streamerDoc;
   const iconInfoDocs = await IconInfoListModel.find({ owner: streamerDoc._id })
     .select("icon name tags keywords -_id")
-    .populate("icon");
+    .populate<{ icon: IconSchema }>("icon");
   res.locals.streamerIconList = iconInfoDocs;
   next();
 };
@@ -98,6 +97,8 @@ const bridgebbccListHandler = (req: Request, res: Response) => {
   return res.status(200).json(icons);
 };
 
+const router = Router({ mergeParams: true }).use(checkStreamerHandler, streamerIconsListHandler);
+
 router.get("/", rootHandler);
 router.get(
   "/:streamer",
@@ -112,4 +113,4 @@ router.get(
   bridgebbccListHandler
 );
 
-export default router.use(checkStreamerHandler, streamerIconsListHandler);
+export default router;

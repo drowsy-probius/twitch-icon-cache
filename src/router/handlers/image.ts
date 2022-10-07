@@ -10,11 +10,11 @@ import {
 import { existsSync } from "fs";
 import { Icon } from "../../@types/interfaces";
 import { IconListModel } from "../../database";
+import { successResponder, failResponder } from "./functions";
 
 import Logger from "../../logger";
 const logger = Logger(module.filename);
 
-const router = Router({ mergeParams: true });
 
 /**
  * 해시 값(요청 주소)으로 데이터베이스에 이미지가 있는지 확인.
@@ -33,10 +33,7 @@ const imageDatabaseCheckHandler = async (
         req.originalUrl
       } | No image`
     );
-    return res.status(404).json({
-      status: false,
-      message: `No image ${imageHash}`,
-    });
+    return failResponder(res, `${imageHash} is not in database`);
   }
   res.locals.imageHash = imageHash;
   next();
@@ -91,10 +88,7 @@ const imageExistsInLocal = (
         req.originalUrl
       } | No image`
     );
-    return res.status(404).json({
-      status: false,
-      message: `No image ${imagePath}`,
-    });
+    return failResponder(res, `${imagePath} does not exists.`);
   }
   next();
 };
@@ -106,6 +100,8 @@ const imageHandler = (req: Request, res: Response) => {
   const imagePath = `${res.locals.imagePath}`;
   return res.status(200).sendFile(imagePath);
 };
+
+const router = Router({ mergeParams: true }).use(imageDatabaseCheckHandler);
 
 router.get(
   "/:imageHash",
@@ -121,4 +117,4 @@ router.get(
   imageHandler
 );
 
-export default router.use(imageDatabaseCheckHandler);
+export default router;

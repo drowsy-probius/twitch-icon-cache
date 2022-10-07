@@ -2,12 +2,15 @@ import { Router, Request, Response } from "express";
 import { resolve, join } from "path";
 import { readFileSync } from "fs";
 
-import { checkStreamerHandler } from "./functions";
+import { 
+  checkStreamerHandler,
+  failResponder,
+  successResponder
+} from "./functions";
 import { INDEX_FILE } from "../../constants";
 import { getImageBasePath } from "../../functions";
 import { IconIndex, Icon } from "../../@types/interfaces";
 
-const router = Router({ mergeParams: true });
 const basePath = resolve(".");
 
 const searchAll = (req: Request, res: Response) => {
@@ -114,10 +117,10 @@ const searchStreamerOnly = (req: Request, res: Response) => {
   return res.status(200).json(result);
 };
 
+const router = Router({ mergeParams: true });
+
 router.get("/", (req: Request, res: Response) => {
-  return res.status(200).json({
-    message: "Usage: /search/:keyword, /search/:streamer/:keyword",
-  });
+  return successResponder(res, "Usage: /search/:keyword, /search/:streamer/:keyword");
 });
 router.get("/:keyword", searchAll);
 router.get("/:streamer/:keyword", checkStreamerHandler, searchStreamerOnly);

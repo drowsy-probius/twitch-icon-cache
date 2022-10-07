@@ -1,8 +1,13 @@
+import { IconWaitSchema, StreamerSchema } from './../../@types/schemas';
+import { readFileSync, unlinkSync } from 'fs';
+import { saveIcon } from './../../iconIndexProcessor/functions';
 import { Router, Request, Response, NextFunction } from "express";
+import { IconInfoListModel, IconListModel, IconWaitListModel, RejectedIconListModel } from "../../database";
+import { successResponder, failResponder } from "./functions";
+import { HydratedDocument, PopulatedDoc } from 'mongoose';
 
 import Logger from "../../logger";
-
-const router = Router({mergeParams: true});
+const logger = Logger(module.filename);
 
 /**
  * 관리자 페이지에서 할 수 있는 일
@@ -31,28 +36,90 @@ const adminCheckHandler = async (req: Request, res: Response, next: NextFunction
   next();
 }
 
-const iconResolveHandler = async (req: Request, res: Response) => {
+const getIconWaitDocFromObjectId = async (req: Request, res: Response, next: NextFunction) => {
   const objectId = req.params.objectId;
+  const iconWaitDoc = await IconWaitListModel.findOne({ _id: objectId }).populate<{uploader: StreamerSchema}>('uploader');
+  // popluate에 타입을 지정해줘야 해당 부분에서 타입오류가 나지 않음.
+  if(iconWaitDoc === null)
+  {
+    return failResponder(res, `${iconWaitDoc} does not in database`);
+  }
+  res.locals.iconWaitDoc = iconWaitDoc;
+  next();
+}
+
+
+const iconListHandler = async (req: Request, res: Response) => {
+  const limit = Number(req.query.limit) || 50;
+  const offset = Number(req.query.offset) || 0;
+
+  const iconWaitDocs = await IconWaitListModel.find().skip(offset).limit(limit);
+  return res.status(200).json(iconWaitDocs);
+}
+
+const iconResolveHandler = async (req: Request, res: Response) => {
+  const iconWaitDoc = res.locals.iconWaitDoc as HydratedDocument<IconWaitSchema> & { uploader: StreamerSchema };
+
+  logger.debug(`${iconWaitDoc.uploader.name}(${iconWaitDoc.uploader.nickname}) added ${iconWaitDoc.iconKeywords}`);
+  const iconInfo = {
+    keywords: iconWaitDoc.iconKeywords,
+    name: iconWaitDoc.iconName,
+    tags: iconWaitDoc.iconTags,
+    useOrigin: false,
+    originPath: '',
+  }
+  await saveIcon(
+    readFileSync(iconWaitDoc.path),
+    {
+      iconHash: iconWaitDoc.hash,
+      ...iconInfo
+    },
+    iconWaitDoc.uploader.name,
+    logger
+  );
+
+  const iconDoc = await IconListModel.findOne({ iconHash: iconWaitDoc.hash });
+  if(iconDoc === null)
+  {
+    return failResponder(res, `${iconWaitDoc} database error`);
+  }
+  await IconInfoListModel.create({
+    owner: iconWaitDoc.uploader,
+    icon: iconDoc,
+    ...iconInfo
+  });
+
+  unlinkSync(iconWaitDoc.path);
+  await IconWaitListModel.deleteOne({ _id: iconWaitDoc._id });
+  
+  return successResponder(res, "upload");
 }
 
 const iconRejectHandler = async (req: Request, res: Response) => {
-  const objectId = req.params.objectId;
+  const iconWaitDoc = res.locals.iconWaitDoc as HydratedDocument<IconWaitSchema> & { uploader: StreamerSchema };
+  unlinkSync(iconWaitDoc.path);
+  await IconWaitListModel.deleteOne({ _id: iconWaitDoc._id });
+  await RejectedIconListModel.create({
+    ...iconWaitDoc.toJSON()
+  });
+  return successResponder(res, "reject");
 }
 
 const iconReportHandler = async (req: Request, res: Response) => {
-  const objectId = req.params.objectId;
+  const iconWaitDoc = res.locals.iconWaitDoc as HydratedDocument<IconWaitSchema> & { uploader: StreamerSchema };
 }
 
 const banStreamerHandler = async (req: Request, res: Response) => {
   const streamerName = req.params.streamerName;
 }
 
-router.get('/',);
 
-router.get('/icon/:objectId/resolve', iconResolveHandler);
-router.get('/icon/:objectId/reject', iconRejectHandler);
-router.get('/icon/:objectId/report', iconReportHandler);
+const router = Router({mergeParams: true}).use(adminCheckHandler);
+router.get('/icon/queue', iconListHandler);
+router.get('/icon/:objectId/resolve', getIconWaitDocFromObjectId, iconResolveHandler);
+router.get('/icon/:objectId/reject', getIconWaitDocFromObjectId, iconRejectHandler);
+router.get('/icon/:objectId/report', getIconWaitDocFromObjectId, iconReportHandler);
 
 router.get('/ban/:streamerName', banStreamerHandler);
 
-export default router.use(adminCheckHandler);
+export default router;

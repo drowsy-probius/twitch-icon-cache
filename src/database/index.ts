@@ -23,10 +23,12 @@ const IconInfoListModel = mongoose.model(
   `iconInfo`
 );
 const IconWaitListModel = mongoose.model(`iconWait`, iconWaitSchema, `iconWait`);
+const RejectedIconListModel = mongoose.model(`rejectedIcon`, iconWaitSchema, `rejectedIcon`);
 
 export { 
   StreamerListModel, 
   IconListModel, 
   IconInfoListModel, 
   IconWaitListModel,
+  RejectedIconListModel,
 };

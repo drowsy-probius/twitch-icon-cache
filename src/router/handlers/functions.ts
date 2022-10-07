@@ -52,3 +52,17 @@ export const checkStreamerHandler = async (
 export const isStringArray = (obj: any) => {
   return Array.isArray(obj) && obj.every((i) => typeof i === "string");
 };
+
+export const successResponder = (res: Response, message: any = "", statusCode=200) => {
+  return res.status(statusCode).json({
+    error: null,
+    message: message,
+  });
+}
+
+export const failResponder = (res: Response, error: any, message: any = "", statusCode=400) => {
+  return res.status(statusCode).json({
+    error: error,
+    message: message,
+  });
+}

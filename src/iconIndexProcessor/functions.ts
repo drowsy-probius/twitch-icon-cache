@@ -59,6 +59,16 @@ export const saveImage = async (
   return true;
 };
 
+/**
+ * 로컬 폴더에 이미지를 저장한 후 
+ * IconListModel 에 항목을 추가함.
+ * 
+ * @param imageBuffer 
+ * @param icon 
+ * @param streamerName 
+ * @param logger 
+ * @returns 
+ */
 export const saveIcon = async (
   imageBuffer: Buffer,
   icon: Icon,
