@@ -25,7 +25,8 @@ import Logger from "../logger";
 export const indexDownloader = async (url: string): Promise<IconIndexBridgeBBCC> => {
   const res = await axios.get(encodeURI(decodeURI(`${url}${url.includes("?") ? "&" : "?"}ts=${Date.now()}`)));
   const jsonString = res.data.replace("dcConsData = ", `{"dcConsData" : `).replace(/;$/, "}");
-  const jsonData: IconIndexBridgeBBCC = JSON.parse(jsonString);
+  const parsedJsonString = jsonString.replace(/\\"|"(?:\\"|[^"])*"|(\/\/.*|\/\*[\s\S]*?\*\/)/g, (m: any, g: any) => g ? "" : m);
+  const jsonData: IconIndexBridgeBBCC = JSON.parse(parsedJsonString);
   return jsonData;
 }
 
@@ -89,6 +90,9 @@ export const processor = async (streamer: StreamerData, jsonData: IconIndexBridg
         return path;
       }
     }
+    /**
+     * dccon subpath가 기본인 듯?
+     */
     const path1 = new URL(`images/${icon.name}`, originUrl).href;
     const res1 = await axios.get(encodeURI(decodeURI(path1)), {responseType: "stream"});
     if(res1.status === 200)
@@ -126,7 +130,7 @@ export const processor = async (streamer: StreamerData, jsonData: IconIndexBridg
      * 
      * 어차피 아이콘 치환은 keywords에 있는 값으로만 이루어지므로 상관 없음.
      */
-    if(icon.tags.length === 0) icon.tags = ["미지정"];
+    if(icon.tags === undefined || icon.tags.length === 0) icon.tags = ["미지정"];
 
     /**
      * nameHash를 md5로 만듬.

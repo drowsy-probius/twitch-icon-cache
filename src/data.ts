@@ -70,4 +70,12 @@ export const STREAMER_DATA: StreamerData[] = [
     "type": TYPE.openDccon,
     "nickname": "잠자는꼬마선충"
   },
+  {
+    "name": "smalljuzi6974",
+    "id": 182673681,
+    "url": "https://drowsy-probius.github.io/hansim_jindol/dccon_list.js",
+    "imagePrefix": "https://drowsy-probius.github.io/hansim_jindol/dccon/",
+    "type": TYPE.BridgeBBCC,
+    "nickname": "한심한진돌이"
+  },
 ]

@@ -114,7 +114,7 @@ export const processor = async (streamer: StreamerData, jsonData: IconIndexOpenD
 
 
   const newIconsData = await Promise.all(jsonData.dccons.map(async (icon: IconOpenDccon): Promise<Icon> => {
-    if(icon.tags.length === 0) icon.tags = ["미지정"];
+    if(icon.tags === undefined || icon.tags.length === 0) icon.tags = ["미지정"];
     const iconHash = createHash("md5").update(`${icon.tags[0]}.${icon.keywords[0]}`).digest('hex');
     const iconExt = extname(icon.path) || ".jpg";
     const iconUri = await findIconUri(icon);
