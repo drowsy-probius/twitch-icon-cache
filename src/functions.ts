@@ -241,34 +241,39 @@ export const doUpdateJson = (localJson: Icon[], remoteJson: IconIndexOpenDccon |
   for(let i=0; i<jsonFromUrl.length; i++)
   {
     // 만약 로컬에서 새로운 키워드를 추가해서 제공하려면 여기를 <으로 바꾸어야 함.
-    if(jsonFromUrl[i].keywords !== undefined && jsonFromUrl[i].keywords.length !== jsonFromFile[i].keywords.length)
+    if(jsonFromUrl[i].keywords !== undefined)
     {
-      logger.debug(`download new json by different keywords length. local: ${jsonFromFile[i].keywords} remote: ${jsonFromUrl[i].keywords}`);
-      return true;
-    }
-    for(const keyword of jsonFromUrl[i].keywords) 
-    {
-      if(!jsonFromFile[i].keywords.includes(keyword))
+      if(jsonFromUrl[i].keywords.length !== jsonFromFile[i].keywords.length)
       {
-        logger.debug(`download new json by new keywords detected. local: ${jsonFromFile[i].keywords} remote: ${jsonFromUrl[i].keywords}`);
+        logger.debug(`download new json by different keywords length. local: ${jsonFromFile[i].keywords} remote: ${jsonFromUrl[i].keywords}`);
         return true;
+      }
+      for(const keyword of jsonFromUrl[i].keywords) 
+      {
+        if(!jsonFromFile[i].keywords.includes(keyword))
+        {
+          logger.debug(`download new json by new keywords detected. local: ${jsonFromFile[i].keywords} remote: ${jsonFromUrl[i].keywords}`);
+          return true;
+        }
       }
     }
 
-
     // 만약 로컬에서 새로운 태그를 추가해서 제공하려면 여기를 <으로 바꾸어야 함.
     // 원격 태그 길이가 0일 때는 로컬에서 '미지정'을 추가하므로 그 경우는 제외함.
-    if(jsonFromUrl[i].tags !== undefined && jsonFromUrl[i].tags.length !== 0 && jsonFromUrl[i].tags.length !== jsonFromFile[i].tags.length)
+    if(jsonFromUrl[i].tags !== undefined)
     {
-      logger.debug(`download new json by different tags length. local: ${jsonFromFile[i].tags} remote: ${jsonFromUrl[i].tags}`);
-      return true;
-    }
-    for(const tag of jsonFromUrl[i].tags) 
-    {
-      if(!jsonFromFile[i].tags.includes(tag))
+      if(jsonFromUrl[i].tags.length !== 0 && jsonFromUrl[i].tags.length !== jsonFromFile[i].tags.length)
       {
-        logger.debug(`download new json by new tags detected. local: ${jsonFromFile[i].tags} remote: ${jsonFromUrl[i].tags}`);
+        logger.debug(`download new json by different tags length. local: ${jsonFromFile[i].tags} remote: ${jsonFromUrl[i].tags}`);
         return true;
+      }
+      for(const tag of jsonFromUrl[i].tags) 
+      {
+        if(!jsonFromFile[i].tags.includes(tag))
+        {
+          logger.debug(`download new json by new tags detected. local: ${jsonFromFile[i].tags} remote: ${jsonFromUrl[i].tags}`);
+          return true;
+        }
       }
     }
   }
