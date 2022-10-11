@@ -231,6 +231,9 @@ export const doUpdateJson = (localJson: Icon[], remoteJson: IconIndexOpenDccon |
   const jsonFromFile = localJson;
   const jsonFromUrl = getJsonFromJsonFromUrl(remoteJson);
 
+  if(jsonFromUrl === undefined)
+    return [];
+
   // 원격 json파일에서 요소를 제거했을 수도 있으니 같지 않음으로 비교함.
   if(jsonFromUrl.length !== jsonFromFile.length)
   {
