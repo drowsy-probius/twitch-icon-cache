@@ -1,8 +1,10 @@
+export const PRODUCTION: boolean = ["true", "True", "TRUE"].includes(process.env.ICONTTV_PRODUCTION || "");
+
 // 서버가 동작할 포트호스트
-export const PORT: number = Number(process.env.ICONTTV_PORT) || 32189;
+export const PORT: number = 32189;
 
 // 서버가 동작할 호스트
-export const HOST: string = process.env.ICONTTV_HOST || "0.0.0.0";
+export const HOST: string = "localhost";
 
 //
 export const DOMAIN: string = process.env.ICONTTV_DOMAIN || ".";

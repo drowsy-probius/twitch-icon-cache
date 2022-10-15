@@ -19,6 +19,7 @@ import {
 import { run_cronjob } from "./background";
 import { getIpFromRequest, getRootFromRequest } from "./functions";
 import Logger from "./logger";
+
 const logger = Logger(module.filename);
 
 /**
@@ -46,7 +47,7 @@ mongoose.connect(
 /**
  * 서버 열기 전에 백그라운드 작업 등록
  */
-run_cronjob();
+// run_cronjob();
 
 // express 생성
 const app = express();
@@ -85,6 +86,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
   next();
 });
+
 // 정의한 라우터 사용
 app.use(router);
 

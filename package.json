@@ -1,0 +1,21 @@
+{
+  "name": "twitch-icon-cache",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/k123s456h/twitch-icon-cache.git",
+  "author": "k123s456h <k123s456h@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "install": "./scripts/install-dependencies.sh",
+    "dev": "env-cmd -f .env concurrently --kill-others-on-fail \"cd frontend && yarn start\" \"cd backend && yarn dev\"",
+    "start": "env-cmd -f .env concurrently --kill-others-on-fail \"cd frontend && yarn build && yarn start\" \"cd backend && yarn build && yarn start\"",
+    "dev:back": "cd backend && env-cmd -f ../.env yarn dev",
+    "dev:front": "cd frontend && env-cmd -f ../.env yarn start",
+    "start:back": "cd backend && env-cmd -f ../.env yarn build && yarn start",
+    "start:front": "cd frontend && env-cmd -f ../.env yarn build && yarn start"
+  },
+  "devDependencies": {
+    "concurrently": "^7.4.0",
+    "env-cmd": "^10.1.0"
+  }
+}
