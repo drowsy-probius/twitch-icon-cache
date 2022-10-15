@@ -47,7 +47,7 @@ class BridgeBBCC {
     const jsonString = indexRes.data
       .replace("dcConsData = ", `{"dcConsData" : `)
       .replace(/;$/, "}");
-    this.logger.debug(`[downloadIndexFromUrl] download index done!`);
+    this.logger.debug(`[downloadIndexFromUrl] download index from ${url} done!`);
     const jsonData: IconIndexBridgeBBCC = JSON.parse(jsonString);
     return jsonData;
   }
@@ -200,7 +200,7 @@ class BridgeBBCC {
 
           // already same object in database (local)
           if (await isImageInLocal(icon.iconHash)) {
-            this.logger.info(`[isImageInLocal] image is in local database`);
+            this.logger.info(`[isImageInLocal] ${icon.iconHash} is in local database`);
             return icon;
           }
 
@@ -213,7 +213,7 @@ class BridgeBBCC {
         });
       })
     );
-    this.logger.debug(`[formatIconIndex] Icon processing done!`);
+    this.logger.debug(`[formatIconIndex] ${streamer.name} Icon processing done!`);
 
     const formattedIconIndex: IconIndex = {
       icons: iconData,

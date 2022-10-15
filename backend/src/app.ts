@@ -46,7 +46,7 @@ mongoose.connect(
 /**
  * 서버 열기 전에 백그라운드 작업 등록
  */
-// run_cronjob();
+run_cronjob();
 
 // express 생성
 const app = express();
@@ -67,7 +67,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // 루트(/)에 만들어 놓은 프론트엔드 앱 사용하기 위함.
-app.use(express.static(path.join(__dirname, "../frontend/")));
+app.use(express.static(path.join(__dirname, "../../frontend/")));
 // 전체 접속 로그 남기는 미들웨어
 app.use((req: Request, res: Response, next: NextFunction) => {
   let loggerRoot = logger.http;

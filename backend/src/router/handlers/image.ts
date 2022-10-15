@@ -101,20 +101,21 @@ const imageHandler = (req: Request, res: Response) => {
   return res.status(200).sendFile(imagePath);
 };
 
-const router = Router({ mergeParams: true }).use(imageDatabaseCheckHandler);
+const router = Router({ mergeParams: true }).use("/:imageHash", imageDatabaseCheckHandler);
 
 router.get(
-  "/:imageHash",
+  "/",
   appendSizeHandler,
   imagePathResolveHandler,
   imageExistsInLocal,
   imageHandler
 );
 router.get(
-  "/:imageHash/:size",
+  "/:size",
   imagePathResolveHandler,
   imageExistsInLocal,
   imageHandler
 );
+
 
 export default router;

@@ -5,7 +5,7 @@ export const PORT: number = Number(process.env.ICONTTV_PORT) || 32189;
 export const HOST: string = process.env.ICONTTV_HOST || "0.0.0.0";
 
 //
-export const DOMAIN: string = process.env.ICONTTV_DOMAIN || "./";
+export const DOMAIN: string = process.env.ICONTTV_DOMAIN || ".";
 
 // 이 시간이 지나면 자동으로 백그라운드 작업을 수행함
 export const REFRESH_INTERVAL: string =

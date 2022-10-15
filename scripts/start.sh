@@ -2,7 +2,6 @@
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 SRC_DIR="$SCRIPT_DIR/.."
-cd "$SRC_DIR/backend"
+cd "$SRC_DIR"
 
-echo "run backend start"
-yarn dev
+echo "run start"

@@ -15,7 +15,7 @@ import {
 import Logger from "../../logger";
 const logger = Logger(module.filename);
 
-const imageDirectory = "image";
+const imageDirectory = "api/image";
 
 /**
  * 현재 서버에 어떤 스트리머를 지원하는지 보여줌.
@@ -97,20 +97,23 @@ const bridgebbccListHandler = (req: Request, res: Response) => {
   return res.status(200).json(icons);
 };
 
-const router = Router({ mergeParams: true }).use(checkStreamerHandler, streamerIconsListHandler);
+const router = Router({ mergeParams: true });
+const streamerValidatedRouter = Router({ mergeParams: true }).use(checkStreamerHandler, streamerIconsListHandler);
 
-router.get("/", rootHandler);
-router.get(
-  "/:streamer",
+streamerValidatedRouter.get(
+  "/",
   listHandler
 );
-router.get(
-  "/:streamer/opendccon",
+streamerValidatedRouter.get(
+  "/opendccon",
   openDcconListHandler
 );
-router.get(
-  "/:streamer/bridgebbcc",
+streamerValidatedRouter.get(
+  "/bridgebbcc",
   bridgebbccListHandler
 );
+
+router.get("/", rootHandler);
+router.use("/:streamer", streamerValidatedRouter);
 
 export default router;

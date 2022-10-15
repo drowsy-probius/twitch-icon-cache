@@ -45,7 +45,7 @@ class OpenDccon {
         retries: 5,
       }
     );
-    this.logger.debug(`[downloadIndexFromUrl] download index done!`);
+    this.logger.debug(`[downloadIndexFromUrl] download index from ${url} done!`);
     const jsonData: IconIndexOpenDccon = indexRes.data;
     return jsonData;
   }
@@ -157,7 +157,7 @@ class OpenDccon {
 
           // already same object in database (local)
           if (await isImageInLocal(icon.iconHash)) {
-            this.logger.info(`[isImageInLocal] image is in local database`);
+            this.logger.info(`[isImageInLocal] ${icon.iconHash} is in local database`);
             return icon;
           }
 
