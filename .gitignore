@@ -2,9 +2,9 @@ dist
 node_modules
 .vscode
 
-log/*
-images/*
-tmp/*
+log
+images
+tmp
 
 yarn.lock 
 yarn-error.log
