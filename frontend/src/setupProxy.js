@@ -5,8 +5,8 @@ module.exports = function (app) {
     '/v1',
     createProxyMiddleware({
       target: "http://localhost:32189",
-      changeOrigin: true,
-      ws: true,
+      changeOrigin: false,
+      ws: false,
       pathRewrite: {
         "^/v1": "",
       },
