@@ -15,7 +15,7 @@ import {
 import Logger from "../../logger";
 const logger = Logger(module.filename);
 
-const imageDirectory = "api/image";
+const imageDirectory = "image";
 
 /**
  * 현재 서버에 어떤 스트리머를 지원하는지 보여줌.
