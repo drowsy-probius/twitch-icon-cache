@@ -1,6 +1,7 @@
 import winston from "winston";
 import winstonDaily from "winston-daily-rotate-file";
 import { resolve, join } from "path";
+import { IS_PRODUCTION, LOG_LEVEL } from "./constants";
 
 const { format, transports, createLogger } = winston;
 const { combine, timestamp, printf, colorize } = format;
@@ -58,7 +59,7 @@ export default (meta_url: string) => {
 
   // winston 로그 객체 설정
   const loggerInstance = createLogger({
-    level: process.env.LOG_LEVEL || "info",
+    level: LOG_LEVEL || "info",
     format: combine(
       format.splat(),
       format.errors({ stack: true }),
@@ -72,7 +73,7 @@ export default (meta_url: string) => {
 
   // Log also to console if not in production
   // production 단계가 아니면 콘솔에도 로그 표시. (위에 설정한 level까지만 표시함.)
-  if (process.env.NODE_ENV !== "production") {
+  if (!IS_PRODUCTION) {
     loggerInstance.add(
       new transports.Console({
         format: combine(colorize(), customFormat),

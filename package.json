@@ -7,15 +7,17 @@
   "license": "MIT",
   "scripts": {
     "install": "./scripts/install-dependencies.sh",
-    "dev": "env-cmd -f .env concurrently --kill-others-on-fail \"cd frontend && yarn start\" \"cd backend && yarn dev\"",
-    "start": "env-cmd -f .env concurrently --kill-others-on-fail \"cd frontend && yarn build && yarn start\" \"cd backend && yarn build && yarn start\"",
-    "dev:back": "cd backend && env-cmd -f ../.env yarn dev",
-    "dev:front": "cd frontend && env-cmd -f ../.env yarn start",
-    "start:back": "cd backend && env-cmd -f ../.env yarn build && yarn start",
-    "start:front": "cd frontend && env-cmd -f ../.env yarn build && yarn start"
+    "dev": "concurrently --kill-others-on-fail \"yarn dev:back\" \"yarn dev:front\"",
+    "start": "concurrently --kill-others-on-fail \"yarn start:back\" \"yarn start:front\"",
+    "build": "concurrently --kill-others-on-fail \"yarn build:back\" \"yarn build:front\"",
+    "dev:back": "cd backend && yarn dev",
+    "dev:front": "cd frontend && yarn start",
+    "build:back": "cd backend && yarn build",
+    "build:front": "cd frontend && yarn build",
+    "start:back": "cd backend && yarn start",
+    "start:front": "cd frontend && yarn start"
   },
   "devDependencies": {
-    "concurrently": "^7.4.0",
-    "env-cmd": "^10.1.0"
+    "concurrently": "^7.4.0"
   }
 }
