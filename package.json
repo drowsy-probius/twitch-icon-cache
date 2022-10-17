@@ -11,7 +11,7 @@
     "start": "concurrently --kill-others-on-fail \"yarn start:back\" \"yarn start:front\"",
     "build": "concurrently --kill-others-on-fail \"yarn build:back\" \"yarn build:front\"",
     "dev:back": "cd backend && yarn dev",
-    "dev:front": "cd frontend && yarn start",
+    "dev:front": "cd frontend && yarn dev",
     "build:back": "cd backend && yarn build",
     "build:front": "cd frontend && yarn build",
     "start:back": "cd backend && yarn start",
