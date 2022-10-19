@@ -66,3 +66,10 @@ export const failResponder = (res: Response, error: any, message: any = "", stat
     message: message,
   });
 }
+
+export const notFound404 = (res: Response, req: Request) => {
+  return res.status(404).json({
+    error: "not found",
+    message: "not found 404"
+  });
+}

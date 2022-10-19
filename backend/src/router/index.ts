@@ -5,6 +5,7 @@ import iconHandler from "./handlers/icon";
 import refreshHandler from "./handlers/refresh";
 import searchHandler from "./handlers/search";
 import adminHandler from "./handlers/admin";
+import cdnHandler from "./handlers/cdn";
 
 const router = Router();
 
@@ -15,9 +16,17 @@ router.use("/list", listHandler);
 router.use("/image", imageHandler);
 router.use("/icon", iconHandler);
 
+
 /**
- * `checkStreamer`는 요청한 스트리머가 유효한 것인지 확인하는 미들웨어임.
+ * 캐시서버 (cdn)을 거치는 주소
  */
+router.use("/cdn", cdnHandler);
+
+/**
+ * back
+ */
+router.use("/admin", adminHandler);
+
 router.use("/refresh", refreshHandler);
 
 /**
@@ -25,10 +34,5 @@ router.use("/refresh", refreshHandler);
  * 추후 확장성을 위해서 검색 api가 있는 것이 좋다고 생각함.
  */
 router.use("/search", searchHandler);
-
-/**
- * back
- */
-router.use("/admin", adminHandler);
 
 export default router;
