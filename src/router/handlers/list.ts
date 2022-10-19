@@ -66,13 +66,14 @@ const listHandler = (req: Request, res: Response) => {
    * 앞에 비교는 legacy 지원하기 위함.
    * 로컬 json에 저장된 데이터는 여전히 ms단위로 할 것임.
    */
-  if(timestamp === jsonData.timestamp || timestamp === Math.floor(jsonData.timestamp / (1000 * 60 * 60)))
-  {
-    return res.status(200).json({
-      status: false,
-      message: `your data is not outdated.`
-    })
-  }
+  // 어차피 cloudflare에 저장되어 있지 않을까?
+  // if(timestamp === jsonData.timestamp || timestamp === Math.floor(jsonData.timestamp / (1000 * 60 * 60)))
+  // {
+  //   return res.status(200).json({
+  //     status: false,
+  //     message: `your data is not outdated.`
+  //   })
+  // }
 
   return res.status(200).json(jsonData);
 }
