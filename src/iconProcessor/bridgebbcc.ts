@@ -82,7 +82,7 @@ export const processor = async (
               return path;
             }
           } catch (error) {
-            logger.debug(`not imagePrefix/.${prop}`);
+            logger.debug(`not ${streamer.imagePrefix}/${propValue}`);
           }
         }
 
@@ -97,11 +97,10 @@ export const processor = async (
             return path;
           }
         } catch (error) {
-          logger.debug(`not domainOrigin/.${prop}`);
+          logger.debug(`not ${originUrl}/${propValue}`);
         }
       }
     }
-
     if (streamer.imagePrefix) {
       try {
         const path = new URL(icon.name, streamer.imagePrefix).href;
@@ -114,7 +113,7 @@ export const processor = async (
           return path;
         }
       } catch (error) {
-        logger.debug("not imagePrefix/.name");
+        logger.debug(`not ${streamer.imagePrefix}/${icon.name}`);
       }
     }
     /**
@@ -131,7 +130,7 @@ export const processor = async (
         return path1;
       }
     } catch (error) {
-      logger.debug(`not domainOrigin/images/.name`);
+      logger.debug(`not ${originUrl}/images/${icon.name}`);
     }
 
     try {
@@ -145,11 +144,11 @@ export const processor = async (
         return path2;
       }
     } catch (error) {
-      logger.debug(`not domainOrigin/images/dccon/.name`);
+      logger.debug(`not ${originUrl}/images/dccon/${icon.name}`);
     }
 
     throw new Error(
-      `Cannot find working url for ${streamer.name} - ${icon.tags[0]}`
+      `Cannot find working url for ${streamer.name} - ${icon}`
     );
   };
 
