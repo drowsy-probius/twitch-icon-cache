@@ -2,12 +2,12 @@ import { Request } from "express";
 import axios from "axios";
 import fs from "fs";
 import sharp from "sharp";
-import { resolve } from "path";
+import path, { resolve } from "path";
 
-import { 
-  Icon, 
+import {
+  Icon,
   IconIndexPrototype,
-  IconIndexBridgeBBCC, 
+  IconIndexBridgeBBCC,
   IconIndexOpenDccon,
 } from "./@types/interfaces";
 import { Logger } from "winston";
@@ -17,31 +17,31 @@ import LoggerFunction from "./logger";
  * 1s, 2m, 5d 등의 시간 문자열을 s 또는 ms 단위로 변경해줌.
  * 가능한 키워드: M, w, d, h, m, s
  * 2개 이상의 키워드를 중복해서는 안됨.
- * @param timeString 
- * @param miliseconds 
+ * @param timeString
+ * @param miliseconds
  * @returns number (ms)
  */
-export const timeParser = (timeString: string, miliseconds=true) => {
-  const unit = typeof(timeString.slice(-1)) === "string" ? timeString.slice(-1) : 's';
+export const timeParser = (timeString: string, miliseconds = true) => {
+  const unit =
+    typeof timeString.slice(-1) === "string" ? timeString.slice(-1) : "s";
   const value = Number(timeString.slice(0, -1));
   const multiplier = miliseconds ? 1000 : 1;
-  switch(unit)
-  {
-    case("M"):
+  switch (unit) {
+    case "M":
       return value * 30 * 24 * 60 * 60 * multiplier;
-    case("w"):
+    case "w":
       return value * 7 * 24 * 60 * 60 * multiplier;
-    case("d"):
+    case "d":
       return value * 24 * 60 * 60 * multiplier;
-    case("h"):
+    case "h":
       return value * 60 * 60 * multiplier;
-    case("m"):
+    case "m":
       return value * 60 * multiplier;
-    case("s"):
+    case "s":
       return value * multiplier;
   }
   return multiplier;
-}
+};
 
 /**
  * Promise를 이용해서 지정된 ms만큼 sleep함.
@@ -49,8 +49,23 @@ export const timeParser = (timeString: string, miliseconds=true) => {
  * @returns Promise<>
  */
 export const sleepForMs = (time: number) => {
-  return new Promise(resolve => setTimeout(resolve, time));
-}
+  return new Promise((resolve) => setTimeout(resolve, time));
+};
+
+/**
+ *
+ * @param directory `/some/path/to/image/{streamerName}`
+ */
+export const cleanDirectory = async (directory: string) => {
+  if (!fs.existsSync(directory)) return;
+
+  for (const file of await fs.promises.readdir(directory, {
+    withFileTypes: true,
+  })) {
+    const target = path.join(directory, file.name);
+    await fs.promises.rm(target, { recursive: true, force: true });
+  }
+};
 
 /**
  * 스트리머 이름을 주면 해당 스트리머의 데이터가 저장된 폴더를 알려줌

@@ -17,6 +17,7 @@ import {
   saveImage,
   saveThumbnail,
   saveJsonFile,
+  cleanDirectory,
 } from "../functions";
 
 import Logger from "../logger";
@@ -45,10 +46,11 @@ export const processor = async (
   let imageBaseUrl = "";
   let imagePropsName: IconProps;
 
+  await cleanDirectory(basePath);
   if (!existsSync(basePath)) mkdirSync(basePath, { recursive: true });
   if (!existsSync(basePathThumbnail))
     mkdirSync(basePathThumbnail, { recursive: true });
-
+  
   const findIconUri = async (icon: IconOpenDccon): Promise<string> => {
     if (icon.path.startsWith("http://") || icon.path.startsWith("https://")) {
       imageBaseUrl = "";
