@@ -42,40 +42,40 @@ const TYPE = {
  **/
 export const STREAMER_DATA: StreamerData[] = [
   {
-    "name": "funzinnu",
-    "id": 49469880,
-    "url": "https://www.funzinnu.com/stream/dccon.js",
-    "type": TYPE.BridgeBBCC,
-    "nickname": "펀즈",
+    name: "funzinnu",
+    id: 49469880,
+    url: "https://www.funzinnu.com/stream/dccon.js",
+    type: TYPE.BridgeBBCC,
+    nickname: "펀즈",
   },
   {
-    "name": "yeokka",
-    "id": 124535126,
-    "url": "https://watert.gitlab.io/emotes/yeokka/ODF.json",
-    "type": TYPE.openDccon,
-    "nickname": "여까",
+    name: "yeokka",
+    id: 124535126,
+    url: "https://watert.gitlab.io/emotes/yeokka/ODF.json",
+    type: TYPE.openDccon,
+    nickname: "여까",
   },
   {
-    "name": "telk5093",
-    "id": 106620687,
-    "url": "https://tv.telk.kr/?mode=json",
-    "imagePrefix": "https://tv.telk.kr/images/",
-    "type": TYPE.openDccon,
-    "nickname": "텔크",
+    name: "telk5093",
+    id: 106620687,
+    url: "https://tv.telk.kr/?mode=json",
+    imagePrefix: "https://tv.telk.kr/images/",
+    type: TYPE.openDccon,
+    nickname: "텔크",
   },
   {
-    "name": "sleeping_ce",
-    "id": 414759894,
-    "url": "https://open-dccon-selector.update.sh/api/channel/414759894/cached-dccon",
-    "type": TYPE.openDccon,
-    "nickname": "잠자는꼬마선충"
+    name: "sleeping_ce",
+    id: 414759894,
+    url: "https://open-dccon-selector.update.sh/api/channel/414759894/cached-dccon",
+    type: TYPE.openDccon,
+    nickname: "잠자는꼬마선충",
   },
-  {
-    "name": "smalljuzi6974",
-    "id": 182673681,
-    "url": "https://drowsy-probius.github.io/hansim_jindol/dccon_list.js",
-    "imagePrefix": "https://drowsy-probius.github.io/hansim_jindol/dccon/",
-    "type": TYPE.BridgeBBCC,
-    "nickname": "한심한진돌이"
-  },
-]
+  // { // 관리 어려움으로 일단 제외 
+  //   "name": "smalljuzi6974",
+  //   "id": 182673681,
+  //   "url": "https://drowsy-probius.github.io/hansim_jindol/dccon_list.js",
+  //   "imagePrefix": "https://drowsy-probius.github.io/hansim_jindol/dccon/",
+  //   "type": TYPE.BridgeBBCC,
+  //   "nickname": "한심한진돌이"
+  // },
+];
