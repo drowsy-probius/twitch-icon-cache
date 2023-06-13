@@ -64,7 +64,7 @@ class Cronjob
             logger.info(
               `[Cronjob] ${streamer.name}'s data is up-to-date by timestamp. Skip downloading...`
             );
-            return;
+            continue;
           }
 
           // 로컬의 icons값과 원격에서 가져온 icons값을 정해진 함수로 비교함.
@@ -77,7 +77,7 @@ class Cronjob
             logger.info(
               `[Cronjob] ${streamer.name}'s data is up-to-date by compare function. Skip downloading...`
             );
-            return;
+            continue;
           }
         }
 
