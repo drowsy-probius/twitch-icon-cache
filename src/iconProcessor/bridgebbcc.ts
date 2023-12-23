@@ -32,12 +32,15 @@ export const indexDownloader = async (
   );
   const jsonString = res.data
     .replace("dcConsData = ", `{"dcConsData" : `)
-    .replace(/;$/, "}");
-  const parsedJsonString = jsonString.replace(
-    /\\"|"(?:\\"|[^"])*"|(\/\/.*|\/\*[\s\S]*?\*\/)/g,
-    (m: any, g: any) => (g ? "" : m)
-  );
-  const jsonData: IconIndexBridgeBBCC = JSON.parse(parsedJsonString);
+    .replaceAll(/\s+([a-zA-Z0-9_]+)\s*:/g, '"$1": ') // quote all unquoted keys
+    .replaceAll(/,(\s*[}\]])/g, "$1") // remove tailing comma
+    .replace(/;\s*$/, "}")
+    .replace(
+      /\\"|"(?:\\"|[^"])*"|(\/\/.*|\/\*[\s\S]*?\*\/)/g,
+      (m: unknown, g: unknown) => (g ? "" : m)
+    ); // remove comments
+
+  const jsonData: IconIndexBridgeBBCC = JSON.parse(jsonString);
   return jsonData;
 };
 
@@ -150,7 +153,7 @@ export const processor = async (
     }
 
     throw new Error(
-      `Cannot find working url for ${streamer.name} - ${icon}`
+      `Cannot find working url for ${streamer.name} - ${JSON.stringify(icon)}`
     );
   };
 

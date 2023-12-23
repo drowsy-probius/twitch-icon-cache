@@ -21,7 +21,7 @@
   "scripts": {
     "start": "node dist/app.js",
     "build": "tsc -p .",
-    "dev": "nodemon --watch \"src/**/*.ts\" --exec \"ts-node\" src/app.ts",
+    "dev": "LOG_LEVEL=debug nodemon --watch \"src/**/*.ts\" --exec \"ts-node\" src/app.ts",
     "lint": "eslint ./src && prettier --check ./src"
   },
   "dependencies": {
