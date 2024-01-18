@@ -108,8 +108,45 @@ const openDcconListHandler = (req: Request, res: Response) => {
   return res.status(200).json(openDcconJson);
 }
 
+
+
+/**
+ * 
+ * dcConsData = [
+    {"name":"", "uri":"....gif", "keywords":[""], "tags":[""]},
+  ]
+ * 
+ * @param req 
+ * @param res 
+ * @returns 
+ */
+const chatAssistXListHandler = (req: Request, res: Response) => {
+  const streamer = req.params.streamer;
+  const jsonPath = resolve(join(getImageBasePath(streamer), INDEX_FILE));
+  const data = fs.readFileSync(jsonPath, "utf8");
+  const regexp = new RegExp(basePath, "g");
+  const uriReplacedData = data.replace(regexp, ".");
+  const jsonData: IconIndex = JSON.parse(uriReplacedData);
+  // 여기까지는 `listHandler`와 동일함.
+
+  // https://api.probius.dev/twitch-icons/cdn/images/funzinnu/db90fb44fe88955c471369ff8a171d15.png
+  // icon.uri = ./images/{streamerName}/{filename}.gif
+  const chatAssistXList = jsonData.icons.map((icon) => ({
+    name: icon.name,
+    uri: `https://api.probius.dev/twitch-icons/cdn${icon.uri.slice(1)}`,
+    keywords: icon.keywords,
+    tags: icon.tags,
+  }));
+  const chatAssistXListText = `dcConsData = [
+    ${chatAssistXList.map(icon => JSON.stringify(icon)).join(',\n')}
+  ];`;
+
+  return res.status(200).send(chatAssistXListText);
+};
+
 router.get("/", rootHandler);
 router.get("/:streamer", checkStreamer, listHandler);
 router.get("/open-dccon/:streamer", checkStreamer, openDcconListHandler);
+router.get("/chatassistx/:streamer", checkStreamer, chatAssistXListHandler);
 
 export default router;
