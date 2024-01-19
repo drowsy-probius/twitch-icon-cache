@@ -145,10 +145,14 @@ export const retryWithSleep = async (executable: CallableFunction, failMessage: 
  * @returns string
  */
 export const getIpFromRequest = (req: Request) => {
-  return req.headers['cf-connecting-ip'] || 
-    req.headers['x-forwarded-for'] || 
-    req.headers["x-real-ip"] || 
-    req.ip;
+  if (req.headers) {
+    return (
+      req.headers["cf-connecting-ip"] ||
+      req.headers["x-forwarded-for"] ||
+      req.headers["x-real-ip"]
+    );
+  }
+  return req.ip;
 }
 
 /**
@@ -160,7 +164,8 @@ export const getRootFromRequest = (req: Request) => {
   /**
    * Just assumes that the protocol of connection via cloudflare is https 
    */
-  const protocol = req.headers['cf-connecting-ip'] ? "https" : req.protocol;
+  const protocol =
+    req.headers && req.headers["cf-connecting-ip"] ? "https" : req.protocol;
   const host = req.get("Host");
   return `${protocol}://${host}`;
 }
