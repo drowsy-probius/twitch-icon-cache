@@ -1,18 +1,22 @@
-export type StreamPlatform = "twitch" | "chzzk" | "youtube";
+export const STREAM_PLATFORM = ["twitch", "chzzk", "youtube"] as const;
+
+export type StreamPlatform = typeof STREAM_PLATFORM[number];
 
 type StreamPlatformWithoutTwitch = Exclude<StreamPlatform, "twitch">;
+
+
 
 export interface StreamerData {
   name: {
     twitch: string;
-  } & { [key in StreamPlatformWithoutTwitch]: string | null; };
+  } & { [key in StreamPlatformWithoutTwitch]: string | null };
   url: string;
   type: number;
 
   imagePrefix?: string;
   id?: {
     twitch: number;
-  } & { [key in StreamPlatformWithoutTwitch]: number | null; };
+  } & { [key in StreamPlatformWithoutTwitch]: number | null };
   nickname?: string;
 }
 
@@ -54,6 +58,10 @@ export interface IconIndexPrototype {
 }
 
 ////////////////////////////////////////////////////////////
+export const ICON_INDEX_FORMAT = ["brigebbcc", "opendccon", "chatassistx"] as const;
+
+export type IconIndexFormat = typeof ICON_INDEX_FORMAT[number];
+
 export interface IconOpenDccon extends IconPrototype {
   path: string;
 }

@@ -5,11 +5,24 @@ import fs from "fs";
 import { STREAMER_DATA } from "../../data";
 import { INDEX_FILE } from "../../constants";
 import { getImageBasePath } from "../../functions";
+import Logger from "../../Logger";
 
 import checkStreamerWrapper from "./checkStreamerWrapper";
-import { IconIndex } from "../../@types/interfaces";
+import {
+  IconIndex,
+  IconIndexFormat,
+  STREAM_PLATFORM,
+  StreamPlatform,
+} from "../../@types/interfaces";
+import {
+  convertIconIndexToChatAssistX,
+  convertIconIndexToOpenDccon,
+  convertToTwitchName,
+  getIconIndexByTwitch,
+} from "../../services/icons";
 
-const router = Router({mergeParams: true});
+const logger = Logger(module.filename);
+const router = Router({ mergeParams: true });
 const basePath = resolve(".");
 
 /**
@@ -18,143 +31,131 @@ const basePath = resolve(".");
  */
 const rootHandler = (req: Request, res: Response) => {
   return res.status(200).json(STREAMER_DATA);
-}
+};
 
 /**
  * parameter로 받은 스트리머에 해당하는 아이콘 목록 json을 리턴함.
- * parameter에 `ts`값이 있다면 
+ * parameter에 `ts`값이 있다면
  * 서버에 저장된 아이콘 목록 json의 timestamp 값과 비교하여
  * parameter의 ts 값이 다르다면 아이콘 목록 json을 리턴하고
  * 아니라면 상태 메시지 json을 리턴함.
  */
-const listHandler = (req: Request, res: Response) => {
-  const streamer = req.params.streamer;
-  // 1시간 단위의 timestamp임. Math.floor(timestamp / (1000 * 60 * 60))값.
-  const timestamp = Number(req.query.ts || 0);  
-  /**
-   * 서버에 저장된 아이콘 목록 json에서 이미지 주소는
-   * `/`으로 시작하는 서버에서의 절대경로를 저장하고 있음.
-   * 
-   * 그래서 외부에서 접속 가능한 주소를 만들어 내려면
-   * 현재 요청을 받은 도메인 주소를 알아낼 필요가 있다. 
-   * 
-   * => 리버스프록시 거친 뒤에 path 알아낼 방법이 없으니 상대주소로 함.
-   */
-  const jsonPath = resolve(join(getImageBasePath(streamer), INDEX_FILE));
-  /**
-   * 서버에 저장된 아이콘 목록 json파일이 존재하는지 확인.
-   */
-  if(!fs.existsSync(jsonPath))
-  {
-    return res.status(404).json({
-      status: false,
-      message: `server has not downloaded any data from ${streamer}`
-    });
+const listHandlerWrapper = (iconIndexFormat: IconIndexFormat) => {
+  let iconIndexConverter: (a: IconIndex) => unknown;
+
+  switch (iconIndexFormat) {
+    case "brigebbcc": {
+      iconIndexConverter = (a: IconIndex) => a;
+      break;
+    }
+    case "opendccon": {
+      iconIndexConverter = convertIconIndexToOpenDccon;
+      break;
+    }
+    case "chatassistx": {
+      iconIndexConverter = convertIconIndexToChatAssistX;
+      break;
+    }
   }
 
-  const data = fs.readFileSync(jsonPath, "utf8");
-  // 서버에서 구동되는 앱의 절대 경로를 모두 찾음.
-  const regexp = new RegExp(basePath, "g");
-  // 앱의 절대 경로를 상대경로로 교체함.
-  const uriReplacedData = data.replace(regexp, ".");
-  // 교체한 후에 json으로 파싱함.
-  const jsonData: IconIndex = JSON.parse(uriReplacedData);
-  /**
-   * parameter로 받은 ts값과 서버의 json의 timestamp과 비교해서
-   * 같다면 굳이 새 데이터를 리턴해줄 필요가 없음.
-   * 
-   * 앞에 비교는 legacy 지원하기 위함.
-   * 로컬 json에 저장된 데이터는 여전히 ms단위로 할 것임.
-   */
-  // 어차피 cloudflare에 저장되어 있지 않을까?
-  // if(timestamp === jsonData.timestamp || timestamp === Math.floor(jsonData.timestamp / (1000 * 60 * 60)))
-  // {
-  //   return res.status(200).json({
-  //     status: false,
-  //     message: `your data is not outdated.`
-  //   })
-  // }
+  return (req: Request, res: Response) => {
+    const streamer = req.params.streamer;
 
-  return res.status(200).json(jsonData);
-}
+    try {
+      const iconIndex = getIconIndexByTwitch(streamer);
+
+      if (iconIndexFormat === "chatassistx") {
+        return res.status(200).send(iconIndexConverter(iconIndex));
+      }
+      return res.status(200).json(iconIndexConverter(iconIndex));
+    } catch (e) {
+      logger.warn(e);
+      return res.status(404).json({
+        status: false,
+        message: (e as unknown as Error).message,
+      });
+    }
+  };
+};
 
 /**
- * open dccon 포맷으로 서버의 json을 보여줌.
- * {
- *   dccons: []
- * }
- * 이런 형식을 가짐.
+ * query string으로 받은 스트리머 이름 1개로
+ * 일치하는 아이콘 목록 리턴
+ *
+ * 파싱 우선순위
+ * 트위치 > 치지직 > 유튜브
+ *
+ * @param req
+ * @param res
  */
-const openDcconListHandler = (req: Request, res: Response) => {
-  const streamer = req.params.streamer;
-  const jsonPath = resolve(join(getImageBasePath(streamer), INDEX_FILE));
-  const data = fs.readFileSync(jsonPath, "utf8");
-  const regexp = new RegExp(basePath, "g");
-  const uriReplacedData = data.replace(regexp, ".");
-  const jsonData: IconIndex = JSON.parse(uriReplacedData);
-  // 여기까지는 `listHandler`와 동일함.
-
-  /**
-   * open dccon에서 사용할 수 있는 포맷으로 새 객체를 만듦.
-   * timestamp 값은 기존 포맷에는 없지만 나중에 효율성을 위해서 추가함.
-   */
-  const openDcconJson = {
-    dccons: [
-      ...jsonData.icons
-    ],
-    timestamp: jsonData.timestamp
+const multiplatformListHandlerWrapper = (iconIndexFormat: IconIndexFormat) => {
+  let iconIndexConverter: (a: IconIndex) => unknown;
+  switch (iconIndexFormat) {
+    case "brigebbcc": {
+      iconIndexConverter = (a: IconIndex) => a;
+      break;
+    }
+    case "opendccon": {
+      iconIndexConverter = convertIconIndexToOpenDccon;
+      break;
+    }
+    case "chatassistx": {
+      iconIndexConverter = convertIconIndexToChatAssistX;
+      break;
+    }
   }
 
-  return res.status(200).json(openDcconJson);
-}
+  return (req: Request, res: Response) => {
+    const queries = req.query;
+    const platform = queries["platform"];
+    const streamer = queries["streamer"];
 
+    if (
+      typeof platform !== "string" ||
+      typeof streamer !== "string" ||
+      !(STREAM_PLATFORM as readonly string[]).includes(platform)
+    ) {
+      return res.status(400).json({
+        status: false,
+        message: "invalid query parameters",
+      });
+    }
 
-
-/**
- * 
- * dcConsData = [
-    {"name":"", "uri":"....gif", "keywords":[""], "tags":[""]},
-  ]
- * 
- * @param req 
- * @param res 
- * @returns 
- */
-const chatAssistXListHandler = (req: Request, res: Response) => {
-  const streamer = req.params.streamer;
-  const jsonPath = resolve(join(getImageBasePath(streamer), INDEX_FILE));
-  const data = fs.readFileSync(jsonPath, "utf8");
-  const regexp = new RegExp(basePath, "g");
-  const uriReplacedData = data.replace(regexp, ".");
-  const jsonData: IconIndex = JSON.parse(uriReplacedData);
-  // 여기까지는 `listHandler`와 동일함.
-
-  // https://api.probius.dev/twitch-icons/cdn/images/funzinnu/db90fb44fe88955c471369ff8a171d15.png
-  // icon.uri = ./images/{streamerName}/{filename}.gif
-  const chatAssistXList = jsonData.icons.map((icon) => ({
-    name: icon.name,
-    uri: `https://api.probius.dev/twitch-icons/cdn${icon.uri.slice(1)}`,
-    keywords: icon.keywords,
-    tags: icon.tags,
-  }));
-  const chatAssistXListText = `dcConsData = [
-    ${chatAssistXList.map(icon => JSON.stringify(icon)).join(',\n')}
-  ];`;
-
-  return res.status(200).send(chatAssistXListText);
+    try {
+      const iconIndex = getIconIndexByTwitch(
+        convertToTwitchName(platform as StreamPlatform, streamer)
+      );
+      if (iconIndexFormat === "chatassistx") {
+        return res.status(200).send(iconIndexConverter(iconIndex));
+      }
+      return res.status(200).json(iconIndexConverter(iconIndex));
+    } catch (e) {
+      logger.warn(e);
+      return res.status(404).json({
+        status: false,
+        message: (e as unknown as Error).message,
+      });
+    }
+  };
 };
 
 router.get("/", rootHandler);
-router.get("/:streamer", checkStreamerWrapper("twitch"), listHandler);
+
+router.get("/by", multiplatformListHandlerWrapper("brigebbcc"));
+router.get("/:streamer", checkStreamerWrapper("twitch"), listHandlerWrapper("brigebbcc"));
+
+router.get("/open-dccon/by", multiplatformListHandlerWrapper("opendccon"));
 router.get(
   "/open-dccon/:streamer",
   checkStreamerWrapper("twitch"),
-  openDcconListHandler
+  listHandlerWrapper("opendccon")
 );
+
+router.get("/chatassistx/by", multiplatformListHandlerWrapper("chatassistx"));
 router.get(
   "/chatassistx/:streamer",
   checkStreamerWrapper("twitch"),
-  chatAssistXListHandler
+  listHandlerWrapper("chatassistx")
 );
 
 export default router;
