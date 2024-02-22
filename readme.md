@@ -31,8 +31,3 @@
 - `cloudflare`에서 규칙, 브라우저 캐시 TTL, 캐시 수준, 에지 캐시 TTL 설정하면 더 많은 트래픽 절약 가능 (링크)[https://stackoverflow.com/questions/11560101/caching-json-with-cloudflare]
 
 - `iconProcessor` 각 함수의 공통 부분을 빼서 따로 선언하기
-
-## TODO
-
-- [ ] 프론트 페이지 name 바뀐거 고치기
-
