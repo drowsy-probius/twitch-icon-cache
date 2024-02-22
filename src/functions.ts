@@ -11,7 +11,7 @@ import {
   IconIndexOpenDccon,
 } from "./@types/interfaces";
 import { Logger } from "winston";
-import LoggerFunction from "./logger";
+import LoggerFunction from "./Logger";
 
 /**
  * 1s, 2m, 5d 등의 시간 문자열을 s 또는 ms 단위로 변경해줌.

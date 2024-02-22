@@ -42,37 +42,77 @@ const TYPE = {
  **/
 export const STREAMER_DATA: StreamerData[] = [
   {
-    name: "funzinnu",
-    id: 49469880,
+    name: {
+      twitch: "funzinnu",
+      chzzk: "7d4157ae4fddab134243704cab847f23",
+      youtube: null,
+    },
+    id: {
+      twitch: 49469880,
+      chzzk: null,
+      youtube: null,
+    },
     url: "https://www.funzinnu.com/stream/dccon.js",
     type: TYPE.BridgeBBCC,
     nickname: "펀즈",
   },
   {
-    name: "yeokka",
-    id: 124535126,
+    name: {
+      twitch: "yeokka",
+      chzzk: null,
+      youtube: null,
+    },
+    id: {
+      twitch: 124535126,
+      chzzk: null,
+      youtube: null,
+    },
     url: "https://watert.gitlab.io/emotes/yeokka/ODF.json",
     type: TYPE.openDccon,
     nickname: "여까",
   },
   {
-    name: "telk5093",
-    id: 106620687,
+    name: {
+      twitch: "telk5093",
+      chzzk: null,
+      youtube: null,
+    },
+    id: {
+      twitch: 106620687,
+      chzzk: null,
+      youtube: null,
+    },
     url: "https://tv.telk.kr/?mode=json",
     imagePrefix: "https://tv.telk.kr/images/",
     type: TYPE.openDccon,
     nickname: "텔크",
   },
   {
-    name: "sleeping_ce",
-    id: 414759894,
+    name: {
+      twitch: "sleeping_ce",
+      chzzk: null,
+      youtube: null,
+    },
+    id: {
+      twitch: 414759894,
+      chzzk: null,
+      youtube: null,
+    },
     url: "https://open-dccon-selector.update.sh/api/channel/414759894/cached-dccon",
     type: TYPE.openDccon,
     nickname: "잠자는꼬마선충",
   },
   {
-    name: "smalljuzi6974",
-    id: 182673681,
+    name: {
+      twitch: "smalljuzi6974",
+      chzzk: "a6d9b0eeca16dd613bf0ebe8d5b8991b",
+      youtube: null,
+    },
+    id: {
+      twitch: 182673681,
+      chzzk: null,
+      youtube: null,
+    },
     url: "https://iconttv.github.io/twitch/smalljuzi6974/list.js",
     imagePrefix: "https://iconttv.github.io/twitch/smalljuzi6974/dccon/",
     type: TYPE.BridgeBBCC,

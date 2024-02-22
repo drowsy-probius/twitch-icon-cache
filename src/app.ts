@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import compression from "compression";
-import { Z_BEST_COMPRESSION } from 'zlib';
+import { constants } from "zlib";
 import cors from "cors";
 import path from "path";
 
@@ -8,7 +8,7 @@ import router from "./router";
 import { PORT, HOST } from './constants';
 import { run_cronjob } from './background';
 import { getIpFromRequest, getRootFromRequest } from "./functions";
-import Logger from "./logger";
+import Logger from "./Logger";
 const logger = Logger(module.filename);
 
 /**
@@ -24,9 +24,11 @@ app.enable('trust proxy');
 // cross domain 요청 허용
 app.use(cors());
 // json 데이터 압축해서 전송. 
-app.use(compression({
-  level: Z_BEST_COMPRESSION,
-}));
+app.use(
+  compression({
+    level: constants.Z_BEST_COMPRESSION,
+  })
+);
 // 루트(/)에 만들어 놓은 프론트엔드 앱 사용하기 위함.
 app.use(express.static(path.join(__dirname, "../frontend/")));
 // 전체 접속 로그 남기는 미들웨어

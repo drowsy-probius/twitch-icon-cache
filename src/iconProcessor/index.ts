@@ -9,7 +9,7 @@ import {
 
 import { StreamerData } from "../@types/interfaces";
 
-import Logger from "../logger";
+import Logger from "../Logger";
 
 
 /**

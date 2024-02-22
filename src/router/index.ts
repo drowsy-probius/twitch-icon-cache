@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { 
-  imageHandler, 
-  listHandler, 
-  rootHandler, 
-  checkStreamer, 
+import {
+  imageHandler,
+  listHandler,
+  rootHandler,
+  checkStreamerWrapper,
   iconHandler,
   refreshHandler,
   searchHandler,
@@ -21,14 +21,18 @@ router.use("/list", listHandler);
 /**
  * `checkStreamer`는 요청한 스트리머가 유효한 것인지 확인하는 미들웨어임.
  */
-router.get("/images/:streamer/:image", checkStreamer, imageHandler);
+router.get(
+  "/images/:streamer/:image",
+  checkStreamerWrapper("twitch"),
+  imageHandler
+);
 
 router.get("/icon", iconHandler);
 
 /**
  * `checkStreamer`는 요청한 스트리머가 유효한 것인지 확인하는 미들웨어임.
  */
-router.get("/refresh/:streamer", checkStreamer, refreshHandler);
+router.get("/refresh/:streamer", checkStreamerWrapper("twitch"), refreshHandler);
 
 /**
  * 키워드 값이 들어올 때 해당되는 주소 리턴하는 것

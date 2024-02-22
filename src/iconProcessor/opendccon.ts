@@ -20,7 +20,7 @@ import {
   cleanDirectory,
 } from "../functions";
 
-import Logger from "../logger";
+import Logger from "../Logger";
 
 export const indexDownloader = async (
   url: string
@@ -38,9 +38,9 @@ export const processor = async (
   streamer: StreamerData,
   jsonData: IconIndexOpenDccon
 ): Promise<void> => {
-  const logger = Logger(`${module.filename} [${streamer.name}]`);
-  const basePath = getImageBasePath(streamer.name);
-  const basePathThumbnail = getThumbnailBasePath(streamer.name);
+  const logger = Logger(`${module.filename} [${streamer.name.twitch}]`);
+  const basePath = getImageBasePath(streamer.name.twitch);
+  const basePathThumbnail = getThumbnailBasePath(streamer.name.twitch);
   const originUrl = new URL(streamer.url).origin;
 
   let imageBaseUrl = "";
@@ -136,7 +136,7 @@ export const processor = async (
     }
 
     throw new Error(
-      `Cannot find working url for ${streamer.name} - ${icon}`
+      `Cannot find working url for ${streamer.name.twitch} - ${icon}`
     );
   };
 

@@ -6,7 +6,7 @@ import { FAILED_LIST_FILE, IMAGE } from "../../constants";
 import { getIpFromRequest, getRootFromRequest, getImageBasePath, getThumbnailBasePath } from "../../functions";
 import { Icon } from "../../@types/interfaces";
 
-import Logger from "../../logger";
+import Logger from "../../Logger";
 const logger = Logger(module.filename);
 
 const handler = async (req: Request, res: Response) => {

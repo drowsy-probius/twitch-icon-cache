@@ -6,7 +6,7 @@ import { STREAMER_DATA } from "../../data";
 import { INDEX_FILE } from "../../constants";
 import { getImageBasePath } from "../../functions";
 
-import checkStreamer from "./checkStreamer";
+import checkStreamerWrapper from "./checkStreamerWrapper";
 import { IconIndex } from "../../@types/interfaces";
 
 const router = Router({mergeParams: true});
@@ -145,8 +145,16 @@ const chatAssistXListHandler = (req: Request, res: Response) => {
 };
 
 router.get("/", rootHandler);
-router.get("/:streamer", checkStreamer, listHandler);
-router.get("/open-dccon/:streamer", checkStreamer, openDcconListHandler);
-router.get("/chatassistx/:streamer", checkStreamer, chatAssistXListHandler);
+router.get("/:streamer", checkStreamerWrapper("twitch"), listHandler);
+router.get(
+  "/open-dccon/:streamer",
+  checkStreamerWrapper("twitch"),
+  openDcconListHandler
+);
+router.get(
+  "/chatassistx/:streamer",
+  checkStreamerWrapper("twitch"),
+  chatAssistXListHandler
+);
 
 export default router;
