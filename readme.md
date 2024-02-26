@@ -6,9 +6,17 @@
 
 `/list` -> show supported streamers
 
+`/list/by?platform=&streamer=` -> show icon list of streamer by platform
+
 `/list/:streamer` -> show icon list of streamer
 
 `/list/open-dccon/:streamer` -> show open-dccon format icon list of streamer
+
+`/list/open-dccon/by?platform=&streamer=` -> show open-dccon format icon list of streamer by platform
+
+`/list/chatassistx/:streamer` -> show chatassistx format icon list of streamer
+
+`/list/chatassistx/by?platform=&streamer=` -> show chatassistx format icon list of streamer by platform
 
 `/images/:streamer/:filename(hashed).ext` -> get image
 
