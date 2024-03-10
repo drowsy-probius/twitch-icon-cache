@@ -31,7 +31,7 @@ class Cronjob {
     this.cacheTime = timeParser(CACHE_TIME);
 
     // 작업 수행
-    this.job();
+    setTimeout(this.job, 0)
     // 캐시 시간마다 작업을 수행하도록 설정
     this.timerIdentifier = setInterval(this.job, this.cacheTime);
   }
