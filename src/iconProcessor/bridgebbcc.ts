@@ -61,7 +61,7 @@ export const processor = async (
   if (!existsSync(basePathThumbnail))
     mkdirSync(basePathThumbnail, { recursive: true });
 
-  const findIconUri = async (icon: IconBridgeBBCC): Promise<string> => {
+  const findIconUri = async (icon: IconBridgeBBCC): Promise<string | null> => {
     if (imageBaseUrl !== "" || imagePropsName !== undefined) {
       return new URL(icon[imagePropsName] as string, imageBaseUrl).href;
     }
@@ -87,7 +87,7 @@ export const processor = async (
               return path;
             }
           } catch (error) {
-            logger.debug(`not ${streamer.imagePrefix}/${propValue}`);
+            logger.debug(`not ${streamer.imagePrefix} ${propValue}`);
           }
         }
 
@@ -102,7 +102,7 @@ export const processor = async (
             return path;
           }
         } catch (error) {
-          logger.debug(`not ${originUrl}/${propValue}`);
+          logger.debug(`not ${originUrl} ${propValue}`);
         }
       }
     }
@@ -118,7 +118,7 @@ export const processor = async (
           return path;
         }
       } catch (error) {
-        logger.debug(`not ${streamer.imagePrefix}/${icon.name}`);
+        logger.debug(`not ${streamer.imagePrefix} ${icon.name}`);
       }
     }
     /**
@@ -152,9 +152,12 @@ export const processor = async (
       logger.debug(`not ${originUrl}/images/dccon/${icon.name}`);
     }
 
-    throw new Error(
-      `Cannot find working url for ${streamer.name.twitch} - ${JSON.stringify(icon)}`
+    logger.error(
+      `Cannot find working url for ${streamer.name.twitch} - ${JSON.stringify(
+        icon
+      )}`
     );
+    return null;
   };
 
   /**
@@ -189,15 +192,29 @@ export const processor = async (
         .update(`${icon.tags[0]}.${icon.keywords[0]}`)
         .digest("hex");
       /**
+       * BridgeBBCC 포맷에서는 name이 파일이름을 가리킴.
+       */
+      const iconExt = extname(icon.name) || ".jpg";
+      /**
        * 실제 아이콘 이미지 주소 찾기
        * 스트리머가 지정하지 않은 경우도 존재하기 때문.
        */
       const iconUri = await findIconUri(icon);
+      if (!iconUri) {
+        return {
+          name: icon.name,
+          nameHash: iconHash,
+          // 여기서 저장되는 basePath는 `/`으로 시작하는 앱이 구동되는 서버의 절대경로임.
+          uri: `${basePath}/${iconHash}${iconExt}`,
+          thumbnailUri: `${basePath}/${iconHash}${iconExt}?small`,
+          keywords: icon.keywords,
+          tags: icon.tags,
+          // 이 값이 true이면 uri로 접근하지 않고 originUri로 접근함.
+          useOrigin: true,
+          originUri: "/icon", // cannot resolve origin icon
+        };
+      }
 
-      /**
-       * BridgeBBCC 포맷에서는 name이 파일이름을 가리킴.
-       */
-      const iconExt = extname(icon.name) || ".jpg";
       const newIcon: Icon = {
         name: icon.name,
         nameHash: iconHash,

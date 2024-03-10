@@ -51,7 +51,7 @@ export const processor = async (
   if (!existsSync(basePathThumbnail))
     mkdirSync(basePathThumbnail, { recursive: true });
   
-  const findIconUri = async (icon: IconOpenDccon): Promise<string> => {
+  const findIconUri = async (icon: IconOpenDccon): Promise<string | null> => {
     if (icon.path.startsWith("http://") || icon.path.startsWith("https://")) {
       imageBaseUrl = "";
       imagePropsName = "path";
@@ -77,7 +77,7 @@ export const processor = async (
           return path;
         }
       } catch (error) {
-        logger.debug(`not ${streamer.imagePrefix}/${icon.path}`);
+        logger.debug(`not ${streamer.imagePrefix} ${icon.path}`);
       }
     } else {
       try {
@@ -91,7 +91,7 @@ export const processor = async (
           return path;
         }
       } catch (error) {
-        logger.debug(`not ${originUrl}/${icon.path}`);
+        logger.debug(`not ${originUrl} ${icon.path}`);
       }
     }
 
@@ -115,7 +115,7 @@ export const processor = async (
               return path;
             }
           } catch (error) {
-            logger.debug(`not ${streamer.imagePrefix}/${propValue}`);
+            logger.debug(`not ${streamer.imagePrefix} ${propValue}`);
           }
         }
 
@@ -130,25 +130,42 @@ export const processor = async (
             return path;
           }
         } catch (error) {
-          logger.debug(`not ${originUrl}/${propValue}`);
+          logger.debug(`not ${originUrl} ${propValue}`);
         }
       }
     }
 
-    throw new Error(
-      `Cannot find working url for ${streamer.name.twitch} - ${icon}`
+    logger.error(
+      `Cannot find working url for ${streamer.name.twitch} - ${JSON.stringify(
+        icon
+      )}`
     );
+    return null;
   };
 
   const newIconsData = await Promise.all(
     jsonData.dccons.map(async (icon: IconOpenDccon): Promise<Icon> => {
       if (icon.tags === undefined || icon.tags.length === 0)
         icon.tags = ["미지정"];
+
       const iconHash = createHash("md5")
         .update(`${icon.tags[0]}.${icon.keywords[0]}`)
         .digest("hex");
       const iconExt = extname(icon.path) || ".jpg";
       const iconUri = await findIconUri(icon);
+      if (!iconUri) {
+        return {
+          name: `${icon.keywords[0]}${iconExt}`,
+          nameHash: iconHash,
+          uri: `${basePath}/${iconHash}${iconExt}`,
+          thumbnailUri: `${basePath}/${iconHash}${iconExt}?small`,
+          keywords: icon.keywords,
+          tags: icon.tags,
+          useOrigin: true,
+          originUri: "/icon", // cannot resolve origin icon
+        };
+      }
+
       const newIcon: Icon = {
         name: `${icon.keywords[0]}${iconExt}`,
         nameHash: iconHash,
@@ -159,7 +176,6 @@ export const processor = async (
         useOrigin: false,
         originUri: iconUri,
       };
-
       try {
         await saveImage(newIcon.originUri, newIcon.uri, logger);
         await saveThumbnail(
