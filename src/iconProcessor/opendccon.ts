@@ -10,14 +10,13 @@ import {
   IconProps,
   IconOpenDccon,
 } from "../@types/interfaces";
-import { FAILED_LIST_FILE, INDEX_FILE } from "../constants";
+import { FAILED_LIST_FILE, ICON_SIZE, INDEX_FILE } from "../constants";
 import {
   getImageBasePath,
-  getThumbnailBasePath,
+  getResizeBasePath,
   saveImage,
-  saveThumbnail,
+  resizeAndSaveImage,
   saveJsonFile,
-  cleanDirectory,
 } from "../functions";
 
 import Logger from "../Logger";
@@ -40,16 +39,17 @@ export const processor = async (
 ): Promise<void> => {
   const logger = Logger(`${module.filename} [${streamer.name.twitch}]`);
   const basePath = getImageBasePath(streamer.name.twitch);
-  const basePathThumbnail = getThumbnailBasePath(streamer.name.twitch);
   const originUrl = new URL(streamer.url).origin;
 
   let imageBaseUrl = "";
   let imagePropsName: IconProps;
 
-  await cleanDirectory(basePath);
   if (!existsSync(basePath)) mkdirSync(basePath, { recursive: true });
-  if (!existsSync(basePathThumbnail))
-    mkdirSync(basePathThumbnail, { recursive: true });
+  for (const iconSize of ICON_SIZE) {
+    const resizeBasePath = getResizeBasePath(streamer.name.twitch, iconSize)
+    if (!existsSync(resizeBasePath))
+      mkdirSync(resizeBasePath, { recursive: true });
+  }
   
   const findIconUri = async (icon: IconOpenDccon): Promise<string | null> => {
     if (icon.path.startsWith("http://") || icon.path.startsWith("https://")) {
@@ -158,7 +158,7 @@ export const processor = async (
           name: `${icon.keywords[0]}${iconExt}`,
           nameHash: iconHash,
           uri: `${basePath}/${iconHash}${iconExt}`,
-          thumbnailUri: `${basePath}/${iconHash}${iconExt}?small`,
+          thumbnailUri: `${basePath}/${iconHash}${iconExt}?size=48`,
           keywords: icon.keywords,
           tags: icon.tags,
           useOrigin: true,
@@ -170,7 +170,7 @@ export const processor = async (
         name: `${icon.keywords[0]}${iconExt}`,
         nameHash: iconHash,
         uri: `${basePath}/${iconHash}${iconExt}`,
-        thumbnailUri: `${basePath}/${iconHash}${iconExt}?small`,
+        thumbnailUri: `${basePath}/${iconHash}${iconExt}?size=48`,
         keywords: icon.keywords,
         tags: icon.tags,
         useOrigin: false,
@@ -178,11 +178,15 @@ export const processor = async (
       };
       try {
         await saveImage(newIcon.originUri, newIcon.uri, logger);
-        await saveThumbnail(
-          newIcon.uri,
-          `${basePathThumbnail}/${iconHash}${iconExt}`,
-          logger
-        );
+        await Promise.all(ICON_SIZE.map(iconSize => {
+          const resizeBasePath = getResizeBasePath(streamer.name.twitch, iconSize)
+          return resizeAndSaveImage(
+            newIcon.uri,
+            `${resizeBasePath}/${iconHash}${iconExt}`,
+            iconSize,
+            logger,
+          )
+        }));
         return newIcon;
       } catch (err) {
         logger.error(err);

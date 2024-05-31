@@ -2,8 +2,8 @@ import { Request, Response } from "express";
 import { resolve, join, extname } from "path";
 import { existsSync, readdirSync, readFileSync } from "fs";
 
-import { FAILED_LIST_FILE, IMAGE } from "../../constants";
-import { getIpFromRequest, getRootFromRequest, getImageBasePath, getThumbnailBasePath } from "../../functions";
+import { FAILED_LIST_FILE, ICON_SIZE, IMAGE } from "../../constants";
+import { getIpFromRequest, getRootFromRequest, getImageBasePath, getResizeBasePath } from "../../functions";
 import { Icon } from "../../@types/interfaces";
 
 import Logger from "../../Logger";
@@ -16,15 +16,22 @@ const handler = async (req: Request, res: Response) => {
   /**
    * 요청 주소에 ?small이 있으면 작은 이미지를 리턴함. 
    * 웹 앱에서 조금 더 빠른 로딩을 위해서 설정함.
+   * 
+   * 240601
+   * ?small : legacy
    */
-  const isSmall = ("small" in req.query);
+  const paramSize = "small" in req.query ? 32 : (
+    ICON_SIZE.includes(Number(req.query['size'])) ? Number(req.query['size']) : NaN
+  );
+  const isParamSizeExists = Number.isNaN(paramSize)
 
   /**
    * parameter로 받은 streamer와 image로부터
    * 원본 크기 이미지와 축소된 이미지의 로컬 경로를 계산함
    */
-  const basePath = isSmall ? getThumbnailBasePath(streamer) : getImageBasePath(streamer);
-  const imagePath = isSmall ? join(basePath, image) : join(basePath, image);
+  const basePath = isParamSizeExists ? getImageBasePath(streamer) : getResizeBasePath(streamer, paramSize);
+  const imagePath = join(basePath, image)
+
   /**
    * 요청 시에 파일 확장자를 지정하지 않아도 동작하도록 설정함.
    */
@@ -39,7 +46,7 @@ const handler = async (req: Request, res: Response) => {
         message: `No image ${image}`
       });
     }
-    return res.redirect(`${file[0]}${isSmall ? '?small' : ''}`);
+    return res.redirect(`${file[0]}${isParamSizeExists ? '?size=48' : ''}`);
   }
 
   /**

@@ -78,11 +78,11 @@ export const getImageBasePath = (streamerName: string) => {
 
 /**
  * 스트리머 이름을 주면 해당 스트리머의 작은 이미지 파일이 저장된 폴더를 알려줌
- * @param streamerName 
+ * @param imageSize 
  * @returns path-like-string
  */
-export const getThumbnailBasePath = (streamerName: string) => {
-  return resolve(`./images/${streamerName}/thumbnail`);
+export const getResizeBasePath = (streamerName: string, imageSize: number | string) => {
+  return resolve(`./images/${streamerName}/${imageSize}`);
 }
 
 ////////////////////////////////////////////////////////////
@@ -202,11 +202,11 @@ export const saveImage = (url: string, savePath: string, logger: Logger) => retr
  * @param filename 
  * @returns 
  */
-export const saveThumbnail = (imagePath: string, filename: string, logger: Logger) => retryWithSleep(async () => {
-  await fs.promises.writeFile(filename, await resizeImage(imagePath, 40));
-  logger.debug(`[saveThumbnail] Convert image to ${filename}`);
+export const resizeAndSaveImage = (imagePath: string, filename: string, imageSize: number, logger: Logger) => retryWithSleep(async () => {
+  await fs.promises.writeFile(filename, await resizeImage(imagePath, imageSize));
+  logger.debug(`[resizeAndSaveImage] (${imageSize}px) Convert image to ${filename}`);
   return true;
-}, `[saveThumbnail] ${imagePath} -> ${filename}`, logger)
+}, `[resizeAndSaveImage] (${imageSize}px) ${imagePath} -> ${filename}`, logger)
 
 
 /**

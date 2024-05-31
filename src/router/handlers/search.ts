@@ -7,11 +7,9 @@ import { INDEX_FILE } from "../../constants";
 import { STREAMER_DATA } from "../../data";
 import { getImageBasePath } from "../../functions";
 import { IconIndex, Icon } from "../../@types/interfaces";
-import Logger from "../../Logger";
 
 const router = Router({ mergeParams: true });
 const basePath = resolve(".");
-const logger = Logger(`${module.filename}`)
 
 const searchAll = (req: Request, res: Response) => {
   const keyword = req.params.keyword;

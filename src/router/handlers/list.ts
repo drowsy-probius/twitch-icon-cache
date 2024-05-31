@@ -1,10 +1,6 @@
 import { Router, Request, Response } from "express";
-import { resolve, join } from "path";
-import fs from "fs";
 
 import { STREAMER_DATA } from "../../data";
-import { INDEX_FILE } from "../../constants";
-import { getImageBasePath } from "../../functions";
 import Logger from "../../Logger";
 
 import checkStreamerWrapper from "./checkStreamerWrapper";
@@ -23,7 +19,6 @@ import {
 
 const logger = Logger(module.filename);
 const router = Router({ mergeParams: true });
-const basePath = resolve(".");
 
 /**
  * 현재 서버에 어떤 스트리머를 지원하는지 보여줌.

@@ -10,14 +10,13 @@ import {
   IconBridgeBBCC,
   StreamerData,
 } from "../@types/interfaces";
-import { FAILED_LIST_FILE, INDEX_FILE } from "../constants";
+import { FAILED_LIST_FILE, ICON_SIZE, INDEX_FILE } from "../constants";
 import {
   getImageBasePath,
-  getThumbnailBasePath,
+  getResizeBasePath,
   saveImage,
-  saveThumbnail,
+  resizeAndSaveImage,
   saveJsonFile,
-  cleanDirectory,
 } from "../functions";
 
 import Logger from "../Logger";
@@ -50,16 +49,17 @@ export const processor = async (
 ): Promise<void> => {
   const logger = Logger(`${module.filename} [${streamer.name.twitch}]`);
   const basePath = getImageBasePath(streamer.name.twitch);
-  const basePathThumbnail = getThumbnailBasePath(streamer.name.twitch);
   const originUrl = new URL(streamer.url).origin;
 
   let imageBaseUrl = "";
   let imagePropsName: IconProps;
 
-  await cleanDirectory(basePath);
   if (!existsSync(basePath)) mkdirSync(basePath, { recursive: true });
-  if (!existsSync(basePathThumbnail))
-    mkdirSync(basePathThumbnail, { recursive: true });
+  for (const iconSize of ICON_SIZE) {
+    const resizeBasePath = getResizeBasePath(streamer.name.twitch, iconSize)
+    if (!existsSync(resizeBasePath))
+      mkdirSync(resizeBasePath, { recursive: true });
+  }
 
   const findIconUri = async (icon: IconBridgeBBCC): Promise<string | null> => {
     if (imageBaseUrl !== "" || imagePropsName !== undefined) {
@@ -206,7 +206,7 @@ export const processor = async (
           nameHash: iconHash,
           // 여기서 저장되는 basePath는 `/`으로 시작하는 앱이 구동되는 서버의 절대경로임.
           uri: `${basePath}/${iconHash}${iconExt}`,
-          thumbnailUri: `${basePath}/${iconHash}${iconExt}?small`,
+          thumbnailUri: `${basePath}/${iconHash}${iconExt}?size=48`,
           keywords: icon.keywords,
           tags: icon.tags,
           // 이 값이 true이면 uri로 접근하지 않고 originUri로 접근함.
@@ -220,7 +220,7 @@ export const processor = async (
         nameHash: iconHash,
         // 여기서 저장되는 basePath는 `/`으로 시작하는 앱이 구동되는 서버의 절대경로임.
         uri: `${basePath}/${iconHash}${iconExt}`,
-        thumbnailUri: `${basePath}/${iconHash}${iconExt}?small`,
+        thumbnailUri: `${basePath}/${iconHash}${iconExt}?size=48`,
         keywords: icon.keywords,
         tags: icon.tags,
         // 이 값이 true이면 uri로 접근하지 않고 originUri로 접근함.
@@ -232,11 +232,15 @@ export const processor = async (
         // 원본 이미지 저장
         await saveImage(newIcon.originUri, newIcon.uri, logger);
         // 축소된 이미지 저장
-        await saveThumbnail(
-          newIcon.uri,
-          `${basePathThumbnail}/${iconHash}${iconExt}`,
-          logger
-        );
+        await Promise.all(ICON_SIZE.map(iconSize => {
+          const resizeBasePath = getResizeBasePath(streamer.name.twitch, iconSize)
+          return resizeAndSaveImage(
+            newIcon.uri,
+            `${resizeBasePath}/${iconHash}${iconExt}`,
+            iconSize,
+            logger,
+          )
+        }));
         // 성공하면 새 아이콘 정보 리턴.
         return newIcon;
       } catch (err) {
