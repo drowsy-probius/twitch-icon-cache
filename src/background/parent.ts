@@ -13,10 +13,11 @@ const getChildProcess = async (): Promise<ChildProcess> => {
     let child: ChildProcess;
     if (existsSync(`${__dirname}/child.js`)) {
       child = fork(`${__dirname}/child.js`);
+    } else {
+      child = fork(`${__dirname}/child.ts`, [], {
+        execArgv: ['-r', 'ts-node/register'],
+      });
     }
-    child = fork(`${__dirname}/child.ts`, [], {
-      execArgv: ['-r', 'ts-node/register'],
-    });
 
     child.on('message', (message: ChildMessage) => {
       logger.debug(message);
