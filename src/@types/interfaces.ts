@@ -1,10 +1,8 @@
-export const STREAM_PLATFORM = ["twitch", "chzzk", "youtube"] as const;
+export const STREAM_PLATFORM = ['twitch', 'chzzk', 'youtube'] as const;
 
-export type StreamPlatform = typeof STREAM_PLATFORM[number];
+export type StreamPlatform = (typeof STREAM_PLATFORM)[number];
 
-type StreamPlatformWithoutTwitch = Exclude<StreamPlatform, "twitch">;
-
-
+type StreamPlatformWithoutTwitch = Exclude<StreamPlatform, 'twitch'>;
 
 export interface StreamerData {
   name: {
@@ -47,7 +45,7 @@ export interface IconPrototype {
   path?: string;
   url?: string;
 }
-export type IconProps = "keywords" | "tags" | "name" | "uri" | "path" | "url";
+export type IconProps = 'keywords' | 'tags' | 'name' | 'uri' | 'path' | 'url';
 
 /**
  * 아이콘 목록 프로토타입.
@@ -58,9 +56,13 @@ export interface IconIndexPrototype {
 }
 
 ////////////////////////////////////////////////////////////
-export const ICON_INDEX_FORMAT = ["brigebbcc", "opendccon", "chatassistx"] as const;
+export const ICON_INDEX_FORMAT = [
+  'brigebbcc',
+  'opendccon',
+  'chatassistx',
+] as const;
 
-export type IconIndexFormat = typeof ICON_INDEX_FORMAT[number];
+export type IconIndexFormat = (typeof ICON_INDEX_FORMAT)[number];
 
 export interface IconOpenDccon extends IconPrototype {
   path: string;

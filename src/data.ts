@@ -1,17 +1,17 @@
-import { StreamerData } from "./@types/interfaces"
+import { StreamerData } from './@types/interfaces';
 
 const TYPE = {
   /**
    * {"dccons": [{
-   * 
+   *
    *  path: string, // 상대경로, 절대경로 체크 해야 함.
-   * 
+   *
    *  keywords: string[],
-   * 
+   *
    *  tags: string[],
-   * 
+   *
    * }]}
-   * 
+   *
    * https://open-dccon-selector.update.sh/api/dccon-url?channel_name=
    * 를 통헤서 얻을 수 있음.
    */
@@ -19,22 +19,21 @@ const TYPE = {
 
   /**
    * dcConsData = [{
-   * 
+   *
    *  name: string,
-   * 
+   *
    *  keywords: string[],
-   * 
+   *
    *  tags: string[],
-   * 
+   *
    *  // 옵션임.
    *  // 없다면 example.com/images/name 또는 example.com/images/dccon/name
-   *  uri?: string, 
-   * 
+   *  uri?: string,
+   *
    * }]
    */
   BridgeBBCC: 1,
-}
-
+};
 
 /**
  * 서버 관리자가 설정해야 할 내용.
@@ -43,8 +42,8 @@ const TYPE = {
 export const STREAMER_DATA: StreamerData[] = [
   {
     name: {
-      twitch: "funzinnu",
-      chzzk: "7d4157ae4fddab134243704cab847f23",
+      twitch: 'funzinnu',
+      chzzk: '7d4157ae4fddab134243704cab847f23',
       youtube: null,
     },
     id: {
@@ -52,13 +51,13 @@ export const STREAMER_DATA: StreamerData[] = [
       chzzk: null,
       youtube: null,
     },
-    url: "https://www.funzinnu.com/stream/dccon.js",
+    url: 'https://www.funzinnu.com/stream/dccon.js',
     type: TYPE.BridgeBBCC,
-    nickname: "펀즈",
+    nickname: '펀즈',
   },
   {
     name: {
-      twitch: "yeokka",
+      twitch: 'yeokka',
       chzzk: null,
       youtube: null,
     },
@@ -67,13 +66,13 @@ export const STREAMER_DATA: StreamerData[] = [
       chzzk: null,
       youtube: null,
     },
-    url: "https://watert.gitlab.io/emotes/yeokka/ODF.json",
+    url: 'https://watert.gitlab.io/emotes/yeokka/ODF.json',
     type: TYPE.openDccon,
-    nickname: "여까",
+    nickname: '여까',
   },
   {
     name: {
-      twitch: "telk5093",
+      twitch: 'telk5093',
       chzzk: null,
       youtube: null,
     },
@@ -82,14 +81,14 @@ export const STREAMER_DATA: StreamerData[] = [
       chzzk: null,
       youtube: null,
     },
-    url: "https://tv.telk.kr/?mode=json",
-    imagePrefix: "https://tv.telk.kr/images/",
+    url: 'https://tv.telk.kr/?mode=json',
+    imagePrefix: 'https://tv.telk.kr/images/',
     type: TYPE.openDccon,
-    nickname: "텔크",
+    nickname: '텔크',
   },
   {
     name: {
-      twitch: "sleeping_ce",
+      twitch: 'sleeping_ce',
       chzzk: null,
       youtube: null,
     },
@@ -98,14 +97,14 @@ export const STREAMER_DATA: StreamerData[] = [
       chzzk: null,
       youtube: null,
     },
-    url: "https://open-dccon-selector.update.sh/api/channel/414759894/cached-dccon",
+    url: 'https://open-dccon-selector.update.sh/api/channel/414759894/cached-dccon',
     type: TYPE.openDccon,
-    nickname: "잠자는꼬마선충",
+    nickname: '잠자는꼬마선충',
   },
   {
     name: {
-      twitch: "smalljuzi6974",
-      chzzk: "a6d9b0eeca16dd613bf0ebe8d5b8991b",
+      twitch: 'smalljuzi6974',
+      chzzk: 'a6d9b0eeca16dd613bf0ebe8d5b8991b',
       youtube: null,
     },
     id: {
@@ -113,9 +112,9 @@ export const STREAMER_DATA: StreamerData[] = [
       chzzk: null,
       youtube: null,
     },
-    url: "https://iconttv.github.io/twitch/smalljuzi6974/list.js",
-    imagePrefix: "https://iconttv.github.io/twitch/smalljuzi6974/dccon/",
+    url: 'https://iconttv.github.io/twitch/smalljuzi6974/list.js',
+    imagePrefix: 'https://iconttv.github.io/twitch/smalljuzi6974/dccon/',
     type: TYPE.BridgeBBCC,
-    nickname: "한심한진돌이",
+    nickname: '한심한진돌이',
   },
 ];

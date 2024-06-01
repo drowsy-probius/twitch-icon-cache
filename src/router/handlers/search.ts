@@ -1,15 +1,15 @@
-import { Router, Request, Response } from "express";
-import { resolve, join } from "path";
-import { readFileSync } from "fs";
+import { Router, Request, Response } from 'express';
+import { resolve, join } from 'path';
+import { readFileSync } from 'fs';
 
-import checkStreamerWrapper from "./checkStreamerWrapper";
-import { INDEX_FILE } from "../../constants";
-import { STREAMER_DATA } from "../../data";
-import { getImageBasePath } from "../../functions";
-import { IconIndex, Icon } from "../../@types/interfaces";
+import checkStreamerWrapper from './checkStreamerWrapper';
+import { INDEX_FILE } from '../../constants';
+import { STREAMER_DATA } from '../../data';
+import { getImageBasePath } from '../../functions';
+import { IconIndex, Icon } from '../../@types/interfaces';
 
 const router = Router({ mergeParams: true });
-const basePath = resolve(".");
+const basePath = resolve('.');
 
 const searchAll = (req: Request, res: Response) => {
   const keyword = req.params.keyword;
@@ -22,14 +22,14 @@ const searchAll = (req: Request, res: Response) => {
     const jsonPath = resolve(
       join(getImageBasePath(streamerData.name.twitch), INDEX_FILE)
     );
-    const data = readFileSync(jsonPath, "utf8");
+    const data = readFileSync(jsonPath, 'utf8');
     const jsonData: IconIndex = JSON.parse(data);
     for (const icon of jsonData.icons) {
       if (result.match === null && icon.keywords.includes(keyword)) {
         result.match = {
           ...icon,
-          uri: icon.uri.replace(basePath, "."),
-          thumbnailUri: icon.thumbnailUri.replace(basePath, "."),
+          uri: icon.uri.replace(basePath, '.'),
+          thumbnailUri: icon.thumbnailUri.replace(basePath, '.'),
         };
       } else {
         let inserted = false;
@@ -37,8 +37,8 @@ const searchAll = (req: Request, res: Response) => {
           if (keyw.includes(keyword)) {
             result.candidate.push({
               ...icon,
-              uri: icon.uri.replace(basePath, "."),
-              thumbnailUri: icon.thumbnailUri.replace(basePath, "."),
+              uri: icon.uri.replace(basePath, '.'),
+              thumbnailUri: icon.thumbnailUri.replace(basePath, '.'),
             });
             inserted = true;
             break;
@@ -50,8 +50,8 @@ const searchAll = (req: Request, res: Response) => {
           if (tag.includes(keyword)) {
             result.candidate.push({
               ...icon,
-              uri: icon.uri.replace(basePath, "."),
-              thumbnailUri: icon.thumbnailUri.replace(basePath, "."),
+              uri: icon.uri.replace(basePath, '.'),
+              thumbnailUri: icon.thumbnailUri.replace(basePath, '.'),
             });
             inserted = true;
             break;
@@ -73,14 +73,14 @@ const searchStreamerOnly = (req: Request, res: Response) => {
     candidate: [],
   };
   const jsonPath = resolve(join(getImageBasePath(streamer), INDEX_FILE));
-  const data = readFileSync(jsonPath, "utf8");
+  const data = readFileSync(jsonPath, 'utf8');
   const jsonData: IconIndex = JSON.parse(data);
   for (const icon of jsonData.icons) {
     if (result.match === null && icon.keywords.includes(keyword)) {
       result.match = {
         ...icon,
-        uri: icon.uri.replace(basePath, "."),
-        thumbnailUri: icon.thumbnailUri.replace(basePath, "."),
+        uri: icon.uri.replace(basePath, '.'),
+        thumbnailUri: icon.thumbnailUri.replace(basePath, '.'),
       };
     } else {
       let inserted = false;
@@ -88,8 +88,8 @@ const searchStreamerOnly = (req: Request, res: Response) => {
         if (keyw.includes(keyword)) {
           result.candidate.push({
             ...icon,
-            uri: icon.uri.replace(basePath, "."),
-            thumbnailUri: icon.thumbnailUri.replace(basePath, "."),
+            uri: icon.uri.replace(basePath, '.'),
+            thumbnailUri: icon.thumbnailUri.replace(basePath, '.'),
           });
           inserted = true;
           break;
@@ -101,8 +101,8 @@ const searchStreamerOnly = (req: Request, res: Response) => {
         if (tag.includes(keyword)) {
           result.candidate.push({
             ...icon,
-            uri: icon.uri.replace(basePath, "."),
-            thumbnailUri: icon.thumbnailUri.replace(basePath, "."),
+            uri: icon.uri.replace(basePath, '.'),
+            thumbnailUri: icon.thumbnailUri.replace(basePath, '.'),
           });
           inserted = true;
           break;
@@ -114,17 +114,16 @@ const searchStreamerOnly = (req: Request, res: Response) => {
   return res.status(200).json(result);
 };
 
-router.get("/", (req: Request, res: Response) => {
+router.get('/', (req: Request, res: Response) => {
   return res.status(200).json({
-    message: "Usage: /search/:keyword, /search/:streamer/:keyword",
+    message: 'Usage: /search/:keyword, /search/:streamer/:keyword',
   });
 });
-router.get("/:keyword", searchAll);
+router.get('/:keyword', searchAll);
 router.get(
-  "/:streamer/:keyword",
-  checkStreamerWrapper("twitch"),
+  '/:streamer/:keyword',
+  checkStreamerWrapper('twitch'),
   searchStreamerOnly
 );
-
 
 export default router;

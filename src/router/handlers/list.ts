@@ -1,21 +1,21 @@
-import { Router, Request, Response } from "express";
+import { Router, Request, Response } from 'express';
 
-import { STREAMER_DATA } from "../../data";
-import Logger from "../../Logger";
+import { STREAMER_DATA } from '../../data';
+import Logger from '../../Logger';
 
-import checkStreamerWrapper from "./checkStreamerWrapper";
+import checkStreamerWrapper from './checkStreamerWrapper';
 import {
   IconIndex,
   IconIndexFormat,
   STREAM_PLATFORM,
   StreamPlatform,
-} from "../../@types/interfaces";
+} from '../../@types/interfaces';
 import {
   convertIconIndexToChatAssistX,
   convertIconIndexToOpenDccon,
   convertToTwitchName,
   getIconIndexByTwitch,
-} from "../../services/icons";
+} from '../../services/icons';
 
 const logger = Logger(module.filename);
 const router = Router({ mergeParams: true });
@@ -39,15 +39,15 @@ const listHandlerWrapper = (iconIndexFormat: IconIndexFormat) => {
   let iconIndexConverter: (a: IconIndex) => unknown;
 
   switch (iconIndexFormat) {
-    case "brigebbcc": {
+    case 'brigebbcc': {
       iconIndexConverter = (a: IconIndex) => a;
       break;
     }
-    case "opendccon": {
+    case 'opendccon': {
       iconIndexConverter = convertIconIndexToOpenDccon;
       break;
     }
-    case "chatassistx": {
+    case 'chatassistx': {
       iconIndexConverter = convertIconIndexToChatAssistX;
       break;
     }
@@ -59,7 +59,7 @@ const listHandlerWrapper = (iconIndexFormat: IconIndexFormat) => {
     try {
       const iconIndex = getIconIndexByTwitch(streamer);
 
-      if (iconIndexFormat === "chatassistx") {
+      if (iconIndexFormat === 'chatassistx') {
         return res.status(200).send(iconIndexConverter(iconIndex));
       }
       return res.status(200).json(iconIndexConverter(iconIndex));
@@ -86,15 +86,15 @@ const listHandlerWrapper = (iconIndexFormat: IconIndexFormat) => {
 const multiplatformListHandlerWrapper = (iconIndexFormat: IconIndexFormat) => {
   let iconIndexConverter: (a: IconIndex) => unknown;
   switch (iconIndexFormat) {
-    case "brigebbcc": {
+    case 'brigebbcc': {
       iconIndexConverter = (a: IconIndex) => a;
       break;
     }
-    case "opendccon": {
+    case 'opendccon': {
       iconIndexConverter = convertIconIndexToOpenDccon;
       break;
     }
-    case "chatassistx": {
+    case 'chatassistx': {
       iconIndexConverter = convertIconIndexToChatAssistX;
       break;
     }
@@ -102,17 +102,17 @@ const multiplatformListHandlerWrapper = (iconIndexFormat: IconIndexFormat) => {
 
   return (req: Request, res: Response) => {
     const queries = req.query;
-    const platform = queries["platform"];
-    const streamer = queries["streamer"];
+    const platform = queries['platform'];
+    const streamer = queries['streamer'];
 
     if (
-      typeof platform !== "string" ||
-      typeof streamer !== "string" ||
+      typeof platform !== 'string' ||
+      typeof streamer !== 'string' ||
       !(STREAM_PLATFORM as readonly string[]).includes(platform)
     ) {
       return res.status(400).json({
         status: false,
-        message: "invalid query parameters",
+        message: 'invalid query parameters',
       });
     }
 
@@ -120,7 +120,7 @@ const multiplatformListHandlerWrapper = (iconIndexFormat: IconIndexFormat) => {
       const iconIndex = getIconIndexByTwitch(
         convertToTwitchName(platform as StreamPlatform, streamer)
       );
-      if (iconIndexFormat === "chatassistx") {
+      if (iconIndexFormat === 'chatassistx') {
         return res.status(200).send(iconIndexConverter(iconIndex));
       }
       return res.status(200).json(iconIndexConverter(iconIndex));
@@ -134,23 +134,27 @@ const multiplatformListHandlerWrapper = (iconIndexFormat: IconIndexFormat) => {
   };
 };
 
-router.get("/", rootHandler);
+router.get('/', rootHandler);
 
-router.get("/by", multiplatformListHandlerWrapper("brigebbcc"));
-router.get("/:streamer", checkStreamerWrapper("twitch"), listHandlerWrapper("brigebbcc"));
-
-router.get("/open-dccon/by", multiplatformListHandlerWrapper("opendccon"));
+router.get('/by', multiplatformListHandlerWrapper('brigebbcc'));
 router.get(
-  "/open-dccon/:streamer",
-  checkStreamerWrapper("twitch"),
-  listHandlerWrapper("opendccon")
+  '/:streamer',
+  checkStreamerWrapper('twitch'),
+  listHandlerWrapper('brigebbcc')
 );
 
-router.get("/chatassistx/by", multiplatformListHandlerWrapper("chatassistx"));
+router.get('/open-dccon/by', multiplatformListHandlerWrapper('opendccon'));
 router.get(
-  "/chatassistx/:streamer",
-  checkStreamerWrapper("twitch"),
-  listHandlerWrapper("chatassistx")
+  '/open-dccon/:streamer',
+  checkStreamerWrapper('twitch'),
+  listHandlerWrapper('opendccon')
+);
+
+router.get('/chatassistx/by', multiplatformListHandlerWrapper('chatassistx'));
+router.get(
+  '/chatassistx/:streamer',
+  checkStreamerWrapper('twitch'),
+  listHandlerWrapper('chatassistx')
 );
 
 export default router;

@@ -1,38 +1,42 @@
-import { Request, Response, NextFunction } from "express";
-import { STREAMER_DATA } from "../../data";
-import { StreamPlatform, StreamerData } from "../../@types/interfaces";
+import { Request, Response, NextFunction } from 'express';
+import { STREAMER_DATA } from '../../data';
+import { StreamPlatform, StreamerData } from '../../@types/interfaces';
 
 /**
  * paramer로 요청한 스트리머가 이 서버에 등록된 스트리머인지 확인하는
  * 미들웨어
- * 
+ *
  * 없다면 404를 리턴함.
- * @param req 
- * @param res 
- * @param next 
- * @returns 
+ * @param req
+ * @param res
+ * @param next
+ * @returns
  */
 const handlerWrapper = (streamPlatform: StreamPlatform | null) => {
-  const isValidStreamerName = (streamerData: StreamerData[], streamerName: string) => {
+  const isValidStreamerName = (
+    streamerData: StreamerData[],
+    streamerName: string
+  ) => {
     if (typeof streamerName !== 'string') {
-      return false
+      return false;
     }
 
     if (streamPlatform === null) {
-      return streamerData.some(sd => Object.values(sd.name).includes(streamerName))
+      return streamerData.some(sd =>
+        Object.values(sd.name).includes(streamerName)
+      );
     }
     if (streamPlatform === 'twitch') {
-      return streamerData.some(sd => sd.name.twitch === streamerName)
+      return streamerData.some(sd => sd.name.twitch === streamerName);
     }
     if (streamPlatform === 'chzzk') {
-      return streamerData.some(sd => sd.name.chzzk === streamerName)
+      return streamerData.some(sd => sd.name.chzzk === streamerName);
     }
     if (streamPlatform === 'youtube') {
-      return streamerData.some(sd => sd.name.youtube === streamerName)
+      return streamerData.some(sd => sd.name.youtube === streamerName);
     }
-    return false
-  }  
-
+    return false;
+  };
 
   return (req: Request, res: Response, next: NextFunction) => {
     // /:streamer으로 전달된 값.

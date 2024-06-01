@@ -1,7 +1,7 @@
-import axios from "axios";
-import { createHash } from "crypto";
-import { extname } from "path";
-import { existsSync, mkdirSync } from "fs";
+import axios from 'axios';
+import { createHash } from 'crypto';
+import { extname } from 'path';
+import { existsSync, mkdirSync } from 'fs';
 
 import {
   IconIndexOpenDccon,
@@ -9,24 +9,24 @@ import {
   Icon,
   IconProps,
   IconOpenDccon,
-} from "../@types/interfaces";
-import { FAILED_LIST_FILE, ICON_SIZE, INDEX_FILE } from "../constants";
+} from '../@types/interfaces';
+import { FAILED_LIST_FILE, ICON_SIZE, INDEX_FILE } from '../constants';
 import {
   getImageBasePath,
   getResizeBasePath,
   saveImage,
   resizeAndSaveImage,
   saveJsonFile,
-} from "../functions";
+} from '../functions';
 
-import Logger from "../Logger";
+import Logger from '../Logger';
 
 export const indexDownloader = async (
   url: string
 ): Promise<IconIndexOpenDccon> => {
   const res = await axios.get(
     encodeURI(
-      decodeURI(`${url}${url.includes("?") ? "&" : "?"}ts=${Date.now()}`)
+      decodeURI(`${url}${url.includes('?') ? '&' : '?'}ts=${Date.now()}`)
     )
   );
   const jsonData: IconIndexOpenDccon = res.data;
@@ -41,27 +41,27 @@ export const processor = async (
   const basePath = getImageBasePath(streamer.name.twitch);
   const originUrl = new URL(streamer.url).origin;
 
-  let imageBaseUrl = "";
+  let imageBaseUrl = '';
   let imagePropsName: IconProps;
 
   if (!existsSync(basePath)) mkdirSync(basePath, { recursive: true });
   for (const iconSize of ICON_SIZE) {
-    const resizeBasePath = getResizeBasePath(streamer.name.twitch, iconSize)
+    const resizeBasePath = getResizeBasePath(streamer.name.twitch, iconSize);
     if (!existsSync(resizeBasePath))
       mkdirSync(resizeBasePath, { recursive: true });
   }
-  
+
   const findIconUri = async (icon: IconOpenDccon): Promise<string | null> => {
-    if (icon.path.startsWith("http://") || icon.path.startsWith("https://")) {
-      imageBaseUrl = "";
-      imagePropsName = "path";
+    if (icon.path.startsWith('http://') || icon.path.startsWith('https://')) {
+      imageBaseUrl = '';
+      imagePropsName = 'path';
       return icon.path;
     }
 
     /**
      * 발견한 주소를 임시 저장해서 비효율적인 요청을 막음.
      */
-    if (imageBaseUrl !== "" || imagePropsName !== undefined) {
+    if (imageBaseUrl !== '' || imagePropsName !== undefined) {
       return new URL(icon[imagePropsName] as string, imageBaseUrl).href;
     }
 
@@ -69,11 +69,11 @@ export const processor = async (
       try {
         const path = new URL(icon.path, streamer.imagePrefix).href;
         const res = await axios.get(encodeURI(decodeURI(path)), {
-          responseType: "stream",
+          responseType: 'stream',
         });
         if (res.status === 200) {
           imageBaseUrl = streamer.imagePrefix;
-          imagePropsName = "path";
+          imagePropsName = 'path';
           return path;
         }
       } catch (error) {
@@ -83,11 +83,11 @@ export const processor = async (
       try {
         const path = new URL(icon.path, originUrl).href;
         const res = await axios.get(encodeURI(decodeURI(path)), {
-          responseType: "stream",
+          responseType: 'stream',
         });
         if (res.status === 200) {
           imageBaseUrl = originUrl;
-          imagePropsName = "path";
+          imagePropsName = 'path';
           return path;
         }
       } catch (error) {
@@ -95,19 +95,19 @@ export const processor = async (
       }
     }
 
-    const candidateProps: IconProps[] = ["uri", "url"];
+    const candidateProps: IconProps[] = ['uri', 'url'];
     for (const prop of candidateProps) {
       if (icon[prop]) {
         const propValue = icon[prop];
-        if (typeof propValue !== "string") continue;
+        if (typeof propValue !== 'string') continue;
 
-        if (propValue.startsWith("http://") || propValue.startsWith("https://"))
+        if (propValue.startsWith('http://') || propValue.startsWith('https://'))
           return propValue;
         if (streamer.imagePrefix) {
           try {
             const path = new URL(propValue, streamer.imagePrefix).href;
             const res = await axios.get(encodeURI(decodeURI(path)), {
-              responseType: "stream",
+              responseType: 'stream',
             });
             if (res.status === 200) {
               imageBaseUrl = streamer.imagePrefix;
@@ -122,7 +122,7 @@ export const processor = async (
         try {
           const path = new URL(propValue, originUrl).href;
           const res = await axios.get(encodeURI(decodeURI(path)), {
-            responseType: "stream",
+            responseType: 'stream',
           });
           if (res.status === 200) {
             imageBaseUrl = originUrl;
@@ -146,12 +146,12 @@ export const processor = async (
   const newIconsData = await Promise.all(
     jsonData.dccons.map(async (icon: IconOpenDccon): Promise<Icon> => {
       if (icon.tags === undefined || icon.tags.length === 0)
-        icon.tags = ["미지정"];
+        icon.tags = ['미지정'];
 
-      const iconHash = createHash("md5")
+      const iconHash = createHash('md5')
         .update(`${icon.tags[0]}.${icon.keywords[0]}`)
-        .digest("hex");
-      const iconExt = extname(icon.path) || ".jpg";
+        .digest('hex');
+      const iconExt = extname(icon.path) || '.jpg';
       const iconUri = await findIconUri(icon);
       if (!iconUri) {
         return {
@@ -162,7 +162,7 @@ export const processor = async (
           keywords: icon.keywords,
           tags: icon.tags,
           useOrigin: true,
-          originUri: "/icon", // cannot resolve origin icon
+          originUri: '/icon', // cannot resolve origin icon
         };
       }
 
@@ -178,15 +178,20 @@ export const processor = async (
       };
       try {
         await saveImage(newIcon.originUri, newIcon.uri, logger);
-        await Promise.all(ICON_SIZE.map(iconSize => {
-          const resizeBasePath = getResizeBasePath(streamer.name.twitch, iconSize)
-          return resizeAndSaveImage(
-            newIcon.uri,
-            `${resizeBasePath}/${iconHash}${iconExt}`,
-            iconSize,
-            logger,
-          )
-        }));
+        await Promise.all(
+          ICON_SIZE.map(iconSize => {
+            const resizeBasePath = getResizeBasePath(
+              streamer.name.twitch,
+              iconSize
+            );
+            return resizeAndSaveImage(
+              newIcon.uri,
+              `${resizeBasePath}/${iconHash}${iconExt}`,
+              iconSize,
+              logger
+            );
+          })
+        );
         return newIcon;
       } catch (err) {
         logger.error(err);

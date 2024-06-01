@@ -1,12 +1,12 @@
-import { resolve, join } from "path";
-import fs from "fs";
+import { resolve, join } from 'path';
+import fs from 'fs';
 
-import { Icon, IconIndex, StreamPlatform } from "../@types/interfaces";
-import { getImageBasePath } from "../functions";
-import { INDEX_FILE } from "../constants";
-import { STREAMER_DATA } from "../data";
+import { Icon, IconIndex, StreamPlatform } from '../@types/interfaces';
+import { getImageBasePath } from '../functions';
+import { INDEX_FILE } from '../constants';
+import { STREAMER_DATA } from '../data';
 
-const basePath = resolve(".");
+const basePath = resolve('.');
 
 export const getIconIndexByTwitch = (twitchName: string): IconIndex => {
   /**
@@ -27,11 +27,11 @@ export const getIconIndexByTwitch = (twitchName: string): IconIndex => {
     throw Error(`server has not downloaded any data from ${twitchName}`);
   }
 
-  const data = fs.readFileSync(jsonPath, "utf8");
+  const data = fs.readFileSync(jsonPath, 'utf8');
   // 서버에서 구동되는 앱의 절대 경로를 모두 찾음.
-  const regexp = new RegExp(basePath, "g");
+  const regexp = new RegExp(basePath, 'g');
   // 앱의 절대 경로를 상대경로로 교체함.
-  const uriReplacedData = data.replace(regexp, ".");
+  const uriReplacedData = data.replace(regexp, '.');
   // 교체한 후에 json으로 파싱함.
   const jsonData: IconIndex = JSON.parse(uriReplacedData);
 
@@ -42,13 +42,13 @@ export const convertToTwitchName = (
   platform: StreamPlatform,
   streamName: string
 ): string => {
-  if (platform === "twitch") return streamName;
+  if (platform === 'twitch') return streamName;
 
   let streamer = undefined;
-  if (platform === "chzzk") {
-    streamer = STREAMER_DATA.find((sd) => sd.name.chzzk === streamName);
-  } else if (platform === "youtube") {
-    streamer = STREAMER_DATA.find((sd) => sd.name.youtube === streamName);
+  if (platform === 'chzzk') {
+    streamer = STREAMER_DATA.find(sd => sd.name.chzzk === streamName);
+  } else if (platform === 'youtube') {
+    streamer = STREAMER_DATA.find(sd => sd.name.youtube === streamName);
   }
 
   if (!streamer) {
@@ -86,14 +86,14 @@ export const convertIconIndexToChatAssistX = (iconIndex: IconIndex): string => {
 
   // https://api.probius.dev/twitch-icons/cdn/images/funzinnu/db90fb44fe88955c471369ff8a171d15.png
   // icon.uri = ./images/{streamerName}/{filename}.gif
-  const chatAssistXList = iconIndex.icons.map((icon) => ({
+  const chatAssistXList = iconIndex.icons.map(icon => ({
     name: icon.name,
     uri: `https://api.probius.dev/twitch-icons/cdn${icon.uri.slice(1)}`,
     keywords: icon.keywords,
     tags: icon.tags,
   }));
   const chatAssistXListText = `dcConsData = [
-    ${chatAssistXList.map((icon) => JSON.stringify(icon)).join(",\n")}
+    ${chatAssistXList.map(icon => JSON.stringify(icon)).join(',\n')}
   ];`;
 
   return chatAssistXListText;

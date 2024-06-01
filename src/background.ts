@@ -1,13 +1,13 @@
-import { resolve, join } from "path";
-import fs from "fs";
+import { resolve, join } from 'path';
+import fs from 'fs';
 
-import { CACHE_TIME, INDEX_FILE } from "./constants";
-import { STREAMER_DATA } from "./data";
-import { timeParser, doUpdateJson, getImageBasePath } from "./functions";
-import { IconIndex } from "./@types/interfaces";
-import processorFunctions, { indexDownloader } from "./iconProcessor";
+import { CACHE_TIME, INDEX_FILE } from './constants';
+import { STREAMER_DATA } from './data';
+import { timeParser, doUpdateJson, getImageBasePath } from './functions';
+import { IconIndex } from './@types/interfaces';
+import processorFunctions, { indexDownloader } from './iconProcessor';
 
-import Logger from "./Logger";
+import Logger from './Logger';
 const logger = Logger(module.filename);
 
 /**
@@ -31,7 +31,7 @@ class Cronjob {
     this.cacheTime = timeParser(CACHE_TIME);
 
     // 작업 수행
-    setTimeout(this.job, 0)
+    setTimeout(this.job, 0);
     // 캐시 시간마다 작업을 수행하도록 설정
     this.timerIdentifier = setInterval(this.job, this.cacheTime);
   }
@@ -48,7 +48,7 @@ class Cronjob {
         // 로컬에 저장되어 있는 json파일이 있으면 업데이트할 지 결정함.
         if (fs.existsSync(jsonPath)) {
           // 이미지 정보 json 파일 읽음.
-          const data = fs.readFileSync(jsonPath, "utf8");
+          const data = fs.readFileSync(jsonPath, 'utf8');
           // json으로 파싱
           const json: IconIndex = JSON.parse(data);
           // 로컬 json에 다운받았을 때 시간 정보
