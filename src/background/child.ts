@@ -1,42 +1,21 @@
-import { resolve, join } from 'path';
+import { join, resolve } from 'path';
 import fs from 'fs';
 
-import { CACHE_TIME, INDEX_FILE } from './constants';
-import { STREAMER_DATA } from './data';
-import { timeParser, doUpdateJson, getImageBasePath } from './functions';
-import { IconIndex } from './@types/interfaces';
-import processorFunctions, { indexDownloader } from './iconProcessor';
+import Logger from '../Logger';
+import { STREAMER_DATA } from '../data';
+import { doUpdateJson, getImageBasePath, timeParser } from '../functions';
+import { CACHE_TIME, INDEX_FILE } from '../constants';
+import { IconIndex, StreamerData } from '../@types/interfaces';
+import processorFunctions, { indexDownloader } from '../iconProcessor';
+import { ParentMessage } from './types';
 
-import Logger from './Logger';
 const logger = Logger(module.filename);
+logger.debug('CHILD SPAWN');
 
-/**
- * 외부에서 cronjob 실행하는 함수
- * @returns Cronjob
- */
-export const run_cronjob = (): Cronjob => {
-  const cronjob = new Cronjob();
-  return cronjob;
-};
+const cronTask = (() => {
+  const cacheTime = timeParser(CACHE_TIME);
 
-class Cronjob {
-  lastTime: Date;
-  cacheTime: number;
-  timerIdentifier: NodeJS.Timer;
-
-  constructor() {
-    // 마지막으로 실행한 날짜
-    this.lastTime = new Date();
-    // 설정에서 읽어온 캐시 시간 (새고로침 간격)
-    this.cacheTime = timeParser(CACHE_TIME);
-
-    // 작업 수행
-    setTimeout(this.job, 0);
-    // 캐시 시간마다 작업을 수행하도록 설정
-    this.timerIdentifier = setInterval(this.job, this.cacheTime);
-  }
-
-  async job() {
+  return async function () {
     logger.info(`execute cronjob on ${new Date().toString()}`);
 
     for (const streamer of STREAMER_DATA) {
@@ -57,7 +36,7 @@ class Cronjob {
            * 캐시 시간보다 작으면 정보를 새로 다운로드 하지 않음.
            * 로컬 시간 값을 먼저 비교하는 이유는 최대한 원본 서버에 부하를 줄이기 위함.
            */
-          if (Date.now() - timestamp <= this.cacheTime) {
+          if (Date.now() - timestamp <= cacheTime) {
             logger.info(
               `[Cronjob] ${streamer.name.twitch}'s data is up-to-date by timestamp. Skip downloading...`
             );
@@ -79,10 +58,50 @@ class Cronjob {
         }
 
         // 원격 서버에 새로운 데이터가 있다고 판단되어 새로 다운함.
-        processorFunctions(streamer);
+        await processorFunctions(streamer);
       } catch (e) {
         logger.error(e);
       }
     }
-  }
+  };
+})();
+
+const refreshTask = (() => {
+  return async function (streamer: string) {
+    const streamerData: StreamerData = STREAMER_DATA.filter(d =>
+      Object.values(d.name).includes(streamer)
+    )[0];
+    await processorFunctions(streamerData);
+  };
+})();
+
+if (process.send) {
+  process.send({ result: 'init' });
 }
+
+process.on('message', async (message: ParentMessage) => {
+  logger.debug(message);
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  const { command, args } = message;
+  if (command === 'cron') {
+    try {
+      await cronTask();
+    } catch (e) {
+      logger.error(e);
+    } finally {
+      process.exit();
+    }
+  }
+
+  if (command === 'refresh') {
+    const streamer = (args as Record<string, string>).streamer;
+
+    try {
+      await refreshTask(streamer);
+    } catch (e) {
+      logger.error(e);
+    } finally {
+      process.exit();
+    }
+  }
+});

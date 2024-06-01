@@ -6,7 +6,7 @@ import path from 'path';
 
 import router from './router';
 import { PORT, HOST } from './constants';
-import { run_cronjob } from './background';
+import { run_cronTask } from './background/parent';
 import { getIpFromRequest, getRootFromRequest } from './functions';
 import Logger from './Logger';
 const logger = Logger(module.filename);
@@ -14,7 +14,7 @@ const logger = Logger(module.filename);
 /**
  * 서버 열기 전에 백그라운드 작업 등록
  */
-run_cronjob();
+run_cronTask();
 
 // express 생성
 const app = express();

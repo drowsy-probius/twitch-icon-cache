@@ -92,10 +92,12 @@ export const getResizeBasePath = (
 
 const resizeStaticImage = async (
   image: Sharp,
-  width: number
+  width: number,
+  logger: Logger
 ): Promise<Buffer> => {
   const metadata = await image.metadata();
   if (metadata.width === width) {
+    logger.debug(`image already in ${width}px. skip resizing.`);
     return image.toBuffer();
   }
   return image.resize(width).toBuffer();
@@ -103,10 +105,12 @@ const resizeStaticImage = async (
 
 const resizeDynamicImage = async (
   image: Sharp,
-  width: number
+  width: number,
+  logger: Logger
 ): Promise<Buffer> => {
   const metadata = await image.metadata();
   if (metadata.width === width) {
+    logger.debug(`image already in ${width}px. skip resizing.`);
     return image.gif().toBuffer();
   }
   return image.resize(width).gif().toBuffer();
@@ -121,14 +125,15 @@ const resizeDynamicImage = async (
  */
 export const resizeImage = async (
   inputPath: string,
-  width: number
+  width: number,
+  logger: Logger
 ): Promise<Buffer> => {
   // gif 파일 대응
   const isGif = inputPath.endsWith('gif');
 
   return isGif
-    ? resizeDynamicImage(sharp(inputPath, { animated: true }), width)
-    : resizeStaticImage(sharp(inputPath), width);
+    ? resizeDynamicImage(sharp(inputPath, { animated: true }), width, logger)
+    : resizeStaticImage(sharp(inputPath), width, logger);
 };
 
 /**
@@ -246,7 +251,7 @@ export const resizeAndSaveImage = (
     async () => {
       await fs.promises.writeFile(
         filename,
-        await resizeImage(imagePath, imageSize)
+        await resizeImage(imagePath, imageSize, logger)
       );
       logger.debug(
         `[resizeAndSaveImage] (${imageSize}px) Convert image to ${filename}`

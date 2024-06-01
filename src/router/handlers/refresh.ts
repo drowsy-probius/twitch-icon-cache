@@ -1,9 +1,7 @@
 import { Request, Response } from 'express';
-import { StreamerData } from '../../@types/interfaces';
 import { REFRESH_KEY } from '../../constants';
-import { STREAMER_DATA } from '../../data';
-import processorFunctions from '../../iconProcessor';
 import Logger from '../../Logger';
+import { run_refreshTask } from '../../background/parent';
 const logger = Logger(module.filename);
 
 const handler = (req: Request, res: Response) => {
@@ -18,10 +16,7 @@ const handler = (req: Request, res: Response) => {
     });
   }
 
-  const streamerData: StreamerData = STREAMER_DATA.filter(d =>
-    Object.values(d.name).includes(streamer)
-  )[0];
-  processorFunctions(streamerData);
+  run_refreshTask(streamer);
 
   return res.status(200).json({
     status: true,
