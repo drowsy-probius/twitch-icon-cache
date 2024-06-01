@@ -87,6 +87,28 @@ export const getResizeBasePath = (streamerName: string, imageSize: number | stri
 
 ////////////////////////////////////////////////////////////
 
+const resizeStaticImage = async (
+  image: Sharp,
+  width: number
+): Promise<Buffer> => {
+  const metadata = await image.metadata();
+  if (metadata.width === width) {
+    return image.toBuffer();
+  }
+  return image.resize(width).toBuffer();
+};
+
+const resizeDynamicImage = async (
+  image: Sharp,
+  width: number
+): Promise<Buffer> => {
+  const metadata = await image.metadata();
+  if (metadata.width === width) {
+    return image.gif().toBuffer();
+  }
+  return image.resize(width).gif().toBuffer();
+};
+
 /**
  * sharp 모듈을 사용해서 `inputPath`에 해당하는 이미지를
  * `width`크기에 맞춰서 줄인 뒤 이미지 버퍼를 생성함.
@@ -94,15 +116,17 @@ export const getResizeBasePath = (streamerName: string, imageSize: number | stri
  * @param width 
  * @returns resized Promise<Buffer>
  */
-export const resizeImage = (inputPath: string, width: number): Promise<Buffer> => {
+export const resizeImage = async (
+  inputPath: string,
+  width: number
+): Promise<Buffer> => {
   // gif 파일 대응
-  const isGif = inputPath.endsWith("gif");
+  const isGif = inputPath.endsWith('gif');
 
   return isGif 
-  ? sharp(inputPath, {animated: true}).resize(width).gif().toBuffer()
-  : sharp(inputPath).resize(width).toBuffer()
-}
-
+    ? resizeDynamicImage(sharp(inputPath, { animated: true }), width)
+    : resizeStaticImage(sharp(inputPath), width);
+};
 
 /**
  * `executable`을 성공할 때까지 최대 `maxretry`만큼 실행한다. 
