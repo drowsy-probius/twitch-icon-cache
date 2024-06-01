@@ -9,7 +9,7 @@ import { existsSync } from 'fs';
 const logger = Logger(module.filename);
 
 const getChildProcess = async (): Promise<ChildProcess> => {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     let child: ChildProcess;
     if (existsSync(`${__dirname}/child.js`)) {
       child = fork(`${__dirname}/child.js`);
