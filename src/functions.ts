@@ -111,9 +111,9 @@ const resizeDynamicImage = async (
   const metadata = await image.metadata();
   if (metadata.width === width) {
     logger.debug(`image already in ${width}px. skip resizing.`);
-    return image.webp().toBuffer();
+    return image.gif().toBuffer();
   }
-  return image.resize(width).webp().toBuffer();
+  return image.resize(width).gif().toBuffer();
 };
 
 /**
