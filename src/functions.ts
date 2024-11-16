@@ -111,14 +111,14 @@ const resizeDynamicImage = async (
   const metadata = await image.metadata();
   if (metadata.width === width) {
     logger.debug(`image already in ${width}px. skip resizing.`);
-    return image.gif().toBuffer();
+    return image.webp().toBuffer();
   }
-  return image.resize(width).gif().toBuffer();
+  return image.resize(width).webp().toBuffer();
 };
 
 /**
  * sharp 모듈을 사용해서 `inputPath`에 해당하는 이미지를
- * `width`크기에 맞춰서 줄인 뒤 이미지 버퍼를 생성함.
+ * `width`크기에 맞춰서 줄인 뒤 이미지 버퍼를 생성함.`
  * @param inputPath
  * @param width
  * @returns resized Promise<Buffer>
